@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Otp;
+use App\Models\User;
+use Illuminate\Support\Carbon;
+
+class AuthService
+{
+    protected $waService;
+
+    public function __construct(WhatsAppService $waService)
+    {
+        $this->waService = $waService;
+    }
+
+    /**
+     * Buat dan kirim OTP
+     */
+    public function sendOtp(string $phone): bool
+    {
+        // 1. Generate 6 digit acak
+        $code = rand(100000, 999999);
+        
+        // 2. Simpan ke database dengan waktu kadaluarsa 5 menit
+        Otp::updateOrCreate(
+            ['phone_number' => $phone],
+            [
+                'code' => $code,
+                'expires_at' => Carbon::now()->addMinutes(5)
+            ]
+        );
+
+        // 3. Kirim via WA JS
+        $message = "Halo! Ini adalah kode OTP untuk login/register Warung Makan Korea Anda:\n\n*{$code}*\n\nBerlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.";
+        return $this->waService->sendMessage($phone, $message);
+    }
+
+    /**
+     * Register user baru dan kirim OTP
+     */
+    public function register(array $data): bool
+    {
+        // Buat user dalam status belum terverifikasi
+        User::create([
+            'name' => $data['name'],
+            'phone_number' => $data['phone_number'],
+            'role' => 'member',
+            'password' => bcrypt(str()->random(16)) // Password acak
+        ]);
+
+        return $this->sendOtp($data['phone_number']);
+    }
+
+    /**
+     * Verifikasi OTP dan Login/Register
+     */
+    public function verifyOtp(string $phone, string $code): ?array
+    {
+        $otp = Otp::where('phone_number', $phone)
+                  ->where('code', $code)
+                  ->where('expires_at', '>', Carbon::now())
+                  ->first();
+
+        if (!$otp) {
+            return null; // OTP tidak valid atau kadaluarsa
+        }
+
+        // OTP valid, hapus record
+        $otp->delete();
+
+        // Cari atau buat User baru
+        $user = User::firstOrCreate(
+            ['phone_number' => $phone],
+            [
+                'name' => 'Member ' . substr($phone, -4), // Nama default
+                'role' => 'member',
+                'phone_number_verified_at' => Carbon::now(),
+                'password' => bcrypt(str()->random(16)) // Password acak, login mengandalkan OTP
+            ]
+        );
+
+        // Pastikan phone_number_verified_at terisi (kasus jika user sudah ada tapi belum terverifikasi)
+        if (empty($user->phone_number_verified_at)) {
+            $user->update(['phone_number_verified_at' => Carbon::now()]);
+        }
+
+        // Buat token JWT
+        $token = auth('api')->login($user);
+
+        return [
+            'user' => $user,
+            'token' => $token,
+            'type' => 'bearer'
+        ];
+    }
+}
