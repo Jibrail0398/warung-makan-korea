@@ -42,15 +42,19 @@ class AuthService
      */
     public function register(array $data): bool
     {
+        $otp = $this->sendOtp($data["phone_number"]);
+        if(!$otp){
+            return "";
+        }
         // Buat user dalam status belum terverifikasi
-        User::create([
+        $user = User::create([
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
             'role' => 'member',
             'password' => bcrypt(str()->random(16)) // Password acak
         ]);
 
-        return $this->sendOtp($data['phone_number']);
+        return $otp;
     }
 
     /**
