@@ -11,6 +11,15 @@ class StoreOrderRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if (auth('api')->check()) {
+            $this->merge([
+                'user_id' => auth('api')->id(),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

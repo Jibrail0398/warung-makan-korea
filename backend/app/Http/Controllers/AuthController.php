@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\SendOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
@@ -29,6 +30,17 @@ class AuthController extends Controller
         }
 
         return $this->errorResponse('Gagal mengirim kode OTP. Silakan coba lagi nanti.', 500);
+    }
+
+    public function login(LoginRequest $request)
+    {
+        $success = $this->authService->login($request->validated());
+
+        if ($success) {
+            return $this->successResponse(null, 'Kredensial valid. Kode OTP telah dikirim ke WhatsApp Anda.');
+        }
+
+        return $this->errorResponse('Nomor telepon atau password salah.', 401);
     }
 
     public function sendOtp(SendOtpRequest $request)

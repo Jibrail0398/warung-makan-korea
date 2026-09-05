@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
@@ -37,9 +38,6 @@ class AuthService
         return $this->waService->sendMessage($phone, $message);
     }
 
-    /**
-     * Register user baru dan kirim OTP
-     */
     public function register(array $data): bool
     {
         // Buat user dalam status belum terverifikasi
@@ -47,10 +45,24 @@ class AuthService
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
             'role' => 'member',
-            'password' => bcrypt(str()->random(16)) // Password acak
+            'password' => Hash::make($data['password'])
         ]);
 
         return $this->sendOtp($data['phone_number']);
+    }
+
+    /**
+     * Verifikasi kredensial login dan kirim OTP
+     */
+    public function login(array $credentials): bool
+    {
+        $user = User::where('phone_number', $credentials['phone_number'])->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return false;
+        }
+
+        return $this->sendOtp($credentials['phone_number']);
     }
 
     /**
@@ -70,16 +82,12 @@ class AuthService
         // OTP valid, hapus record
         $otp->delete();
 
-        // Cari atau buat User baru
-        $user = User::firstOrCreate(
-            ['phone_number' => $phone],
-            [
-                'name' => 'Member ' . substr($phone, -4), // Nama default
-                'role' => 'member',
-                'phone_number_verified_at' => Carbon::now(),
-                'password' => bcrypt(str()->random(16)) // Password acak, login mengandalkan OTP
-            ]
-        );
+        // Cari User
+        $user = User::where('phone_number', $phone)->first();
+
+        if (!$user) {
+            return null; // User tidak ditemukan
+        }
 
         // Pastikan phone_number_verified_at terisi (kasus jika user sudah ada tapi belum terverifikasi)
         if (empty($user->phone_number_verified_at)) {
