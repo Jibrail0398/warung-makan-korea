@@ -2,38 +2,92 @@
   <div class="categories-view">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">STRUKTUR MENU & BAHAN</p>
-        <h1 class="page-title">Kelola Kategori</h1>
+        <p class="page-eyebrow">STRUKTUR KATEGORI & MENU</p>
+        <h1 class="page-title">Kelola Subkategori</h1>
         <p class="page-description">
-          Pengelompokan menu makanan restoran dan produk raw material untuk memudahkan navigasi pelanggan.
+          Setiap subkategori terhubung dengan satu <strong>Kategori Besar</strong> (<em>Restaurant Menu</em> atau <em>Raw Material</em>) untuk pengelompokan produk yang presisi.
         </p>
       </div>
 
-      <button type="button" class="btn-primary" @click="openAddModal">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-        <span>Tambah Kategori Baru</span>
-      </button>
+      <div class="header-action-group">
+        <router-link to="/admin/main-categories" class="btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" />
+          </svg>
+          <span>Kategori Besar</span>
+        </router-link>
+        <button type="button" class="btn-primary" @click="openAddModal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <span>Tambah Subkategori Baru</span>
+        </button>
+      </div>
     </header>
 
+    <!-- Filter Bar: Parent Kategori Besar Tabs -->
+    <div class="filter-bar">
+      <div class="parent-filter-tabs" role="tablist">
+        <button
+          type="button"
+          class="tab-btn"
+          :class="{ active: selectedMainCatFilter === 'all' }"
+          @click="selectedMainCatFilter = 'all'"
+        >
+          Semua Subkategori ({{ categories.length }})
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          :class="{ active: selectedMainCatFilter === 'restaurant' }"
+          @click="selectedMainCatFilter = 'restaurant'"
+        >
+          Restaurant Menu ({{ countByMainCat(1) }})
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          :class="{ active: selectedMainCatFilter === 'raw' }"
+          @click="selectedMainCatFilter = 'raw'"
+        >
+          Raw Material ({{ countByMainCat(2) }})
+        </button>
+      </div>
+
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Cari subkategori..."
+          class="search-input"
+        />
+      </div>
+    </div>
+
     <!-- Categories Grid -->
-    <div class="categories-grid">
+    <div v-if="filteredCategoriesWithCount.length > 0" class="categories-grid">
       <article
-        v-for="cat in categoriesWithCount"
+        v-for="cat in filteredCategoriesWithCount"
         :key="cat.id"
         class="category-card"
       >
         <div class="card-top">
-          <span class="type-pill" :class="`type-${cat.type}`">
-            {{ cat.type === 'restaurant' ? 'Menu Restoran' : 'Raw Material' }}
-          </span>
+          <div class="parent-badge-group">
+            <span class="parent-tag">Kategori Induk:</span>
+            <span class="type-pill" :class="`type-${cat.type}`">
+              {{ getMainCatName(cat.mainCategoryId || (cat.type === 'raw' ? 2 : 1)) }}
+            </span>
+          </div>
 
           <div class="card-actions">
             <button
               type="button"
               class="icon-action-btn"
-              title="Edit Kategori"
+              title="Edit Subkategori"
               @click="openEditModal(cat)"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -44,7 +98,7 @@
             <button
               type="button"
               class="icon-action-btn delete"
-              title="Hapus Kategori"
+              title="Hapus Subkategori"
               @click="confirmDelete(cat)"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -56,15 +110,20 @@
         </div>
 
         <h3 class="category-name">{{ cat.name }}</h3>
-        <p class="category-desc">{{ cat.description || 'Tidak ada deskripsi' }}</p>
+        <p class="category-desc">{{ cat.description || 'Tidak ada deskripsi spesifik.' }}</p>
 
         <div class="card-footer">
           <span class="product-count-badge">
-            {{ cat.productCount }} Produk Terhubung
+            <strong>{{ cat.productCount }}</strong> Produk Terhubung
           </span>
           <span class="slug-text">/{{ cat.slug }}</span>
         </div>
       </article>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="empty-state-box">
+      <p>Tidak ada subkategori yang sesuai dengan filter pencarian.</p>
     </div>
 
     <!-- Category Modal (Add / Edit) -->
@@ -72,6 +131,7 @@
       :isOpen="isModalOpen"
       :isEdit="isEditMode"
       :initialData="selectedCategory"
+      :mainCategories="mainCategories"
       @close="isModalOpen = false"
       @save="handleSaveCategory"
     />
@@ -79,19 +139,19 @@
     <!-- Delete Confirmation Modal -->
     <div v-if="categoryToDelete" class="modal-backdrop" @click.self="categoryToDelete = null">
       <div class="confirm-dialog">
-        <h3 class="dialog-title">Hapus Kategori</h3>
+        <h3 class="dialog-title">Hapus Subkategori</h3>
         <p class="dialog-desc">
-          Apakah Anda yakin ingin menghapus kategori <strong>"{{ categoryToDelete.name }}"</strong>?
+          Apakah Anda yakin ingin menghapus subkategori <strong>"{{ categoryToDelete.name }}"</strong>?
           <template v-if="categoryToDelete.productCount > 0">
             <br /><br />
             <span class="warning-text">
-              Peringatan: Kategori ini memiliki {{ categoryToDelete.productCount }} produk yang masih terhubung.
+              Peringatan: Subkategori ini memiliki {{ categoryToDelete.productCount }} produk yang masih terhubung.
             </span>
           </template>
         </p>
         <div class="dialog-actions">
           <button type="button" class="btn-cancel" @click="categoryToDelete = null">Batal</button>
-          <button type="button" class="btn-danger" @click="executeDelete">Hapus Kategori</button>
+          <button type="button" class="btn-danger" @click="executeDelete">Hapus Subkategori</button>
         </div>
       </div>
     </div>
@@ -104,7 +164,11 @@ import { adminService } from '../../services/adminService.js';
 import CategoryModal from '../../components/admin/CategoryModal.vue';
 
 const categories = ref([]);
+const mainCategories = ref([]);
 const products = ref([]);
+
+const selectedMainCatFilter = ref('all');
+const searchQuery = ref('');
 
 const isModalOpen = ref(false);
 const isEditMode = ref(false);
@@ -113,11 +177,13 @@ const categoryToDelete = ref(null);
 
 const loadData = async () => {
   try {
-    const [cList, pList] = await Promise.all([
-      adminService.getCategories(),
+    const [cList, mcList, pList] = await Promise.all([
+      adminService.getSubcategories(),
+      adminService.getMainCategories(),
       adminService.getProducts()
     ]);
     categories.value = cList;
+    mainCategories.value = mcList;
     products.value = pList;
   } catch (err) {
     console.error('Failed to load categories:', err);
@@ -128,14 +194,50 @@ onMounted(() => {
   loadData();
 });
 
-const categoriesWithCount = computed(() => {
-  return categories.value.map(cat => {
-    const count = products.value.filter(p => p.categoryId === cat.id || (p.category === cat.type && !p.categoryId)).length;
-    return {
-      ...cat,
-      productCount: count
-    };
-  });
+const getMainCatName = (mainCatId) => {
+  const found = mainCategories.value.find(mc => Number(mc.id) === Number(mainCatId));
+  if (found) return found.name;
+  return Number(mainCatId) === 2 ? 'Raw Material' : 'Restaurant Menu';
+};
+
+const countByMainCat = (mainCatId) => {
+  return categories.value.filter(c => {
+    const pId = c.mainCategoryId || (c.type === 'raw' ? 2 : 1);
+    return Number(pId) === Number(mainCatId);
+  }).length;
+};
+
+const filteredCategoriesWithCount = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+
+  return categories.value
+    .filter(cat => {
+      // Main category filter
+      const pId = cat.mainCategoryId || (cat.type === 'raw' ? 2 : 1);
+      let matchMain = true;
+      if (selectedMainCatFilter.value === 'restaurant') {
+        matchMain = Number(pId) === 1;
+      } else if (selectedMainCatFilter.value === 'raw') {
+        matchMain = Number(pId) === 2;
+      }
+
+      // Search query
+      const matchQuery = !query || 
+        (cat.name + ' ' + (cat.description || '')).toLowerCase().includes(query);
+
+      return matchMain && matchQuery;
+    })
+    .map(cat => {
+      const count = products.value.filter(p => {
+        if (p.subcategoryId) return Number(p.subcategoryId) === Number(cat.id);
+        return Number(p.categoryId) === Number(cat.id);
+      }).length;
+
+      return {
+        ...cat,
+        productCount: count
+      };
+    });
 });
 
 const openAddModal = () => {
@@ -152,9 +254,9 @@ const openEditModal = (cat) => {
 
 const handleSaveCategory = async (catData) => {
   if (isEditMode.value && selectedCategory.value) {
-    await adminService.updateCategory(selectedCategory.value.id, catData);
+    await adminService.updateSubcategory(selectedCategory.value.id, catData);
   } else {
-    await adminService.createCategory(catData);
+    await adminService.createSubcategory(catData);
   }
   isModalOpen.value = false;
   await loadData();
@@ -166,7 +268,7 @@ const confirmDelete = (cat) => {
 
 const executeDelete = async () => {
   if (!categoryToDelete.value) return;
-  await adminService.deleteCategory(categoryToDelete.value.id);
+  await adminService.deleteSubcategory(categoryToDelete.value.id);
   categoryToDelete.value = null;
   await loadData();
 };
@@ -182,7 +284,7 @@ const executeDelete = async () => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
@@ -208,6 +310,37 @@ const executeDelete = async () => {
   margin: 6px 0 0;
   color: var(--muted);
   font-size: 0.86rem;
+  max-width: 740px;
+  line-height: 1.5;
+}
+
+.header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: var(--r-sm);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+.btn-secondary:hover {
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .btn-primary {
@@ -227,6 +360,74 @@ const executeDelete = async () => {
 
 .btn-primary:hover {
   background: var(--red-dark);
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.parent-filter-tabs {
+  display: flex;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  gap: 4px;
+}
+
+.tab-btn {
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+}
+
+.tab-btn.active {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: #fff;
+  font-size: 0.82rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color var(--ease);
+}
+
+.search-input:focus {
+  border-color: var(--red);
 }
 
 .categories-grid {
@@ -252,12 +453,24 @@ const executeDelete = async () => {
   margin-bottom: 14px;
 }
 
+.parent-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.parent-tag {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .type-pill {
   display: inline-flex;
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 750;
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
 .type-pill.type-restaurant {
@@ -323,13 +536,26 @@ const executeDelete = async () => {
 }
 
 .product-count-badge {
-  font-weight: 700;
+  color: var(--muted);
+}
+
+.product-count-badge strong {
   color: var(--ink);
 }
 
 .slug-text {
   color: var(--muted);
   font-family: monospace;
+}
+
+.empty-state-box {
+  padding: 40px 20px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .modal-backdrop {
@@ -399,3 +625,4 @@ const executeDelete = async () => {
   cursor: pointer;
 }
 </style>
+

@@ -48,55 +48,95 @@
           </details>
         </nav>
 
-        <div class="header-actions">
-          <details class="profile-dropdown">
-            <summary class="profile-trigger">
-              <span class="profile-avatar">K</span>
-              <span class="profile-name">Kelvin</span>
+<div class="header-actions">
+  <!-- Tampilkan kalau sudah login -->
+  <details v-if="isLoggedIn" class="profile-dropdown">
+    <summary class="profile-trigger">
+      <span class="profile-avatar">{{ userInitial }}</span>
+      <span class="profile-name">{{ userName }}</span>
 
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="m7 10 5 5 5-5"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </summary>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="m7 10 5 5 5-5"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </summary>
 
-            <div class="profile-menu">
-              <router-link to="/profile">
-                My Profile
-              </router-link>
+    <div class="profile-menu">
+      <router-link to="/profile">
+        My Profile
+      </router-link>
 
-              <router-link to="/order-history">
-                Order History
-              </router-link>
+      <router-link to="/order-history">
+        Order History
+      </router-link>
 
-              <div class="profile-divider"></div>
+      <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" class="staff-link">
+        Admin Dashboard
+      </router-link>
 
-              <button type="button" class="logout-button">
-                Logout
-              </button>
-            </div>
-          </details>
+      <router-link v-if="isSuperAdmin" to="/super-admin/dashboard" class="staff-link">
+        Super Admin Dashboard
+      </router-link>
 
-          <router-link class="login-link" to="/login">Login</router-link>
-          <router-link class="cart-link" to="/cart" aria-label="Open cart">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M3.5 4h2l1.8 10.2a2 2 0 0 0 2 1.7h7.9a2 2 0 0 0 2-1.6L20.5 8H6.3M9.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1ZM17.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span class="cart-text">Cart</span>
-            <span class="cart-badge" aria-live="polite">{{ cartStore.cartCount }}</span>
-          </router-link>
-        </div>
+      <div class="profile-divider"></div>
+
+      <button type="button" class="logout-button" @click="logout">
+        Logout
+      </button>
+    </div>
+  </details>
+
+  <!-- Tampilkan Login kalau belum login -->
+  <router-link
+    v-else
+    class="login-link"
+    to="/login"
+  >
+    Login
+  </router-link>
+
+  <!-- Cart tetap selalu ada -->
+  <router-link class="cart-link" to="/cart" aria-label="Open cart">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.5 4h2l1.8 10.2a2 2 0 0 0 2 1.7h7.9a2 2 0 0 0 2-1.6L20.5 8H6.3"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1ZM17.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+
+    <span class="cart-text">Cart</span>
+    <span class="cart-badge" aria-live="polite">
+      {{ cartStore.cartCount }}
+    </span>
+  </router-link>
+</div>
 
         <router-link class="icon-button mobile-header-action" to="/cart" aria-label="Open cart">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -135,18 +175,22 @@
     :isOpen="isDrawerOpen"
     @close="closeDrawer"
   />
-</template>
 
+</template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
 import { useCartStore } from '../../stores/cart.js';
+import { useAuthStore } from '../../stores/auth.js';
 import { useHeaderScroll } from '../../composables/useHeaderScroll.js';
+
 import MobileDrawer from './MobileDrawer.vue';
 
 defineProps({
   variant: {
     type: String,
-    default: 'default' // 'default' | 'cart' | 'checkout'
+    default: 'default'
   },
   title: {
     type: String,
@@ -154,13 +198,57 @@ defineProps({
   }
 });
 
+const router = useRouter();
+
 const cartStore = useCartStore();
+const authStore = useAuthStore();
+
 const isDrawerOpen = ref(false);
+
+const isLoggedIn = computed(() => {
+  return (
+    authStore.isAuthenticated ||
+    !!localStorage.getItem('warung-token') ||
+    !!localStorage.getItem('token')
+  );
+});
+
+const userName = computed(() => {
+  return (
+    authStore.user?.name ||
+    authStore.user?.username ||
+    'Pelanggan'
+  );
+});
+
+const userInitial = computed(() => {
+  return userName.value
+    ? userName.value.charAt(0).toUpperCase()
+    : 'U';
+});
+
+const isAdminOrStaff = computed(() => {
+  return (
+    authStore.isAdmin ||
+    authStore.isKasir ||
+    authStore.isSuperAdmin
+  );
+});
+
+const isSuperAdmin = computed(() => {
+  return authStore.isSuperAdmin;
+});
+
+const logout = () => {
+  authStore.logout();
+  router.push('/login');
+};
 
 const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
 
 function setDrawer(open) {
   isDrawerOpen.value = open;
+
   if (open) {
     document.body.classList.add('drawer-active');
   } else {

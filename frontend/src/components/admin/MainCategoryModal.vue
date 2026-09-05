@@ -1,11 +1,11 @@
 <template>
   <div v-if="isOpen" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editCatTitle' : 'addCatTitle'">
+    <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editMainCatTitle' : 'addMainCatTitle'">
       <div class="modal-header">
         <div>
-          <p class="modal-eyebrow">STRUKTUR SUBKATEGORI</p>
-          <h2 id="addCatTitle" class="modal-title">
-            {{ isEdit ? 'Edit Subkategori' : 'Tambah Subkategori Baru' }}
+          <p class="modal-eyebrow">STRUKTUR KATEGORI PARENT</p>
+          <h2 id="addMainCatTitle" class="modal-title">
+            {{ isEdit ? 'Edit Kategori Besar' : 'Tambah Kategori Besar' }}
           </h2>
         </div>
         <button type="button" class="close-btn" aria-label="Tutup modal" @click="$emit('close')">
@@ -21,39 +21,36 @@
         </div>
 
         <div class="form-grid">
-          <!-- Parent Kategori Besar -->
           <div class="form-group full-width">
-            <label class="form-label required">Kategori Besar (Induk / Parent)</label>
-            <select v-model="formData.mainCategoryId" class="form-select" @change="handleMainCatChange">
-              <option :value="1">Restaurant Menu</option>
-              <option :value="2">Raw Material</option>
-              <option v-for="mc in customMainCategories" :key="mc.id" :value="mc.id">
-                {{ mc.name }}
-              </option>
-            </select>
-            <small class="form-hint">Pilih apakah subkategori ini masuk ke dalam Menu Restoran atau Bahan Mentah.</small>
-          </div>
-
-          <!-- Subcategory Name -->
-          <div class="form-group full-width">
-            <label class="form-label required">Nama Subkategori</label>
+            <label class="form-label required">Nama Kategori Besar</label>
             <input
               type="text"
               v-model="formData.name"
               class="form-input"
-              placeholder="Contoh: Makanan Utama, Bumbu Racikan, Minuman"
+              placeholder="Contoh: Restaurant Menu atau Raw Material"
               required
             />
           </div>
 
-          <!-- Description -->
           <div class="form-group full-width">
-            <label class="form-label">Deskripsi Subkategori</label>
+            <label class="form-label required">Kode Identifikasi</label>
+            <input
+              type="text"
+              v-model="formData.code"
+              class="form-input"
+              placeholder="Contoh: restaurant / raw"
+              required
+            />
+            <small class="form-hint">Digunakan oleh sistem untuk membedakan alur dapur dan inventaris mentah.</small>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Deskripsi Kategori Besar</label>
             <textarea
               v-model="formData.description"
               class="form-textarea"
               rows="3"
-              placeholder="Jelaskan jenis makanan atau bahan yang termasuk dalam subkategori ini..."
+              placeholder="Jelaskan cakupan kelompok kategori besar ini..."
             ></textarea>
           </div>
         </div>
@@ -63,7 +60,7 @@
             Batal
           </button>
           <button type="submit" class="btn-submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Menyimpan...' : (isEdit ? 'Simpan Perubahan' : 'Tambah Subkategori') }}
+            {{ isSubmitting ? 'Menyimpan...' : (isEdit ? 'Simpan Perubahan' : 'Tambah Kategori Besar') }}
           </button>
         </div>
       </form>
@@ -72,16 +69,12 @@
 </template>
 
 <script setup>
-import { reactive, watch, ref, computed } from 'vue';
+import { reactive, watch, ref } from 'vue';
 
 const props = defineProps({
   isOpen: Boolean,
   isEdit: Boolean,
-  initialData: Object,
-  mainCategories: {
-    type: Array,
-    default: () => []
-  }
+  initialData: Object
 });
 
 const emit = defineEmits(['close', 'save']);
@@ -90,52 +83,41 @@ const isSubmitting = ref(false);
 const errorMessage = ref('');
 
 const formData = reactive({
-  mainCategoryId: 1,
   name: '',
-  type: 'restaurant',
+  code: 'restaurant',
   description: ''
-});
-
-const customMainCategories = computed(() => {
-  return props.mainCategories.filter(mc => mc.id !== 1 && mc.id !== 2);
 });
 
 watch(() => props.initialData, (newVal) => {
   if (newVal) {
-    formData.mainCategoryId = Number(newVal.mainCategoryId || (newVal.type === 'raw' ? 2 : 1));
     formData.name = newVal.name || '';
-    formData.type = newVal.type || (formData.mainCategoryId === 2 ? 'raw' : 'restaurant');
+    formData.code = newVal.code || newVal.slug || 'restaurant';
     formData.description = newVal.description || '';
   } else {
-    formData.mainCategoryId = 1;
     formData.name = '';
-    formData.type = 'restaurant';
+    formData.code = 'restaurant';
     formData.description = '';
   }
   errorMessage.value = '';
 }, { immediate: true });
 
-const handleMainCatChange = () => {
-  formData.type = formData.mainCategoryId === 2 ? 'raw' : 'restaurant';
-};
-
 const handleSubmit = () => {
   errorMessage.value = '';
   if (!formData.name.trim()) {
-    errorMessage.value = 'Nama subkategori wajib diisi';
+    errorMessage.value = 'Nama kategori besar wajib diisi';
     return;
   }
 
   isSubmitting.value = true;
   try {
-    const mainCatId = Number(formData.mainCategoryId);
     emit('save', {
-      ...formData,
-      mainCategoryId: mainCatId,
-      type: mainCatId === 2 ? 'raw' : 'restaurant'
+      name: formData.name.trim(),
+      code: (formData.code || formData.name).toLowerCase().replace(/\s+/g, '-'),
+      slug: (formData.name).toLowerCase().replace(/\s+/g, '-'),
+      description: formData.description.trim()
     });
   } catch (err) {
-    errorMessage.value = err.message || 'Gagal menyimpan subkategori';
+    errorMessage.value = err.message || 'Gagal menyimpan kategori besar';
   } finally {
     isSubmitting.value = false;
   }
@@ -241,7 +223,7 @@ const handleSubmit = () => {
   color: var(--red);
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input, .form-textarea {
   width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--line);
@@ -253,7 +235,7 @@ const handleSubmit = () => {
   transition: border-color var(--ease);
 }
 
-.form-input:focus, .form-select:focus, .form-textarea:focus {
+.form-input:focus, .form-textarea:focus {
   border-color: var(--red);
 }
 
@@ -309,4 +291,3 @@ const handleSubmit = () => {
   to { opacity: 1; transform: scale(1); }
 }
 </style>
-

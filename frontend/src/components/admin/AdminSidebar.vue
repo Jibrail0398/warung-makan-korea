@@ -65,6 +65,21 @@
           </router-link>
 
           <router-link
+            to="/admin/pos"
+            class="nav-item"
+            :class="{ active: isCurrentRoute('/admin/pos') }"
+            :title="isCollapsed ? 'POS (Point of Sale)' : ''"
+            @click="$emit('close')"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.8" />
+              <line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.8" />
+              <path d="M6 14h2M11 14h2M16 14h2M6 17h2M11 17h2M16 17h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span v-if="!isCollapsed" class="nav-label">POS (Kasir)</span>
+          </router-link>
+
+          <router-link
             to="/admin/orders"
             class="nav-item"
             :class="{ active: isCurrentRoute('/admin/orders') }"
@@ -82,6 +97,10 @@
             </span>
           </router-link>
 
+          <div v-if="!isCollapsed" class="nav-section-title">
+            <span>KATALOG & PRODUK</span>
+          </div>
+
           <router-link
             to="/admin/products"
             class="nav-item"
@@ -97,17 +116,30 @@
           </router-link>
 
           <router-link
+            to="/admin/main-categories"
+            class="nav-item"
+            :class="{ active: isCurrentRoute('/admin/main-categories') }"
+            :title="isCollapsed ? 'Kategori Besar' : ''"
+            @click="$emit('close')"
+          >
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span v-if="!isCollapsed" class="nav-label">Kategori Besar</span>
+          </router-link>
+
+          <router-link
             to="/admin/categories"
             class="nav-item"
             :class="{ active: isCurrentRoute('/admin/categories') }"
-            :title="isCollapsed ? 'Kategori' : ''"
+            :title="isCollapsed ? 'Subkategori' : ''"
             @click="$emit('close')"
           >
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 6h16M4 12h16M4 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
               <circle cx="18" cy="18" r="3" stroke="currentColor" stroke-width="1.8" />
             </svg>
-            <span v-if="!isCollapsed" class="nav-label">Kategori</span>
+            <span v-if="!isCollapsed" class="nav-label">Subkategori</span>
           </router-link>
 
           <div v-if="!isCollapsed" class="nav-section-title">
@@ -235,7 +267,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
+import { useAuthStore } from '../../stores/auth.js';
 import { adminService } from '../../services/adminService.js';
 
 const props = defineProps({
@@ -257,7 +289,7 @@ defineEmits(['close', 'toggle-collapse']);
 
 const route = useRoute();
 const router = useRouter();
-const adminAuthStore = useAdminAuthStore();
+const authStore = useAuthStore();
 
 const pendingOrdersCount = ref(0);
 
@@ -279,13 +311,8 @@ const isCurrentRoute = (path) => {
 };
 
 const handleLogout = () => {
-  if (props.isSuperAdmin) {
-    adminAuthStore.logoutSuperAdmin();
-    router.push('/super-admin/login');
-  } else {
-    adminAuthStore.logoutAdmin();
-    router.push('/admin/login');
-  }
+  authStore.logout();
+  router.push('/login');
 };
 </script>
 

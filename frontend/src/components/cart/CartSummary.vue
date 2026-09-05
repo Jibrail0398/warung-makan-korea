@@ -5,6 +5,17 @@
 
 <div class="order-options">
 
+<!-- Member / Logged in Customer Info -->
+<div v-if="isLoggedIn" class="member-checkout-badge">
+  <div class="member-badge-content">
+    <span class="member-label">Pemesanan atas nama:</span>
+    <strong class="member-name">{{ authStore.user?.name || authStore.user?.username || 'Pelanggan Member' }}</strong>
+    <small class="member-phone">{{ authStore.user?.phone || '' }}</small>
+  </div>
+</div>
+
+<!-- Guest Information -->
+<div v-else class="guest-information">
   <!-- Guest Name -->
   <div class="order-option">
     <label for="guestName">Name</label>
@@ -20,17 +31,18 @@
   <!-- Phone Number -->
   <div class="order-option">
     <label for="phoneNumber">Phone number</label>
-<input
-  id="phoneNumber"
-  v-model="phoneNumber"
-  type="tel"
-  inputmode="numeric"
-  pattern="[0-9]*"
-  placeholder="Enter your phone number"
-  autocomplete="tel"
-  @input="phoneNumber = phoneNumber.replace(/\D/g, '')"
-/>
+    <input
+      id="phoneNumber"
+      v-model="phoneNumber"
+      type="tel"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      placeholder="Enter your phone number"
+      autocomplete="tel"
+      @input="phoneNumber = phoneNumber.replace(/\D/g, '')"
+    />
   </div>
+</div>
 
   <!-- Order Note -->
   <div class="order-option">
@@ -144,8 +156,10 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useCartStore } from '../../stores/cart.js';
+import { useAuthStore } from '../../stores/auth.js';
 
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 
 const orderType = ref('dine-in');
 const scheduleType = ref('now');
@@ -157,6 +171,10 @@ const phoneNumber = ref('');
 
 const orderTypeOpen = ref(false);
 const scheduleOpen = ref(false);
+
+const isLoggedIn = computed(() => {
+  return authStore.isAuthenticated || !!localStorage.getItem('warung-token') || !!localStorage.getItem('token');
+});
 
 const orderTypeOptions = [
   { value: 'dine-in', label: 'Dine-in' },
@@ -423,5 +441,35 @@ function selectSchedule(val) {
 .order-option label span {
   color: var(--muted);
   font-weight: 500;
+}
+
+.member-checkout-badge {
+  padding: 12px 14px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  margin-bottom: 12px;
+}
+
+.member-badge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.member-name {
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.member-phone {
+  font-size: 0.76rem;
+  color: var(--muted);
 }
 </style>

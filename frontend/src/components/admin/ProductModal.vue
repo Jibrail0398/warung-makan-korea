@@ -55,26 +55,29 @@
               type="text"
               v-model="formData.name"
               class="form-input"
-              placeholder="Contoh: Rendang Daging Sapi"
+              placeholder="Contoh: Rendang Daging Sapi, Nasi Goreng, Sambal"
               required
             />
           </div>
 
-          <!-- Group / Category Type -->
+          <!-- Main Category (Kategori Besar) Selection -->
           <div class="form-group">
-            <label class="form-label required">Tipe Produk</label>
-            <select v-model="formData.category" class="form-select" @change="handleTypeChange">
-              <option value="restaurant">Menu Restoran (Siap Makan)</option>
-              <option value="raw">Raw Material (Bahan Mentah)</option>
+            <label class="form-label required">Kategori Besar (Parent)</label>
+            <select v-model="formData.mainCategoryId" class="form-select" @change="handleMainCatChange">
+              <option :value="1">Restaurant Menu (Siap Santap)</option>
+              <option :value="2">Raw Material (Bahan Baku / Mentah)</option>
+              <option v-for="mc in customMainCategories" :key="mc.id" :value="mc.id">
+                {{ mc.name }}
+              </option>
             </select>
           </div>
 
-          <!-- Category Selection -->
+          <!-- Subcategory Selection -->
           <div class="form-group">
-            <label class="form-label required">Kategori</label>
-            <select v-model="formData.categoryId" class="form-select">
-              <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
+            <label class="form-label required">Subkategori</label>
+            <select v-model="formData.subcategoryId" class="form-select">
+              <option v-for="sc in filteredSubcategories" :key="sc.id" :value="sc.id">
+                {{ sc.name }}
               </option>
             </select>
           </div>
@@ -162,6 +165,10 @@ const props = defineProps({
   isOpen: Boolean,
   isEdit: Boolean,
   initialData: Object,
+  mainCategories: {
+    type: Array,
+    default: () => []
+  },
   categories: {
     type: Array,
     default: () => []
@@ -175,9 +182,10 @@ const errorMessage = ref('');
 
 const formData = reactive({
   name: '',
+  mainCategoryId: 1,
+  subcategoryId: 1,
   category: 'restaurant',
-  categoryId: 1,
-  numericPrice: 10000,
+  numericPrice: 12000,
   unit: '1 porsi',
   stock: 25,
   status: 'Available',
@@ -185,18 +193,29 @@ const formData = reactive({
   image: ''
 });
 
-const filteredCategories = computed(() => {
+const customMainCategories = computed(() => {
+  return props.mainCategories.filter(mc => mc.id !== 1 && mc.id !== 2);
+});
+
+const filteredSubcategories = computed(() => {
   if (!props.categories.length) return [];
-  return props.categories.filter(c => c.type === formData.category);
+  const targetMainId = Number(formData.mainCategoryId);
+  const matched = props.categories.filter(sc => {
+    if (sc.mainCategoryId) return Number(sc.mainCategoryId) === targetMainId;
+    return targetMainId === 1 ? sc.type === 'restaurant' : sc.type === 'raw';
+  });
+
+  return matched.length > 0 ? matched : props.categories;
 });
 
 watch(() => props.initialData, (newVal) => {
   if (newVal) {
     formData.name = newVal.name || '';
-    formData.category = newVal.category || 'restaurant';
-    formData.categoryId = newVal.categoryId || (newVal.category === 'raw' ? 3 : 1);
+    formData.mainCategoryId = Number(newVal.mainCategoryId || (newVal.category === 'raw' ? 2 : 1));
+    formData.subcategoryId = Number(newVal.subcategoryId || newVal.categoryId || (formData.mainCategoryId === 2 ? 4 : 1));
+    formData.category = formData.mainCategoryId === 2 ? 'raw' : 'restaurant';
     formData.numericPrice = newVal.numericPrice !== undefined ? newVal.numericPrice : 10000;
-    formData.unit = newVal.unit || '1 porsi';
+    formData.unit = newVal.unit || (formData.mainCategoryId === 2 ? '1 bungkus' : '1 porsi');
     formData.stock = newVal.stock !== undefined ? newVal.stock : 20;
     formData.status = newVal.status || 'Available';
     formData.description = newVal.description || '';
@@ -204,8 +223,9 @@ watch(() => props.initialData, (newVal) => {
   } else {
     // Reset
     formData.name = '';
+    formData.mainCategoryId = 1;
+    formData.subcategoryId = 1;
     formData.category = 'restaurant';
-    formData.categoryId = 1;
     formData.numericPrice = 12000;
     formData.unit = '1 porsi';
     formData.stock = 25;
@@ -216,15 +236,19 @@ watch(() => props.initialData, (newVal) => {
   errorMessage.value = '';
 }, { immediate: true });
 
-const handleTypeChange = () => {
-  if (formData.category === 'raw') {
-    if (formData.unit === '1 porsi') formData.unit = '1 bungkus';
-    const rawCat = props.categories.find(c => c.type === 'raw');
-    if (rawCat) formData.categoryId = rawCat.id;
-  } else {
-    if (formData.unit === '1 bungkus') formData.unit = '1 porsi';
-    const restCat = props.categories.find(c => c.type === 'restaurant');
-    if (restCat) formData.categoryId = restCat.id;
+const handleMainCatChange = () => {
+  const isRaw = Number(formData.mainCategoryId) === 2;
+  formData.category = isRaw ? 'raw' : 'restaurant';
+  formData.unit = isRaw ? '1 bungkus' : '1 porsi';
+
+  // Select first available subcategory
+  const availableSub = props.categories.find(sc => {
+    if (sc.mainCategoryId) return Number(sc.mainCategoryId) === Number(formData.mainCategoryId);
+    return isRaw ? sc.type === 'raw' : sc.type === 'restaurant';
+  });
+
+  if (availableSub) {
+    formData.subcategoryId = availableSub.id;
   }
 };
 
@@ -245,7 +269,12 @@ const handleSubmit = async () => {
 
   isSubmitting.value = true;
   try {
-    emit('save', { ...formData });
+    const isRaw = Number(formData.mainCategoryId) === 2;
+    emit('save', {
+      ...formData,
+      category: isRaw ? 'raw' : 'restaurant',
+      categoryId: formData.subcategoryId // backward compatibility
+    });
   } catch (err) {
     errorMessage.value = err.message || 'Gagal menyimpan produk';
   } finally {

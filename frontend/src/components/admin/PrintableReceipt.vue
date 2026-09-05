@@ -119,83 +119,241 @@ const handlePrint = () => {
 </script>
 
 <style scoped>
+/* =========================================================
+   PRINT RECEIPT MODAL
+   ========================================================= */
+
+/* Backdrop modal */
 .print-modal-backdrop {
   position: fixed;
   inset: 0;
+  z-index: 9999;
+
+  /* Jangan pakai grid + place-items:center.
+     Kalau receipt lebih tinggi dari viewport,
+     bagian header bisa keluar dari layar. */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 20px;
+  box-sizing: border-box;
+
   background: rgba(25, 21, 18, 0.6);
   backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  z-index: 70;
-  padding: 20px;
+  -webkit-backdrop-filter: blur(4px);
+
   overflow-y: auto;
+  overflow-x: hidden;
 }
+
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
 
 .print-dialog {
+  position: relative;
+
   width: 100%;
   max-width: 440px;
-  background: #fff;
+
+  /* Modal tidak boleh lebih tinggi dari viewport */
+  max-height: calc(100dvh - 40px);
+
+  background: #ffffff;
+  border: 1px solid var(--line, #dddddd);
   border-radius: 12px;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.18),
+    0 8px 10px -6px rgba(0, 0, 0, 0.12);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  flex-shrink: 0;
 }
 
+
+/* =========================================================
+   HEADER MODAL
+   ========================================================= */
+
 .dialog-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  background: var(--soft);
-  border-bottom: 1px solid var(--line);
+  gap: 12px;
+
+  width: 100%;
+  padding: 14px 16px;
+  box-sizing: border-box;
+
+  background: var(--soft, #f7f7f7);
+  border-bottom: 1px solid var(--line, #dddddd);
 }
 
 .dialog-header h3 {
+  flex: 1;
+  min-width: 0;
+
   margin: 0;
+
   font-size: 0.95rem;
   font-weight: 750;
-  color: var(--ink);
+  line-height: 1.3;
+
+  color: var(--ink, #222222);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+
+/* =========================================================
+   HEADER ACTIONS
+   ========================================================= */
 
 .header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+
+  flex-shrink: 0;
 }
+
+
+/* =========================================================
+   PRINT BUTTON
+   ========================================================= */
 
 .btn-print {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--r-sm);
-  background: var(--red);
-  color: #fff;
+
+  min-height: 34px;
+
+  padding: 8px 12px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #dc2626;
+  color: #ffffff;
+
+  font-family: inherit;
   font-size: 0.78rem;
   font-weight: 750;
+  line-height: 1;
+
   cursor: pointer;
+
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .btn-print:hover {
-  background: var(--red-dark);
+  background: #b91c1c;
 }
+
+.btn-print:active {
+  transform: scale(0.97);
+}
+
+.btn-print:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.btn-print svg {
+  width: 16px;
+  height: 16px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
 
 .btn-close {
-  color: var(--muted);
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+  color: var(--muted, #666666);
+
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1;
+
   cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Thermal receipt format conforming to DESIGN.md Section 27 */
+.btn-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #111111;
+}
+
+.btn-close:focus-visible {
+  outline: 2px solid #777777;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   THERMAL RECEIPT
+   ========================================================= */
+
 .thermal-receipt {
+  width: 100%;
+
   padding: 24px;
+  margin: 0 auto;
+
+  box-sizing: border-box;
+
   background: #ffffff;
-  font-family: 'Courier New', Courier, monospace;
+  color: #000000;
+
+  font-family: "Courier New", Courier, monospace;
   font-size: 12px;
   line-height: 1.45;
-  color: #000;
-  margin: 0 auto;
 }
+
+
+/* =========================================================
+   RECEIPT HEADER
+   ========================================================= */
 
 .receipt-header {
   text-align: center;
@@ -203,131 +361,375 @@ const handlePrint = () => {
 }
 
 .restaurant-name {
+  margin: 6px 0 2px;
+
   font-size: 16px;
   font-weight: 900;
+  line-height: 1.3;
+
   letter-spacing: 0.05em;
-  margin: 6px 0 2px;
 }
 
 .restaurant-subtitle {
-  font-size: 10px;
   margin: 0 0 6px;
+
+  font-size: 10px;
+  line-height: 1.4;
 }
 
-.receipt-stars, .receipt-divider {
-  text-align: center;
-  letter-spacing: -1px;
-  color: #555;
+
+/* =========================================================
+   DIVIDERS
+   ========================================================= */
+
+.receipt-stars,
+.receipt-divider {
+  width: 100%;
+
   margin: 4px 0;
+
+  text-align: center;
+
+  color: #555555;
+
+  letter-spacing: -1px;
+
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.receipt-meta, .receipt-customer, .receipt-payment {
+
+/* =========================================================
+   META / CUSTOMER / PAYMENT
+   ========================================================= */
+
+.receipt-meta,
+.receipt-customer,
+.receipt-payment {
   margin: 8px 0;
 }
 
 .meta-row {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
+
   margin: 3px 0;
 }
 
+.meta-row > span:first-child {
+  flex-shrink: 0;
+}
+
+.meta-row > span:last-child,
+.meta-row > strong:last-child {
+  min-width: 0;
+
+  text-align: right;
+
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   ITEMS TABLE
+   ========================================================= */
+
 .receipt-items {
   width: 100%;
-  border-collapse: collapse;
+
   margin: 8px 0;
+
+  border-collapse: collapse;
+  border-spacing: 0;
+
+  table-layout: fixed;
+
   text-align: left;
 }
 
 .receipt-items th {
   padding: 4px 0;
+
+  border-bottom: 1px dashed #000000;
+
   font-weight: 800;
-  border-bottom: 1px dashed #000;
+  line-height: 1.3;
 }
 
 .receipt-items td {
   padding: 6px 0;
+
   vertical-align: top;
+
+  line-height: 1.4;
 }
 
-.col-item {
+.receipt-items th.col-item,
+.receipt-items td.col-item {
   width: 55%;
+  padding-right: 6px;
 }
 
-.col-qty {
+.receipt-items th.col-qty,
+.receipt-items td.col-qty {
   width: 15%;
+
   text-align: center;
 }
 
-.col-total {
+.receipt-items th.col-total,
+.receipt-items td.col-total {
   width: 30%;
+
   text-align: right;
 }
 
 .item-title {
   display: block;
+
   font-weight: 700;
+
+  word-break: break-word;
 }
 
 .item-unit-price {
+  display: block;
+
+  margin-top: 2px;
+
   font-size: 10px;
-  color: #444;
+  line-height: 1.3;
+
+  color: #444444;
 }
+
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
 
 .receipt-totals {
   margin: 8px 0;
 }
 
-.grand-total {
+.total-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 14px;
-  font-weight: 900;
-  margin: 6px 0;
+  gap: 12px;
 }
 
+.grand-total {
+  margin: 6px 0;
+
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.total-amount {
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   RECEIPT FOOTER
+   ========================================================= */
+
 .receipt-footer {
-  text-align: center;
   margin-top: 14px;
+
+  text-align: center;
 }
 
 .footer-msg {
-  font-weight: 750;
   margin: 6px 0 2px;
+
+  font-weight: 750;
 }
 
 .footer-korean {
-  font-size: 10px;
   margin: 0 0 6px;
+
+  font-size: 10px;
+  line-height: 1.4;
 }
 
-@media print {
-  body * {
-    visibility: hidden;
-  }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media screen and (max-width: 520px) {
   .print-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: transparent;
-    padding: 0;
+    padding: 10px;
   }
+
   .print-dialog {
-    border: none;
-    box-shadow: none;
-    max-width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 10px;
   }
+
+  .dialog-header {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .dialog-header h3 {
+    font-size: 0.85rem;
+  }
+
+  .btn-print {
+    padding: 8px 10px;
+    font-size: 0.72rem;
+  }
+
+  .thermal-receipt {
+    padding: 18px;
+  }
+}
+
+
+/* =========================================================
+   PRINT MODE
+   ========================================================= */
+
+@media print {
+  /*
+   * Sembunyikan seluruh halaman,
+   * lalu tampilkan hanya receipt.
+   *
+   * :global() digunakan karena style ini scoped.
+   */
+  :global(body *) {
+    visibility: hidden !important;
+  }
+
+  :global(html),
+  :global(body) {
+    width: 100%;
+    height: auto;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+
+    overflow: visible !important;
+  }
+
+  /*
+   * Jangan tampilkan header modal
+   * (tombol Print dan Close).
+   */
   .no-print {
     display: none !important;
   }
-  #receipt-print-area, #receipt-print-area * {
-    visibility: visible;
+
+  /*
+   * Parent modal dibuat netral
+   * agar tidak memengaruhi posisi receipt.
+   */
+  .print-modal-backdrop {
+    position: static !important;
+
+    display: block !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    background: transparent !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    overflow: visible !important;
   }
+
+  .print-dialog {
+    position: static !important;
+
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    background: transparent !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    overflow: visible !important;
+  }
+
+  /*
+   * Tampilkan receipt dan semua anaknya.
+   */
+  #receipt-print-area,
+  #receipt-print-area * {
+    visibility: visible !important;
+  }
+
+  /*
+   * Format thermal 80mm.
+   */
   #receipt-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80mm;
-    padding: 0;
-    margin: 0;
+    position: absolute !important;
+
+    top: 0 !important;
+    left: 0 !important;
+
+    width: 80mm !important;
+
+    padding: 4mm !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
+    color: #000000 !important;
+
+    box-shadow: none !important;
   }
+
+  /*
+   * Hindari pemisahan row item ke halaman lain.
+   */
+  .receipt-items tr,
+  .receipt-meta,
+  .receipt-customer,
+  .receipt-payment,
+  .receipt-totals,
+  .receipt-footer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /*
+   * Pastikan warna/text tercetak normal.
+   */
+  #receipt-print-area {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
+/* =========================================================
+   PRINT PAGE
+   ========================================================= */
+
+@page {
+  size: 80mm auto;
+  margin: 0;
 }
 </style>

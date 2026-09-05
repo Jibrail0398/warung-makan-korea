@@ -1,12 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
-import HomeView from '../views/HomeView.vue'
-import AdminLayout from '../layouts/AdminLayout.vue'
-import SuperAdminLayout from '../layouts/SuperAdminLayout.vue'
+import HomeView from '../views/HomeView.vue';
+import AdminLayout from '../layouts/AdminLayout.vue';
+import SuperAdminLayout from '../layouts/SuperAdminLayout.vue';
 
 const routes = [
   // ==========================================
-  // CUSTOMER / GUEST & MEMBER ROUTES (UNMODIFIED)
+  // CUSTOMER / GUEST & MEMBER ROUTES
   // ==========================================
   {
     path: '/',
@@ -78,13 +78,20 @@ const routes = [
   },
 
   // ==========================================
-  // ADMIN / KASIR ROUTES
+  // SINGLE LOGIN REDIRECTS (LEGACY PATHS)
   // ==========================================
   {
     path: '/admin/login',
-    name: 'admin-login',
-    component: () => import('../views/admin/AdminLoginView.vue')
+    redirect: '/login'
   },
+  {
+    path: '/super-admin/login',
+    redirect: '/login'
+  },
+
+  // ==========================================
+  // ADMIN / KASIR ROUTES
+  // ==========================================
   {
     path: '/admin',
     component: AdminLayout,
@@ -97,6 +104,11 @@ const routes = [
         path: 'dashboard',
         name: 'admin-dashboard',
         component: () => import('../views/admin/AdminDashboardView.vue')
+      },
+      {
+        path: 'pos',
+        name: 'admin-pos',
+        component: () => import('../views/admin/AdminPosView.vue')
       },
       {
         path: 'orders',
@@ -114,7 +126,13 @@ const routes = [
         component: () => import('../views/admin/AdminProductsView.vue')
       },
       {
+        path: 'main-categories',
+        name: 'admin-main-categories',
+        component: () => import('../views/admin/AdminMainCategoriesView.vue')
+      },
+      {
         path: 'categories',
+        alias: 'subcategories',
         name: 'admin-categories',
         component: () => import('../views/admin/AdminCategoriesView.vue')
       },
@@ -144,11 +162,6 @@ const routes = [
   // SUPER ADMIN (INTERNAL DEVELOPER) ROUTES
   // ==========================================
   {
-    path: '/super-admin/login',
-    name: 'superadmin-login',
-    component: () => import('../views/superadmin/SuperAdminLoginView.vue')
-  },
-  {
     path: '/super-admin',
     component: SuperAdminLayout,
     children: [
@@ -172,50 +185,75 @@ const routes = [
         component: () => import('../views/superadmin/SuperAdminManagementView.vue')
       }
     ]
+  },
+
+  // Fallback Catch All
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     }
-    return { top: 0 }
+    return { top: 0 };
   }
-})
+});
 
 // ==========================================
 // ROLE-BASED NAVIGATION GUARDS
 // ==========================================
 router.beforeEach((to, from, next) => {
-  const adminToken = localStorage.getItem('warung-admin-token')
-  const superAdminToken = localStorage.getItem('warung-superadmin-token')
+  const token = localStorage.getItem('warung-token');
+  const userRole = localStorage.getItem('warung-role') || (localStorage.getItem('warung-user') ? JSON.parse(localStorage.getItem('warung-user') || '{}').role : null);
 
-  // Super Admin route protection
-  if (to.path.startsWith('/super-admin') && to.name !== 'superadmin-login') {
-    if (!superAdminToken) {
-      return next({ name: 'superadmin-login' })
+  const isAuthenticated = !!token;
+  const isSuperAdmin = userRole === 'Super Admin' || !!localStorage.getItem('warung-superadmin-token');
+  const isAdminOrKasir = userRole === 'Admin' || userRole === 'Kasir' || isSuperAdmin || !!localStorage.getItem('warung-admin-token');
+  const isCustomer = userRole === 'Customer' || userRole === 'Member';
+
+  // 1. If already logged in and visiting /login -> redirect to role home
+  if (to.name === 'login' && isAuthenticated) {
+    if (isSuperAdmin) {
+      return next({ name: 'superadmin-dashboard' });
+    }
+    if (isAdminOrKasir) {
+      return next({ name: 'admin-dashboard' });
+    }
+    return next({ name: 'home' });
+  }
+
+  // 2. Super Admin route protection
+  if (to.path.startsWith('/super-admin')) {
+    if (!isAuthenticated) {
+      return next({ name: 'login' });
+    }
+    if (!isSuperAdmin) {
+      // Non-SuperAdmin cannot access /super-admin
+      if (isAdminOrKasir) {
+        return next({ name: 'admin-dashboard' });
+      }
+      return next({ name: 'home' });
     }
   }
 
-  if (to.name === 'superadmin-login' && superAdminToken) {
-    return next({ name: 'superadmin-dashboard' })
-  }
-
-  // Admin / Kasir route protection
-  if (to.path.startsWith('/admin') && to.name !== 'admin-login') {
-    if (!adminToken) {
-      return next({ name: 'admin-login' })
+  // 3. Admin / Kasir route protection
+  if (to.path.startsWith('/admin')) {
+    if (!isAuthenticated) {
+      return next({ name: 'login' });
+    }
+    if (isCustomer) {
+      // Customer cannot access admin panel
+      return next({ name: 'home' });
     }
   }
 
-  if (to.name === 'admin-login' && adminToken) {
-    return next({ name: 'admin-dashboard' })
-  }
+  next();
+});
 
-  next()
-})
-
-export default router
+export default router;
