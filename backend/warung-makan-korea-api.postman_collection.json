@@ -1,0 +1,342 @@
+{
+    "info": {
+        "name": "Warung Makan Korea API",
+        "description": "Dokumentasi API lengkap untuk project Warung Makan Korea. Koleksi ini kompatibel untuk Postman maupun EchoAPI.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost/api",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "1. Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Budi Santoso\",\n    \"phone_number\": \"081234567890\",\n    \"password\": \"password123\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "register"]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"phone_number\": \"081234567890\",\n    \"password\": \"password123\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Resend OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"phone_number\": \"081234567890\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/otp/send",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "otp", "send"]
+                        }
+                    }
+                },
+                {
+                    "name": "Verify OTP (Login)",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"phone_number\": \"081234567890\",\n    \"code\": \"123456\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/otp/verify",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "otp", "verify"]
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/auth/logout",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "logout"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Authenticated User",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/user",
+                            "host": ["{{base_url}}"],
+                            "path": ["user"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. Categories",
+            "item": [
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Category Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Category",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Makanan\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Category",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "PUT",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Makanan Ringan\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Category",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "DELETE",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/categories/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. Products",
+            "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Product",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"category_id\": 1,\n    \"name\": \"Tteokbokki Spesial\",\n    \"price\": 25000,\n    \"weight_or_unit\": \"1 Porsi\",\n    \"description\": \"Pedas manis khas Korea\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. Orders",
+            "item": [
+                {
+                    "name": "Create Order (Checkout)",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"customer_name\": \"Budi\",\n    \"customer_phone\": \"08123123123\",\n    \"order_type\": \"dine_in\",\n    \"notes\": \"Tidak pakai daun bawang\",\n    \"items\": [\n        {\n            \"product_id\": 1,\n            \"quantity\": 2,\n            \"notes\": \"Pedas\"\n        }\n    ]\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/orders",
+                            "host": ["{{base_url}}"],
+                            "path": ["orders"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Orders (Admin)",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/orders",
+                            "host": ["{{base_url}}"],
+                            "path": ["orders"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Order Status (Admin)",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "PUT",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"completed\", \n    \"payment_status\": \"paid\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/orders/1/status",
+                            "host": ["{{base_url}}"],
+                            "path": ["orders", "1", "status"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5. Bank Accounts",
+            "item": [
+                {
+                    "name": "Get Bank Accounts (Public)",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/bank-accounts?active=true",
+                            "host": ["{{base_url}}"],
+                            "path": ["bank-accounts"],
+                            "query": [
+                                { "key": "active", "value": "true" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Bank Account (Superadmin)",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"bank_name\": \"BCA\",\n    \"account_number\": \"1234567890\",\n    \"account_name\": \"Warung Makan Korea\",\n    \"is_active\": true\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/bank-accounts",
+                            "host": ["{{base_url}}"],
+                            "path": ["bank-accounts"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "6. Users",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": ["{{base_url}}"],
+                            "path": ["users"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

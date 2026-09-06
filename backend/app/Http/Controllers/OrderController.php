@@ -32,7 +32,17 @@ class OrderController extends Controller
 
     public function store(StoreOrderRequest $request)
     {
-        $order = $this->service->createOrder($request->validated());
+        $data = $request->validated();
+        
+        // Jika user login, otomatis ambil data nama dan nomor telepon dari profil
+        // jika tidak diisi di input
+        if (auth('api')->check()) {
+            $user = auth('api')->user();
+            $data['customer_name'] = $data['customer_name'] ?? $user->name;
+            $data['customer_phone'] = $data['customer_phone'] ?? $user->phone_number;
+        }
+
+        $order = $this->service->createOrder($data);
         return $this->successResponse(new OrderResource($order), 'Pesanan berhasil dibuat', 201);
     }
 
