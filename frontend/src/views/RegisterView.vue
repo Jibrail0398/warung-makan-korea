@@ -174,14 +174,16 @@ const handleRegister = async () => {
   try {
     await authService.register({
       name: name.value.trim(),
-      phone: phone.value.trim(),
+      phone_number: phone.value.trim(),
       password: password.value
     });
+
 
     router.push({
       path: '/verify-otp',
       query: { phone: phone.value.trim() }
     });
+
   } catch (err) {
     errorMessage.value = err.message || 'Gagal mengirim OTP. Silakan coba lagi.';
   } finally {

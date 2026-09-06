@@ -33,7 +33,7 @@ class AuthService
         );
 
         // 3. Kirim via WA JS
-        $message = "Halo! Ini adalah kode OTP untuk login/register Warung Makan Korea Anda:\n\n*{$code}*\n\nBerlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.";
+        $message = "chounen:\n\n*{$code}*\n\nKansamhamnida";
         return $this->waService->sendMessage($phone, $message);
     }
 
