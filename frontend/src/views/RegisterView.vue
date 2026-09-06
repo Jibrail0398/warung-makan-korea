@@ -62,16 +62,20 @@
 
       <div class="terms-field-wrap" :class="{ 'has-error': termsError }">
         <label class="terms-checkbox-label">
-          <input
+
+          <!-- Tidak perlu syarat dan Ketentuan -->
+          <!-- <input
             type="checkbox"
             v-model="agreeTerms"
             class="auth-checkbox"
             :aria-invalid="!!termsError"
             :aria-describedby="termsError ? 'terms-error' : null"
-          />
-          <span class="checkbox-text">
+          /> -->
+          <!-- <span class="checkbox-text">
             Saya menyetujui <a href="#" @click.prevent class="terms-link">Syarat &amp; Ketentuan</a>
-          </span>
+          </span> -->
+
+          
         </label>
         <p v-if="termsError" id="terms-error" class="error-text" role="alert">
           {{ termsError }}
@@ -159,10 +163,11 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (!agreeTerms.value) {
-    termsError.value = 'Anda harus menyetujui Syarat & Ketentuan';
-    isValid = false;
-  }
+  //Tidak perlu syarat dan ketentuan
+  // if (!agreeTerms.value) {
+  //   termsError.value = 'Anda harus menyetujui Syarat & Ketentuan';
+  //   isValid = false;
+  // }
 
   return isValid;
 };
