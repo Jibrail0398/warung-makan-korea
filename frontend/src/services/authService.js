@@ -1,4 +1,3 @@
-import { users } from '../data/user.js';
 import axios from 'axios';
 
 /**
@@ -8,8 +7,76 @@ import axios from 'axios';
 
 const apiBaseUrl = import.meta.env.VITE_API_URL
   || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
+const authStorageKey = 'warung-auth-data';
+const encryptionSecret = import.meta.env.VITE_AUTH_STORAGE_KEY || 'warung-makan-korea-auth';
+
+const toBase64 = (bytes) => {
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+};
+
+const fromBase64 = (value) => {
+  const binary = atob(value);
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+};
 
 export const authService = {
+
+  async encode(data) {
+    const secretBytes = new TextEncoder().encode(encryptionSecret);
+    const secretHash = await crypto.subtle.digest('SHA-256', secretBytes);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      secretHash,
+      { name: 'AES-GCM' },
+      false,
+      ['encrypt']
+    );
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encodedData = new TextEncoder().encode(JSON.stringify(data));
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encodedData
+    );
+
+    return `${toBase64(iv)}.${toBase64(new Uint8Array(encryptedData))}`;
+  },
+
+  async decode(encodedValue) {
+    if (!encodedValue) return null;
+
+    try {
+      const [encodedIv, encodedData] = encodedValue.split('.');
+      if (!encodedIv || !encodedData) return null;
+
+      const secretBytes = new TextEncoder().encode(encryptionSecret);
+      const secretHash = await crypto.subtle.digest('SHA-256', secretBytes);
+      const key = await crypto.subtle.importKey(
+        'raw',
+        secretHash,
+        { name: 'AES-GCM' },
+        false,
+        ['decrypt']
+      );
+      const decryptedData = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: fromBase64(encodedIv) },
+        key,
+        fromBase64(encodedData)
+      );
+
+      return JSON.parse(new TextDecoder().decode(decryptedData));
+    } catch {
+      return null;
+    }
+  },
+
+  async getStoredAuth() {
+    return this.decode(localStorage.getItem(authStorageKey));
+  },
 
 
   //Integrasi API Registrasi Akun
@@ -38,6 +105,13 @@ export const authService = {
       }
 
       const response = await axios.post(`${apiBaseUrl}/auth/otp/verify`,data);
+      const authData = response.data?.data;
+
+      if (authData) {
+        const encodedAuthData = await this.encode(authData);
+        localStorage.setItem(authStorageKey, encodedAuthData);
+      }
+
       return response.data;
       
     }catch(error){
@@ -61,23 +135,19 @@ export const authService = {
   },
   
 
-  async login(phone, password) {
-    // Simulated backend API call
-    await new Promise(resolve => setTimeout(resolve, 600));
-    if (!phone || !password) {
-      throw new Error('Nomor HP dan kata sandi wajib diisi');
+  // Integrasi API Login dan pengiriman OTP
+  async login(userData) {
+    try {
+      const response = await axios.post(`${apiBaseUrl}/auth/login`, {
+        phone_number: userData.phone_number,
+        password: userData.password
+      });
+
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login gagal. Silakan coba lagi.';
+      throw new Error(message);
     }
-    const cust = users.customer || { name: 'Budi Santoso', phone: '+82 10 2233 4455' };
-    return {
-      user: {
-        id: cust.id || 'CUST-001',
-        phone: phone || cust.phone,
-        name: cust.name || 'Budi Santoso',
-        email: cust.email || 'customer@example.com',
-        role: 'Member'
-      },
-      token: 'member-jwt-' + Date.now()
-    };
   },
 
 

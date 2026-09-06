@@ -22,6 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = '';
     localStorage.removeItem('warung-user');
     localStorage.removeItem('warung-token');
+    localStorage.removeItem('warung-auth-data');
   }
 
   return {

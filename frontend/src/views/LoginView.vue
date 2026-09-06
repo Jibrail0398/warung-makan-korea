@@ -40,9 +40,11 @@
 
       <div class="auth-options-row">
         <label class="remember-me-label">
-          <input type="checkbox" v-model="rememberMe" class="auth-checkbox" />
+
           <!-- Tidak perlu pakai ingat saya dulu -->
+          <!-- <input type="checkbox" v-model="rememberMe" class="auth-checkbox" /> -->
           <!-- <span>Ingat saya</span> -->
+           
         </label>
         <a href="#" class="forgot-password-link" @click.prevent="handleForgotPassword">Lupa kata sandi?</a>
       </div>
@@ -70,10 +72,9 @@ import AuthLayout from '../components/auth/AuthLayout.vue';
 import AuthInput from '../components/auth/AuthInput.vue';
 import AuthButton from '../components/auth/AuthButton.vue';
 import AuthDivider from '../components/auth/AuthDivider.vue';
-import { useAuthStore } from '../stores/auth.js';
+import { authService } from '../services/authService.js';
 
 const router = useRouter();
-const authStore = useAuthStore();
 
 const phone = ref('');
 const password = ref('');
@@ -113,8 +114,17 @@ const handleLogin = async () => {
 
   isLoading.value = true;
   try {
-    await authStore.login(phone.value.trim(), password.value);
-    router.push('/');
+    await authService.login({
+      phone_number: phone.value.trim(),
+      password: password.value
+    });
+
+    router.replace({
+      path: '/verify-otp',
+      state: {
+        phone: phone.value.trim()
+      }
+    });
   } catch (err) {
     errorMessage.value = err.message || 'Login gagal. Periksa nomor HP dan kata sandi Anda.';
   } finally {

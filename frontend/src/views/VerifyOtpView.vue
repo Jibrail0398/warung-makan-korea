@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import AuthLayout from '../components/auth/AuthLayout.vue';
 import AuthButton from '../components/auth/AuthButton.vue';
 import AuthDivider from '../components/auth/AuthDivider.vue';
@@ -154,7 +154,7 @@ const handleVerifyOtp = async () => {
   try {
     await authService.verifyOtp(rawPhone, code);
     alert('Verifikasi OTP Berhasil! Akun Anda telah aktif.');
-    router.push('/login');
+    router.push('/');
   } catch (err) {
     errorMessage.value = err.message || 'Kode OTP salah. Silakan periksa kembali.';
   } finally {

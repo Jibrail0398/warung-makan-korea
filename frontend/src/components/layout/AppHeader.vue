@@ -82,7 +82,7 @@
 
               <div class="profile-divider"></div>
 
-              <button type="button" class="logout-button">
+              <button type="button" class="logout-button" @click="handleLogout">
                 Logout
               </button>
             </div>
@@ -140,6 +140,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useCartStore } from '../../stores/cart.js';
+import { useAuthStore } from '../../stores/auth.js';
 import { useHeaderScroll } from '../../composables/useHeaderScroll.js';
 import MobileDrawer from './MobileDrawer.vue';
 
@@ -155,6 +156,7 @@ defineProps({
 });
 
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 const isDrawerOpen = ref(false);
 
 const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
@@ -174,6 +176,10 @@ function toggleDrawer() {
 
 function closeDrawer() {
   setDrawer(false);
+}
+
+function handleLogout() {
+  authStore.logout();
 }
 </script>
 
