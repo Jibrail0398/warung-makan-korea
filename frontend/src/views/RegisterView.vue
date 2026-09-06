@@ -113,7 +113,8 @@ const name = ref('');
 const phone = ref('');
 const password = ref('');
 const passwordConfirmation = ref('');
-const agreeTerms = ref(false);
+//Tidak perlu pakai agreeterms dulu
+// const agreeTerms = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
@@ -186,7 +187,9 @@ const handleRegister = async () => {
 
     router.push({
       path: '/verify-otp',
-      query: { phone: phone.value.trim() }
+      state: {
+        phone: phone.value.trim()
+      }
     });
 
   } catch (err) {

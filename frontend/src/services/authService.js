@@ -11,48 +11,55 @@ const apiBaseUrl = import.meta.env.VITE_API_URL
 
 export const authService = {
 
+
+  //Integrasi API Registrasi Akun
   async register(userData) {
     try {
       const response = await axios.post(`${apiBaseUrl}/auth/register`, {
         name: userData.name,
-        phone_number: userData.phone_number
+        phone_number: userData.phone_number,
+        password: userData.password
       });
       
       return response.data;
     } catch (error) {
-      if (!error.response) {
-        if (error.request) {
-          throw new Error('Server tidak dapat dihubungi. Pastikan backend sedang berjalan.');
-        }
-
-        throw new Error('Permintaan registrasi gagal disiapkan. Silakan coba lagi.');
-      }
-
-      const { status, data } = error.response;
-      console.log(error.response)
-      const validationErrors = data?.errors || data?.data?.errors;
-      const validationMessage = validationErrors
-        ? Object.values(validationErrors).flat()[0]
-        : null;
-
-      switch (status) {
-        case 400:
-          throw new Error(data?.message || 'Data registrasi tidak valid.');
-        case 409:
-          throw new Error('Nomor HP tersebut sudah terdaftar.');
-        case 422:
-          throw new Error(validationMessage || data?.message || 'Data registrasi tidak valid.');
-        case 500:
-        case 502:
-        case 503:
-          throw new Error('Registrasi gagal diproses server. Silakan coba lagi.');
-        default:
-          throw new Error(data?.message || `Registrasi gagal (kode ${status}).`);
-      }
+      const message = error.response.data.message;
+      throw new Error(message);
     }
   },
 
+  //Integrasi API Verifikasi OTP
+  async verifyOtp(phone, code) {
+    try{
 
+      const data = {
+        "phone_number":phone,
+        "code":code
+      }
+
+      const response = await axios.post(`${apiBaseUrl}/auth/otp/verify`,data);
+      return response.data;
+      
+    }catch(error){
+      const message = error.response.data.message;
+      throw new Error(message);
+    }
+  },
+
+  //Integrasi API SendOTP
+  async sendOtp(phone) {
+    try{
+      const data = {
+        phone_number:phone
+      }
+      const response = await axios.post(`${apiBaseUrl}/auth/otp/send`,data);
+      return response.data;
+    }catch(error){
+      const message = error.response.data.message;
+      throw new Error(message);
+    }
+  },
+  
 
   async login(phone, password) {
     // Simulated backend API call
@@ -74,16 +81,7 @@ export const authService = {
   },
 
 
-  async sendOtp(phone) {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    return { status: 'otp_sent', phone };
-  },
+  
 
-  async verifyOtp(phone, code) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (code === '000000') {
-      throw new Error('Kode OTP sudah kedaluwarsa. Silakan kirim ulang OTP.');
-    }
-    return { status: 'verified', phone };
-  }
+  
 };

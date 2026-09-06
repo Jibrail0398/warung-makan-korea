@@ -41,7 +41,8 @@
       <div class="auth-options-row">
         <label class="remember-me-label">
           <input type="checkbox" v-model="rememberMe" class="auth-checkbox" />
-          <span>Ingat saya</span>
+          <!-- Tidak perlu pakai ingat saya dulu -->
+          <!-- <span>Ingat saya</span> -->
         </label>
         <a href="#" class="forgot-password-link" @click.prevent="handleForgotPassword">Lupa kata sandi?</a>
       </div>
