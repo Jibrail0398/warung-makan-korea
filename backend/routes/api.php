@@ -9,15 +9,10 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BankAccountController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
-
 // Auth Routes (Public)
 Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/otp/send', [AuthController::class, 'sendOtp']); // Untuk login
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/otp/send', [AuthController::class, 'sendOtp']);
 Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp']);
 
 // Public Endpoints
@@ -25,8 +20,8 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
-Route::get('/bank-accounts', [BankAccountController::class, 'index']); // Publik bisa melihat no rek tujuan transfer
-Route::post('/orders', [OrderController::class, 'store']); // Guest can checkout
+Route::get('/bank-accounts', [BankAccountController::class, 'index']); 
+Route::post('/orders', [OrderController::class, 'store']);
 
 // Protected Endpoints
 Route::middleware('auth:api')->group(function () {
@@ -46,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/products/{product}', [ProductController::class, 'update']);
         Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
+        Route::get('/bank-accounts', [BankAccountController::class, 'index']);
         Route::get('/bank-accounts/{bank_account}', [BankAccountController::class, 'show']);
         Route::post('/bank-accounts', [BankAccountController::class, 'store']);
         Route::put('/bank-accounts/{bank_account}', [BankAccountController::class, 'update']);
