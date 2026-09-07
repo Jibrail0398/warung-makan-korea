@@ -48,34 +48,28 @@
           </details>
         </nav>
 
-<div class="header-actions">
-  <!-- Tampilkan kalau sudah login -->
-  <details v-if="isLoggedIn" class="profile-dropdown">
-    <summary class="profile-trigger">
-      <span class="profile-avatar">{{ userInitial }}</span>
-      <span class="profile-name">{{ userName }}</span>
+        <div class="header-actions">
+          <details class="profile-dropdown">
+            <summary class="profile-trigger">
+              <span class="profile-avatar">{{ authStore.displayName.charAt(0).toUpperCase() }}</span>
+              <span class="profile-name">{{ authStore.displayName }}</span>
 
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="m7 10 5 5 5-5"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </summary>
-
-    <div class="profile-menu">
-      <router-link to="/profile">
-        My Profile
-      </router-link>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="m7 10 5 5 5-5"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </summary>
 
       <router-link to="/order-history">
         Order History
@@ -89,54 +83,28 @@
         Super Admin Dashboard
       </router-link>
 
-      <div class="profile-divider"></div>
+              <button
+                v-if="authStore.isAuthenticated"
+                type="button"
+                class="logout-button"
+                @click="handleLogout"
+              >
+                Logout
+              </button>
+            </div>
+          </details>
 
-      <button type="button" class="logout-button" @click="logout">
-        Logout
-      </button>
-    </div>
-  </details>
-
-  <!-- Tampilkan Login kalau belum login -->
-  <router-link
-    v-else
-    class="login-link"
-    to="/login"
-  >
-    Login
-  </router-link>
-
-  <!-- Cart tetap selalu ada -->
-  <router-link class="cart-link" to="/cart" aria-label="Open cart">
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M3.5 4h2l1.8 10.2a2 2 0 0 0 2 1.7h7.9a2 2 0 0 0 2-1.6L20.5 8H6.3"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-      <path
-        d="M9.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1ZM17.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-
-    <span class="cart-text">Cart</span>
-    <span class="cart-badge" aria-live="polite">
-      {{ cartStore.cartCount }}
-    </span>
-  </router-link>
-</div>
+          <router-link v-if="!authStore.isAuthenticated" class="login-link" to="/login">
+            Login
+          </router-link>
+          <router-link class="cart-link" to="/cart" aria-label="Open cart">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3.5 4h2l1.8 10.2a2 2 0 0 0 2 1.7h7.9a2 2 0 0 0 2-1.6L20.5 8H6.3M9.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1ZM17.5 20a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="cart-text">Cart</span>
+            <span class="cart-badge" aria-live="polite">{{ cartStore.cartCount }}</span>
+          </router-link>
+        </div>
 
         <router-link class="icon-button mobile-header-action" to="/cart" aria-label="Open cart">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -202,7 +170,6 @@ const router = useRouter();
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
-
 const isDrawerOpen = ref(false);
 
 const isLoggedIn = computed(() => {
@@ -246,6 +213,8 @@ const logout = () => {
 
 const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
 
+authStore.hydrate();
+
 function setDrawer(open) {
   isDrawerOpen.value = open;
 
@@ -262,6 +231,10 @@ function toggleDrawer() {
 
 function closeDrawer() {
   setDrawer(false);
+}
+
+function handleLogout() {
+  authStore.logout();
 }
 </script>
 

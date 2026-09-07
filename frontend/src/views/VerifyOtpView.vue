@@ -1,7 +1,7 @@
 <template>
   <AuthLayout
     title="Verifikasi nomor HP"
-    subtitle="Masukkan kode OTP yang telah dikirim ke nomor +8212-****-789"
+    :subtitle="subtitle"
   >
     <form @submit.prevent="handleVerifyOtp" class="auth-form" novalidate>
       <div v-if="errorMessage" class="global-error-box" role="alert">
@@ -60,16 +60,16 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import AuthLayout from '../components/auth/AuthLayout.vue';
 import AuthButton from '../components/auth/AuthButton.vue';
 import AuthDivider from '../components/auth/AuthDivider.vue';
 import { authService } from '../services/authService.js';
 
-const route = useRoute();
-const router = useRouter();
 
-const rawPhone = route.query.phone || '+82 10-1234-5678';
+const router = useRouter();
+const rawPhone = history.state?.phone || '';
+const subtitle = `Masukkan kode OTP yang telah dikirim ke nomor ${rawPhone}`
 
 const otpDigits = ref(['', '', '', '', '', '']);
 const inputRefs = ref([]);
@@ -94,6 +94,13 @@ const startTimer = () => {
     }
   }, 1000);
 };
+
+onMounted(() => {
+  if (!rawPhone) {
+    alert('Sesi tidak valid atau telah berakhir. Silakan daftar kembali.');
+    router.replace({ path: '/register' });
+  }
+});
 
 const resendOtp = async () => {
   errorMessage.value = '';
@@ -146,8 +153,8 @@ const handleVerifyOtp = async () => {
   isLoading.value = true;
   try {
     await authService.verifyOtp(rawPhone, code);
-    alert('Verifikasi OTP Berhasil! Akun Anda telah aktif.');
-    router.push('/login');
+    alert('Verifikasi OTP Berhasil!.');
+    router.push('/');
   } catch (err) {
     errorMessage.value = err.message || 'Kode OTP salah. Silakan periksa kembali.';
   } finally {

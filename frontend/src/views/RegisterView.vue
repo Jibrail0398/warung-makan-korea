@@ -62,16 +62,20 @@
 
       <div class="terms-field-wrap" :class="{ 'has-error': termsError }">
         <label class="terms-checkbox-label">
-          <input
+
+          <!-- Tidak perlu syarat dan Ketentuan -->
+          <!-- <input
             type="checkbox"
             v-model="agreeTerms"
             class="auth-checkbox"
             :aria-invalid="!!termsError"
             :aria-describedby="termsError ? 'terms-error' : null"
-          />
-          <span class="checkbox-text">
+          /> -->
+          <!-- <span class="checkbox-text">
             Saya menyetujui <a href="#" @click.prevent class="terms-link">Syarat &amp; Ketentuan</a>
-          </span>
+          </span> -->
+
+          
         </label>
         <p v-if="termsError" id="terms-error" class="error-text" role="alert">
           {{ termsError }}
@@ -109,7 +113,8 @@ const name = ref('');
 const phone = ref('');
 const password = ref('');
 const passwordConfirmation = ref('');
-const agreeTerms = ref(false);
+//Tidak perlu pakai agreeterms dulu
+// const agreeTerms = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
@@ -159,10 +164,11 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (!agreeTerms.value) {
-    termsError.value = 'Anda harus menyetujui Syarat & Ketentuan';
-    isValid = false;
-  }
+  //Tidak perlu syarat dan ketentuan
+  // if (!agreeTerms.value) {
+  //   termsError.value = 'Anda harus menyetujui Syarat & Ketentuan';
+  //   isValid = false;
+  // }
 
   return isValid;
 };
@@ -174,14 +180,18 @@ const handleRegister = async () => {
   try {
     await authService.register({
       name: name.value.trim(),
-      phone: phone.value.trim(),
+      phone_number: phone.value.trim(),
       password: password.value
     });
 
+
     router.push({
       path: '/verify-otp',
-      query: { phone: phone.value.trim() }
+      state: {
+        phone: phone.value.trim()
+      }
     });
+
   } catch (err) {
     errorMessage.value = err.message || 'Gagal mengirim OTP. Silakan coba lagi.';
   } finally {

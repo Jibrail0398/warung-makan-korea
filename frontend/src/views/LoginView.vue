@@ -77,8 +77,11 @@
 
       <div class="auth-options-row">
         <label class="remember-me-label">
-          <input type="checkbox" v-model="rememberMe" class="auth-checkbox" />
-          <span>Ingat saya di perangkat ini</span>
+
+          <!-- Tidak perlu pakai ingat saya dulu -->
+          <!-- <input type="checkbox" v-model="rememberMe" class="auth-checkbox" /> -->
+          <!-- <span>Ingat saya</span> -->
+           
         </label>
         <a href="#" class="forgot-password-link" @click.prevent="handleForgotPassword">Lupa kata sandi?</a>
       </div>
@@ -111,11 +114,9 @@ import AuthLayout from '../components/auth/AuthLayout.vue';
 import AuthInput from '../components/auth/AuthInput.vue';
 import AuthButton from '../components/auth/AuthButton.vue';
 import AuthDivider from '../components/auth/AuthDivider.vue';
-import { useAuthStore } from '../stores/auth.js';
+import { authService } from '../services/authService.js';
 
 const router = useRouter();
-const route = useRoute();
-const authStore = useAuthStore();
 
 const identifier = ref('+82 10 2233 4455');
 const password = ref('password123');
@@ -175,20 +176,17 @@ const handleLogin = async () => {
   errorMessage.value = '';
 
   try {
-    const res = await authStore.login(identifier.value.trim(), password.value);
-    
-    // Redirect based on role
-    const userRole = res.role;
-    if (userRole === 'Super Admin') {
-      router.push('/super-admin/dashboard');
-    } else if (userRole === 'Admin' || userRole === 'Kasir') {
-      // If cashier directly, can go to POS or dashboard
-      router.push('/admin/dashboard');
-    } else {
-      // Customer redirect to target or home
-      const redirectPath = route.query.redirect || '/';
-      router.push(redirectPath);
-    }
+    await authService.login({
+      phone_number: phone.value.trim(),
+      password: password.value
+    });
+
+    router.replace({
+      path: '/verify-otp',
+      state: {
+        phone: phone.value.trim()
+      }
+    });
   } catch (err) {
     errorMessage.value = err.message || 'Login gagal. Periksa nomor HP / kredensial dan kata sandi Anda.';
   } finally {
