@@ -3,7 +3,7 @@
     class="product-card"
     tabindex="0"
     :aria-label="`View ${product.name} details`"
-    @click="$emit('select', product.id)"
+    
     @keydown.enter="$emit('select', product.id)"
   >
     <div class="product-image">
@@ -98,7 +98,7 @@ defineEmits(['select', 'increase', 'decrease']);
   border-radius: var(--r-md);
   background: var(--paper);
 
-  cursor: pointer;
+  
 
   transition:
     border-color var(--ease),

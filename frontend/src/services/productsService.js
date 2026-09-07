@@ -7,12 +7,6 @@ import axios from 'axios';
 const apiBaseUrl = import.meta.env.VITE_API_URL
   || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
 
-const rawCategorySlugs = new Set([
-        'bahan-mentah-daging',
-        'bumbu-sambal',
-        'beras-sembako',
-        'camilan-tambahan'
-]);
 
 
 export const productService = {
@@ -33,11 +27,10 @@ export const productService = {
                         name: item.name,
                         description: item.description || '',
                         image: item.image_url || '',
-                        price: `₩${numericPrice.toLocaleString('ko-KR')}`,
                         numericPrice,
-                        category: rawCategorySlugs.has(categorySlug) ? 'raw' : 'restaurant',
+                        price: `₩${numericPrice.toLocaleString('ko-KR')}`,
+                        category: categorySlug,
                         categoryId: item.category_id,
-                        subcategoryId: item.category_id,
                         weightOrUnit: item.weight_or_unit || '',
                         isActive: item.is_active !== false
                     };

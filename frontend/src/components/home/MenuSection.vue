@@ -6,7 +6,7 @@
           <span class="eyebrow">Our selection</span>
           <h2 class="section-title" id="menuTitle">Order from our menu</h2>
         </div>
-        <p class="section-copy">Discover ready-to-enjoy dishes and pantry essentials selected for an authentic Indonesian table.</p>
+        
       </div>
 
       <div class="menu-controls">
@@ -26,33 +26,27 @@
           />
         </label>
 
-        <div class="category-tabs" id="categoryTabs" role="group" aria-label="Product categories">
+      </div>
+       <div v-if="availableSubcategories.length > 0" class="subcategories-filter-row">
           <button
             type="button"
-            :class="{ active: currentCategory === 'all' }"
-            :aria-pressed="currentCategory === 'all'"
-            @click="$emit('selectCategory', 'all')"
+            class="subcat-chip-btn"
+            :class="{ active: currentSubcategory === 'all' }"
+            @click="setSubcategory('all')"
           >
-            All
+            All Subcategories
           </button>
           <button
+            v-for="sub in availableSubcategories"
+            :key="sub.id"
             type="button"
-            :class="{ active: currentCategory === 'restaurant' }"
-            :aria-pressed="currentCategory === 'restaurant'"
-            @click="$emit('selectCategory', 'restaurant')"
+            class="subcat-chip-btn"
+            :class="{ active: currentSubcategory === sub.id }"
+            @click="setSubcategory(sub.id)"
           >
-            Restaurant Menu
-          </button>
-          <button
-            type="button"
-            :class="{ active: currentCategory === 'raw' }"
-            :aria-pressed="currentCategory === 'raw'"
-            @click="$emit('selectCategory', 'raw')"
-          >
-            Raw Material
+            {{ sub.name }}
           </button>
         </div>
-      </div>
 
       <div id="productGridContainer" aria-live="polite" :aria-busy="isLoading">
         <div v-if="isLoading" class="skeleton-grid" aria-label="Loading products">
@@ -102,18 +96,14 @@
       </nav>
 
       <div class="view-all-row">
-        <router-link class="text-link" to="/menu">
-          View all products
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </router-link>
+        
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { watch } from 'vue';
 import { useCartStore } from '../../stores/cart.js';
 import MenuCard from '../common/MenuCard.vue';
 
@@ -124,6 +114,14 @@ const props = defineProps({
   },
   currentCategory: {
     type: String,
+    default: 'all'
+  },
+  availableSubcategories: {
+    type: Array,
+    default: () => []
+  },
+  currentSubcategory: {
+    type: [String, Number],
     default: 'all'
   },
   searchQuery: {
@@ -147,12 +145,23 @@ const props = defineProps({
 const emit = defineEmits([
   'update:searchQuery',
   'selectCategory',
+  'update:currentSubcategory',
   'changePage',
   'resetFilters',
   'showToast'
 ]);
 
 const cartStore = useCartStore();
+
+function setSubcategory(subcategory) {
+  emit('update:currentSubcategory', subcategory);
+}
+
+watch(
+  () => props.products,
+  (items) => cartStore.registerProducts(items),
+  { immediate: true }
+);
 
 function navigateToProduct(id) {
   window.location.href = `/products/${id}`;
@@ -448,6 +457,36 @@ function handleDecrease(product) {
     max-width: 100%;
     overflow-x: auto;
   }
+}
+
+.subcategories-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.subcat-chip-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+.subcat-chip-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.subcat-chip-btn.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
 }
 
 @media (max-width: 640px) {

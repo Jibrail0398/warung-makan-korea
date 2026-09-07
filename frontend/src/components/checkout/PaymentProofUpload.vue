@@ -112,7 +112,7 @@ async function confirmPayment() {
   try {
     const orderItems = cartStore.cartItems.length > 0
       ? cartStore.cartItems.map(item => ({
-          id: item.id,
+          product_id: item.id,
           name: item.name,
           price: item.numericPrice || 12000,
           quantity: item.quantity,
@@ -135,8 +135,8 @@ async function confirmPayment() {
       },
       orderType: 'Takeaway',
       items: orderItems,
-      subtotal: cartStore.subtotal || 39000,
-      total: cartStore.total || 39000,
+      subtotal: cartStore.subtotal,
+      total: cartStore.total,
       paymentMethod: 'Bank Transfer',
       isMember
     };

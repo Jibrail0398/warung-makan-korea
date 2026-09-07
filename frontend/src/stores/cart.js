@@ -13,35 +13,60 @@ export const useCartStore = defineStore('cart', () => {
   };
 
   const cart = ref(initialCart);
+  const storedProducts = JSON.parse(localStorage.getItem('warung-cart-products') || '{}');
+  const productCatalog = ref({
+    ...products.reduce((catalog, product) => {
+      catalog[product.id] = product;
+      return catalog;
+    }, {}),
+    ...storedProducts
+  });
 
   function saveCart() {
     localStorage.setItem('warung-cart', JSON.stringify(cart.value));
   }
 
+  function saveProductCatalog() {
+    localStorage.setItem('warung-cart-products', JSON.stringify(productCatalog.value));
+  }
+
+  function registerProducts(items) {
+    items.forEach((item) => {
+      const numericPrice = Number(item.numericPrice ?? item.price);
+      productCatalog.value[item.id] = {
+        ...item,
+        numericPrice: Number.isFinite(numericPrice) ? numericPrice : 0
+      };
+    });
+    saveProductCatalog();
+  }
+
   const cartItems = computed(() => {
-    return products
-      .filter(product => cart.value[product.id] > 0)
-      .map(product => ({
-        ...product,
-        quantity: cart.value[product.id]
+    return Object.entries(cart.value)
+      .filter(([id, quantity]) => Number(quantity) > 0 && productCatalog.value[id])
+      .map(([id, quantity]) => ({
+        ...productCatalog.value[id],
+        quantity: Number(quantity)
       }));
   });
 
   const cartCount = computed(() => {
-    return Object.values(cart.value).reduce((total, qty) => total + (qty || 0), 0);
+    return cartItems.value.reduce((total, item) => total + item.quantity, 0);
   });
 
   const subtotal = computed(() => {
-    return cartItems.value.reduce((total, item) => total + item.numericPrice * item.quantity, 0);
+    return cartItems.value.reduce((total, item) => total + Number(item.numericPrice || 0) * item.quantity, 0);
   });
 
-  const delivery = computed(() => {
-    if (cartItems.value.length === 0) return 0;
-    return subtotal.value >= 50000 ? 0 : 3000;
-  });
+  // Delivery (disabled)
+  // const delivery = computed(() => {
+  //   if (cartItems.value.length === 0) return 0;
+  //   return subtotal.value >= 50000 ? 0 : 3000;
+  // });
+  const delivery = computed(() => 0);
 
   const total = computed(() => {
-    return subtotal.value + delivery.value;
+    return subtotal.value;
   });
 
   function getQuantity(productId) {
@@ -105,6 +130,7 @@ export const useCartStore = defineStore('cart', () => {
     decreaseQuantity,
     removeItem,
     clearCart,
+    registerProducts,
     formatPrice
   };
 });

@@ -2,7 +2,7 @@
   <div class="cart-item">
     <div class="cart-item-image">
       <img
-        :src="item.image"
+        :src="resolveImageUrl(item.image)"
         :alt="`${item.name} Indonesian product`"
       />
     </div>
@@ -59,6 +59,29 @@ defineProps({
     required: true
   }
 });
+
+function resolveImageUrl(image) {
+  if (!image) return null;
+
+  const externalImage = image.match(
+    /^https?:\/\/[^/]+\/storage\/(https?:\/\/.+)$/
+  );
+
+  if (externalImage) {
+    return externalImage[1];
+  }
+
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image;
+  }
+
+  if (image.startsWith('images.')) {
+    return `https://${image}`;
+  }
+
+  return `http://localhost:8000/storage/${image}`;
+}
+
 
 const cartStore = useCartStore();
 </script>

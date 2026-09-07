@@ -58,10 +58,12 @@
                 <strong>{{ cartStore.formatPrice(cartStore.subtotal) }}</strong>
               </div>
 
+              <!-- Delivery (disabled)
               <div class="summary-row">
                 <span>Delivery</span>
                 <strong>{{ cartStore.delivery === 0 ? 'Free' : cartStore.formatPrice(cartStore.delivery) }}</strong>
               </div>
+              -->
 
               <div class="summary-divider"></div>
 

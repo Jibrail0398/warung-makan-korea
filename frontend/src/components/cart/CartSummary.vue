@@ -3,141 +3,145 @@
     <span class="eyebrow">Order summary</span>
     <h2>Summary</h2>
 
-<div class="order-options">
+  <div class="order-options">
 
-<!-- Member / Logged in Customer Info -->
-<div v-if="isLoggedIn" class="member-checkout-badge">
-  <div class="member-badge-content">
-    <span class="member-label">Pemesanan atas nama:</span>
-    <strong class="member-name">{{ authStore.user?.name || authStore.user?.username || 'Pelanggan Member' }}</strong>
-    <small class="member-phone">{{ authStore.user?.phone || '' }}</small>
-  </div>
-</div>
-
-<!-- Guest Information -->
-<div v-else class="guest-information">
-  <!-- Guest Name -->
-  <div class="order-option">
-    <label for="guestName">Name</label>
-    <input
-      id="guestName"
-      v-model="guestName"
-      type="text"
-      placeholder="Enter your name"
-      autocomplete="name"
-    />
+  <!-- Member / Logged in Customer Info -->
+  <div v-if="isLoggedIn" class="member-checkout-badge">
+    <div class="member-badge-content">
+      <span class="member-label">Pemesanan atas nama:</span>
+      <strong class="member-name">{{ authStore.user?.name || authStore.user?.username || 'Pelanggan Member' }}</strong>
+      <small class="member-phone">{{ authStore.user?.phone || '' }}</small>
+    </div>
   </div>
 
-  <!-- Phone Number -->
-  <div class="order-option">
-    <label for="phoneNumber">Phone number</label>
-    <input
-      id="phoneNumber"
-      v-model="phoneNumber"
-      type="tel"
-      inputmode="numeric"
-      pattern="[0-9]*"
-      placeholder="Enter your phone number"
-      autocomplete="tel"
-      @input="phoneNumber = phoneNumber.replace(/\D/g, '')"
-    />
+  <!-- Guest Information -->
+  <div v-else class="guest-information">
+    <!-- Guest Name -->
+    <div class="order-option">
+      <label for="guestName">Name</label>
+      <input
+        id="guestName"
+        v-model="guestName"
+        type="text"
+        placeholder="Enter your name"
+        autocomplete="name"
+      />
+    </div>
+
+    <!-- Phone Number -->
+    <div class="order-option">
+      <label for="phoneNumber">Phone number</label>
+      <input
+        id="phoneNumber"
+        v-model="phoneNumber"
+        type="tel"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="Enter your phone number"
+        autocomplete="tel"
+        @input="phoneNumber = phoneNumber.replace(/\D/g, '')"
+      />
+    </div>
   </div>
-</div>
 
-  <!-- Order Note -->
-  <div class="order-option">
-    <label for="orderNote">Order note <span>(optional)</span></label>
-    <textarea
-      id="orderNote"
-      v-model="orderNote"
-      placeholder="Add a note for your order..."
-      rows="3"
-    ></textarea>
-  </div>
+    <!-- Order Note (disabled)
+    <div class="order-option">
+      <label for="orderNote">Order note <span>(optional)</span></label>
+      <textarea
+        id="orderNote"
+        v-model="orderNote"
+        placeholder="Add a note for your order..."
+        rows="3"
+      ></textarea>
+    </div>
+    -->
 
-  <!-- Order Type -->
-  <div class="order-option">
-    <label>Order type</label>
-    <div class="custom-select">
-      <button
-        type="button"
-        class="custom-select-button"
-        @click="orderTypeOpen = !orderTypeOpen"
-      >
-        {{ orderTypeLabel }}
-        <span class="custom-select-arrow" :class="{ open: orderTypeOpen }"></span>
-      </button>
-
-      <div v-if="orderTypeOpen" class="custom-select-menu">
+    <!-- Order Type (disabled)
+    <div class="order-option">
+      <label>Order type</label>
+      <div class="custom-select">
         <button
-          v-for="option in orderTypeOptions"
-          :key="option.value"
           type="button"
-          class="custom-select-option"
-          @click="selectOrderType(option.value)"
+          class="custom-select-button"
+          @click="orderTypeOpen = !orderTypeOpen"
         >
-          {{ option.label }}
+          {{ orderTypeLabel }}
+          <span class="custom-select-arrow" :class="{ open: orderTypeOpen }"></span>
         </button>
+
+        <div v-if="orderTypeOpen" class="custom-select-menu">
+          <button
+            v-for="option in orderTypeOptions"
+            :key="option.value"
+            type="button"
+            class="custom-select-option"
+            @click="selectOrderType(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+    -->
 
-  <!-- Schedule -->
-  <div class="order-option">
-    <label>Schedule</label>
-    <div class="custom-select">
-      <button
-        type="button"
-        class="custom-select-button"
-        @click="scheduleOpen = !scheduleOpen"
-      >
-        {{ scheduleLabel }}
-        <span class="custom-select-arrow" :class="{ open: scheduleOpen }"></span>
-      </button>
-
-      <div v-if="scheduleOpen" class="custom-select-menu">
+    <!-- Schedule (disabled)
+    <div class="order-option">
+      <label>Schedule</label>
+      <div class="custom-select">
         <button
-          v-for="option in scheduleOptions"
-          :key="option.value"
           type="button"
-          class="custom-select-option"
-          @click="selectSchedule(option.value)"
+          class="custom-select-button"
+          @click="scheduleOpen = !scheduleOpen"
         >
-          {{ option.label }}
+          {{ scheduleLabel }}
+          <span class="custom-select-arrow" :class="{ open: scheduleOpen }"></span>
         </button>
+
+        <div v-if="scheduleOpen" class="custom-select-menu">
+          <button
+            v-for="option in scheduleOptions"
+            :key="option.value"
+            type="button"
+            class="custom-select-option"
+            @click="selectSchedule(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Scheduled Date & Time -->
-  <div v-if="scheduleType === 'schedule'" class="schedule-fields">
-    <div class="order-option">
-      <label for="scheduleDate">Date</label>
-      <input id="scheduleDate" v-model="scheduleDate" type="date" />
+    <div v-if="scheduleType === 'schedule'" class="schedule-fields">
+      <div class="order-option">
+        <label for="scheduleDate">Date</label>
+        <input id="scheduleDate" v-model="scheduleDate" type="date" />
+      </div>
+
+      <div class="order-option">
+        <label for="scheduleTime">Time</label>
+        <input id="scheduleTime" v-model="scheduleTime" type="time" />
+      </div>
     </div>
+    -->
 
-    <div class="order-option">
-      <label for="scheduleTime">Time</label>
-      <input id="scheduleTime" v-model="scheduleTime" type="time" />
-    </div>
   </div>
-
-</div>
 
     <div class="summary-lines">
       <div>
         <span>Subtotal</span>
         <strong>{{ cartStore.formatPrice(cartStore.subtotal) }}</strong>
       </div>
+      <!-- Delivery (disabled)
       <div>
         <span>Delivery</span>
         <strong>{{ cartStore.delivery === 0 ? 'Free' : cartStore.formatPrice(cartStore.delivery) }}</strong>
       </div>
+      -->
     </div>
 
     <div class="summary-total">
       <span>Total</span>
-      <strong>{{ cartStore.formatPrice(cartStore.total) }}</strong>
+      <strong>{{ cartStore.formatPrice(cartStore.subtotal) }}</strong>
     </div>
 
     <router-link class="checkout-button" to="/checkout">

@@ -14,12 +14,6 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/menu',
-    alias: ['/products', '/all-menu'],
-    name: 'menu',
-    component: () => import('../views/MenuView.vue')
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue')
