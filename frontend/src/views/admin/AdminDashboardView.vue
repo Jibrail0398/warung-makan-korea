@@ -78,38 +78,21 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted, computed } from 'vue';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
-import { adminService } from '../../services/adminService.js';
+import { h, ref, computed } from 'vue';
+import { useAuthStore } from '../../stores/auth.js';
 import StatCard from '../../components/admin/StatCard.vue';
 import SalesOverview from '../../components/admin/SalesOverview.vue';
 import RecentOrders from '../../components/admin/RecentOrders.vue';
 import LowStockAlert from '../../components/admin/LowStockAlert.vue';
 
-const adminAuthStore = useAdminAuthStore();
-const adminName = computed(() => adminAuthStore.adminUser?.name || 'Admin');
+const authStore = useAuthStore();
+const adminName = computed(() => authStore.user?.name || 'Admin');
 
 const stats = ref({
   todayOrders: '28',
   todayRevenue: '₩1,240,000',
   pendingOrders: '4',
   completedOrders: '24'
-});
-
-onMounted(async () => {
-  try {
-    const report = await adminService.getTransactionReport({ period: 'today' });
-    if (report && report.summary) {
-      stats.value = {
-        todayOrders: String(report.summary.totalOrders || 28),
-        todayRevenue: report.summary.formattedRevenue || '₩1,240,000',
-        pendingOrders: String(report.summary.pendingOrders || 4),
-        completedOrders: String(report.summary.completedOrders || 24)
-      };
-    }
-  } catch (err) {
-    console.warn('Load dashboard metrics failed:', err);
-  }
 });
 
 const OrderIcon = {

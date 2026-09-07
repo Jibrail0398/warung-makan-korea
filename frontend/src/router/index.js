@@ -232,7 +232,7 @@ router.beforeEach(async (to) => {
   const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
   const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase())
 
-  if (to.path.startsWith('/admin') && normalizedAllowedRoles.includes(currentRole)) {
+  if (normalizedAllowedRoles.includes(currentRole)) {
     return true
   }
 

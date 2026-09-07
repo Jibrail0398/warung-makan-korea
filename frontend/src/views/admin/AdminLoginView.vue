@@ -18,20 +18,20 @@
         </div>
 
         <div class="form-group">
-          <label for="admin-identifier" class="form-label">Username atau Email</label>
+          <label for="admin-phone" class="form-label">Nomor HP</label>
           <div class="input-wrapper">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8" />
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <input
-              id="admin-identifier"
-              type="text"
-              v-model="identifier"
+              id="admin-phone"
+              type="tel"
+              v-model="phoneNumber"
               class="form-input"
-              placeholder="admin / kasir / email@warungnusantara.kr"
+              placeholder="0812-3456-7890"
               required
-              autocomplete="username"
+              autocomplete="tel"
+              inputmode="numeric"
             />
           </div>
         </div>
@@ -98,21 +98,22 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
+import { useAuthStore } from '../../stores/auth.js';
+import { authService } from '../../services/authService.js';
 
 const router = useRouter();
-const adminAuthStore = useAdminAuthStore();
+const authStore = useAuthStore();
 
-const identifier = ref('admin');
-const password = ref('admin123');
+const phoneNumber = ref('');
+const password = ref('');
 const rememberMe = ref(true);
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
 const handleLogin = async () => {
-  if (!identifier.value.trim() || !password.value) {
-    errorMessage.value = 'Mohon isi username/email dan kata sandi';
+  if (!phoneNumber.value.trim() || !password.value) {
+    errorMessage.value = 'Mohon isi nomor HP dan kata sandi';
     return;
   }
 
@@ -120,7 +121,12 @@ const handleLogin = async () => {
   errorMessage.value = '';
 
   try {
-    await adminAuthStore.loginAdmin(identifier.value.trim(), password.value);
+    const rawPhone = phoneNumber.value.replace(/\D/g, '');
+    await authService.login({
+      phone_number: rawPhone,
+      password: password.value
+    });
+    await authStore.hydrate();
     router.push('/admin/dashboard');
   } catch (err) {
     errorMessage.value = err.message || 'Login gagal. Periksa kredensial Anda.';

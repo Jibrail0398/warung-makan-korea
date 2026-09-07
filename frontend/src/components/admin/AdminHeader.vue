@@ -41,20 +41,6 @@
         <span class="sound-label">{{ isSoundOn ? 'Sound: ON' : 'Sound: OFF' }}</span>
       </button>
 
-      <!-- Simulate Incoming Order Button (Admin/Kasir) -->
-      <button
-        v-if="!isSuperAdmin"
-        class="action-pill-btn"
-        type="button"
-        title="Simulasi pesanan baru masuk secara real-time"
-        @click="handleSimulateOrder"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-        <span>Test Order</span>
-      </button>
-
       <!-- Profile Dropdown -->
       <details class="user-dropdown">
         <summary class="user-trigger">
@@ -126,9 +112,8 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
+import { useAuthStore } from '../../stores/auth.js';
 import { audioService } from '../../services/audioService.js';
-import { adminService } from '../../services/adminService.js';
 
 const props = defineProps({
   isSuperAdmin: {
@@ -137,10 +122,10 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['toggle-sidebar', 'new-order-received']);
+const emit = defineEmits(['toggle-sidebar']);
 
 const router = useRouter();
-const adminAuthStore = useAdminAuthStore();
+const authStore = useAuthStore();
 
 const isSoundOn = ref(true);
 
@@ -152,19 +137,9 @@ const toggleSound = () => {
   isSoundOn.value = audioService.toggleSound();
 };
 
-const handleSimulateOrder = async () => {
-  try {
-    const newOrder = await adminService.simulateIncomingOrder();
-    audioService.playOrderChime();
-    emit('new-order-received', newOrder);
-  } catch (err) {
-    console.error('Simulate order failed:', err);
-  }
-};
-
 const roleLabel = computed(() => {
   if (props.isSuperAdmin) return 'Super Admin (Developer)';
-  return adminAuthStore.adminUser?.role || 'Admin / Kasir';
+  return authStore.user?.role || 'Admin / Kasir';
 });
 
 const roleTone = computed(() => {
@@ -173,33 +148,25 @@ const roleTone = computed(() => {
 });
 
 const userName = computed(() => {
-  if (props.isSuperAdmin) return adminAuthStore.superAdminUser?.name || 'Super Admin';
-  return adminAuthStore.adminUser?.name || 'Kelvin Winata';
+  return authStore.user?.name || 'Admin';
 });
 
 const userEmail = computed(() => {
-  if (props.isSuperAdmin) return adminAuthStore.superAdminUser?.email || 'dev@warungnusantara.internal';
-  return adminAuthStore.adminUser?.email || 'admin@warungnusantara.kr';
+  return authStore.user?.email || '-';
 });
 
 const userRole = computed(() => {
   if (props.isSuperAdmin) return 'Super Admin';
-  return adminAuthStore.adminUser?.role || 'Admin';
+  return authStore.user?.role || 'Admin';
 });
 
 const userInitial = computed(() => {
-  if (props.isSuperAdmin) return 'SA';
   return (userName.value || 'A').charAt(0).toUpperCase();
 });
 
 const handleLogout = () => {
-  if (props.isSuperAdmin) {
-    adminAuthStore.logoutSuperAdmin();
-    router.push('/super-admin/login');
-  } else {
-    adminAuthStore.logoutAdmin();
-    router.push('/admin/login');
-  }
+  authStore.logout();
+  router.push('/admin/login');
 };
 </script>
 

@@ -20,15 +20,16 @@
         </div>
 
         <div class="form-group">
-          <label for="sa-user" class="form-label">Developer Username</label>
+          <label for="sa-phone" class="form-label">Nomor HP</label>
           <input
-            id="sa-user"
-            type="text"
-            v-model="username"
+            id="sa-phone"
+            type="tel"
+            v-model="phoneNumber"
             class="form-input"
-            placeholder="superadmin"
+            placeholder="0812-3456-7890"
             required
-            autocomplete="username"
+            autocomplete="tel"
+            inputmode="numeric"
           />
         </div>
 
@@ -63,19 +64,20 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
+import { useAuthStore } from '../../stores/auth.js';
+import { authService } from '../../services/authService.js';
 
 const router = useRouter();
-const adminAuthStore = useAdminAuthStore();
+const authStore = useAuthStore();
 
-const username = ref('superadmin');
-const password = ref('super123');
+const phoneNumber = ref('');
+const password = ref('');
 const isLoading = ref(false);
 const errorMessage = ref('');
 
 const handleLogin = async () => {
-  if (!username.value.trim() || !password.value) {
-    errorMessage.value = 'Kredensial developer wajib diisi.';
+  if (!phoneNumber.value.trim() || !password.value) {
+    errorMessage.value = 'Nomor HP dan kata sandi wajib diisi.';
     return;
   }
 
@@ -83,10 +85,15 @@ const handleLogin = async () => {
   errorMessage.value = '';
 
   try {
-    await adminAuthStore.loginSuperAdmin(username.value.trim(), password.value);
-    router.push('/super-admin/dashboard');
+    const rawPhone = phoneNumber.value.replace(/\D/g, '');
+    await authService.login({
+      phone_number: rawPhone,
+      password: password.value
+    });
+    await authStore.hydrate();
+    router.push('/admin/dashboard');
   } catch (err) {
-    errorMessage.value = err.message || 'Autentikasi Super Admin gagal.';
+    errorMessage.value = err.message || 'Autentikasi gagal.';
   } finally {
     isLoading.value = false;
   }

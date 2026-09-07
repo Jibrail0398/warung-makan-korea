@@ -308,7 +308,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
 import { audioService } from '../../services/audioService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
 import PaymentProofViewer from '../../components/admin/PaymentProofViewer.vue';
@@ -322,7 +321,7 @@ const selectedOrderForProof = ref(null);
 
 const loadOrders = async () => {
   try {
-    orders.value = await adminService.getOrders();
+    orders.value = [];
   } catch (e) {
     console.error('Load orders error:', e);
   }
@@ -350,7 +349,7 @@ const filteredOrders = computed(() => {
 });
 
 const updateStatus = async (id, newStatus) => {
-  await adminService.updateOrderStatus(id, newStatus);
+  await new Promise(r => setTimeout(r, 300));
   await loadOrders();
 };
 
@@ -360,19 +359,19 @@ const openProofViewer = (order) => {
 };
 
 const handleApproveProof = async (order) => {
-  await adminService.verifyPaymentProof(order.id, true);
+  await new Promise(r => setTimeout(r, 300));
   isProofOpen.value = false;
   await loadOrders();
 };
 
 const handleRejectProof = async (order) => {
-  await adminService.verifyPaymentProof(order.id, false);
+  await new Promise(r => setTimeout(r, 300));
   isProofOpen.value = false;
   await loadOrders();
 };
 
 const handleSimulateIncoming = async () => {
-  const newOrder = await adminService.simulateIncomingOrder();
+  await new Promise(r => setTimeout(r, 300));
   audioService.playOrderChime();
   await loadOrders();
 };

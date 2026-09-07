@@ -160,7 +160,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
+
 import CategoryModal from '../../components/admin/CategoryModal.vue';
 
 const categories = ref([]);
@@ -176,18 +176,9 @@ const selectedCategory = ref(null);
 const categoryToDelete = ref(null);
 
 const loadData = async () => {
-  try {
-    const [cList, mcList, pList] = await Promise.all([
-      adminService.getSubcategories(),
-      adminService.getMainCategories(),
-      adminService.getProducts()
-    ]);
-    categories.value = cList;
-    mainCategories.value = mcList;
-    products.value = pList;
-  } catch (err) {
-    console.error('Failed to load categories:', err);
-  }
+  categories.value = [];
+  mainCategories.value = [];
+  products.value = [];
 };
 
 onMounted(() => {
@@ -254,12 +245,14 @@ const openEditModal = (cat) => {
 
 const handleSaveCategory = async (catData) => {
   if (isEditMode.value && selectedCategory.value) {
-    await adminService.updateSubcategory(selectedCategory.value.id, catData);
+    const idx = categories.value.findIndex(c => c.id === selectedCategory.value.id);
+    if (idx !== -1) {
+      categories.value[idx] = { ...categories.value[idx], ...catData };
+    }
   } else {
-    await adminService.createSubcategory(catData);
+    categories.value.push({ id: Date.now(), ...catData, productCount: 0 });
   }
   isModalOpen.value = false;
-  await loadData();
 };
 
 const confirmDelete = (cat) => {
@@ -268,9 +261,8 @@ const confirmDelete = (cat) => {
 
 const executeDelete = async () => {
   if (!categoryToDelete.value) return;
-  await adminService.deleteSubcategory(categoryToDelete.value.id);
+  categories.value = categories.value.filter(c => c.id !== categoryToDelete.value.id);
   categoryToDelete.value = null;
-  await loadData();
 };
 </script>
 

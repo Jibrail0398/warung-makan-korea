@@ -128,19 +128,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
 
 const logs = ref([]);
 const searchQuery = ref('');
 const selectedActionFilter = ref('all');
 const selectedLog = ref(null);
 
-const loadLogs = async () => {
-  try {
-    logs.value = await adminService.getAuditLogs();
-  } catch (err) {
-    console.error('Load audit logs failed:', err);
-  }
+const loadLogs = () => {
+  logs.value = [];
 };
 
 onMounted(() => {

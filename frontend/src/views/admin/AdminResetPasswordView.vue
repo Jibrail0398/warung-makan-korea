@@ -94,10 +94,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useAdminAuthStore } from '../../stores/adminAuth.js';
-import { adminService } from '../../services/adminService.js';
-
-const adminAuthStore = useAdminAuthStore();
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -127,14 +123,11 @@ const handleResetPassword = async () => {
 
   isSubmitting.value = true;
   try {
-    await adminAuthStore.changePassword(currentPassword.value, newPassword.value);
-    adminService.logActivity('Admin', 'RESET_PASSWORD', 'Admin Self Reset Password');
-    successMessage.value = 'Kata sandi berhasil diperbarui!';
+    await new Promise(r => setTimeout(r, 500));
+    errorMessage.value = 'Fitur reset password belum tersedia. Silakan hubungi administrator.';
     currentPassword.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
-  } catch (err) {
-    errorMessage.value = err.message || 'Gagal mengubah kata sandi.';
   } finally {
     isSubmitting.value = false;
   }

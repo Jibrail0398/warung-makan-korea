@@ -192,7 +192,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
 
 const admins = ref([]);
 const isModalOpen = ref(false);
@@ -210,12 +209,11 @@ const formData = reactive({
   status: 'Active'
 });
 
-const loadAdmins = async () => {
-  try {
-    admins.value = await adminService.getAdmins();
-  } catch (err) {
-    console.error('Load admins error:', err);
-  }
+const loadAdmins = () => {
+  admins.value = [
+    { id: 'ADM-001', name: 'Admin Utama', username: 'admin_utama', email: 'admin@warungnusantara.kr', role: 'Admin', phone: '+82 10 1234 5678', status: 'Active', lastLogin: '2025-01-01 09:00' },
+    { id: 'KSR-001', name: 'Siti Rahmawati', username: 'kasir_siti', email: 'siti@warungnusantara.kr', role: 'Kasir', phone: '+82 10 2345 6789', status: 'Active', lastLogin: '2025-01-01 08:45' }
+  ];
 };
 
 onMounted(() => {
@@ -248,19 +246,21 @@ const openEditModal = (admin) => {
 
 const handleSaveAdmin = async () => {
   if (isEdit.value && selectedAdmin.value) {
-    await adminService.updateAdmin(selectedAdmin.value.id, formData);
+    const idx = admins.value.findIndex(a => a.id === selectedAdmin.value.id);
+    if (idx !== -1) {
+      admins.value[idx] = { ...admins.value[idx], ...formData };
+    }
   } else {
-    await adminService.createAdmin(formData);
+    const newId = `ADM-${String(admins.value.length + 1).padStart(3, '0')}`;
+    admins.value.push({ id: newId, ...formData, lastLogin: '-' });
   }
   isModalOpen.value = false;
-  await loadAdmins();
 };
 
 const handleResetPassword = async (admin) => {
-  const res = await adminService.resetAdminPassword(admin.id);
   resetResult.value = {
     admin,
-    temporaryPassword: res.temporaryPassword
+    temporaryPassword: 'TempPwd-' + Math.random().toString(36).substring(2, 10)
   };
 };
 
@@ -270,9 +270,8 @@ const confirmDelete = (admin) => {
 
 const executeDelete = async () => {
   if (!adminToDelete.value) return;
-  await adminService.deleteAdmin(adminToDelete.value.id);
+  admins.value = admins.value.filter(a => a.id !== adminToDelete.value.id);
   adminToDelete.value = null;
-  await loadAdmins();
 };
 </script>
 

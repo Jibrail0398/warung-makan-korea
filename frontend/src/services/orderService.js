@@ -175,8 +175,6 @@ const mockOrders = [
   }
 ];
 
-import { adminService } from './adminService.js';
-
 const getStatusDetails = (status) => {
   const s = (status || '').toLowerCase();
   if (s.includes('completed') || s.includes('selesai')) {
@@ -248,32 +246,11 @@ const formatOrderRecord = (o) => {
 
 export const orderService = {
   async getOrderHistory() {
-    try {
-      const orders = await adminService.getOrders();
-      if (orders && orders.length > 0) {
-        return orders.map(formatOrderRecord);
-      }
-    } catch (e) {
-      console.warn('Fallback orders history:', e);
-    }
     return mockOrders.map(formatOrderRecord);
   },
 
   async getOrderById(id) {
     const cleanId = String(id || '').replace('#', '').trim().toLowerCase();
-    try {
-      const orders = await adminService.getOrders();
-      const found = orders.find(
-        o =>
-          (o.id || '').toLowerCase() === cleanId ||
-          (o.orderNumber || '').replace('#', '').toLowerCase() === cleanId
-      );
-      if (found) {
-        return formatOrderRecord(found);
-      }
-    } catch (e) {
-      console.warn('Fallback find order:', e);
-    }
 
     const mockFound = mockOrders.find(
       order =>
@@ -282,7 +259,6 @@ export const orderService = {
     );
     if (mockFound) return formatOrderRecord(mockFound);
 
-    // Fallback constructed order
     return formatOrderRecord({
       id: cleanId ? `WN-${cleanId}` : 'WN-10231',
       orderNumber: `#${cleanId ? `WN-${cleanId}` : 'WN-10231'}`,
@@ -305,7 +281,26 @@ export const orderService = {
   },
 
   async createOrder(orderPayload) {
-    const newOrder = await adminService.createOrderFromCustomer(orderPayload);
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    const orderId = `WN-${randomNum}`;
+    const now = new Date();
+    const newOrder = {
+      id: orderId,
+      orderNumber: `#${orderId}`,
+      date: orderPayload.date || now.toISOString().split('T')[0],
+      time: orderPayload.time || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+      customer: {
+        name: orderPayload.customer?.name || orderPayload.customerName || 'Pelanggan',
+        phone: orderPayload.customer?.phone || orderPayload.customerPhone || '+82 10 0000 0000',
+        type: orderPayload.customer?.type || 'Guest'
+      },
+      orderType: orderPayload.orderType || 'Takeaway',
+      status: 'Payment Verification',
+      paymentMethod: orderPayload.paymentMethod || 'Bank Transfer',
+      items: orderPayload.items || [],
+      subtotal: Number(orderPayload.subtotal || orderPayload.total || 0),
+      total: Number(orderPayload.total || orderPayload.subtotal || 0)
+    };
     return {
       success: true,
       orderId: newOrder.id,

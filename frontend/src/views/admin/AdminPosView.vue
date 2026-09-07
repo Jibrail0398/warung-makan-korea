@@ -384,7 +384,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
+
 import { useAuthStore } from '../../stores/auth.js';
 import PrintableReceipt from '../../components/admin/PrintableReceipt.vue';
 
@@ -409,18 +409,12 @@ const isProcessing = ref(false);
 const completedOrder = ref(null);
 
 const loadData = async () => {
-  try {
-    const [pList, mcList, scList] = await Promise.all([
-      adminService.getProducts(),
-      adminService.getMainCategories(),
-      adminService.getSubcategories()
-    ]);
-    products.value = pList;
-    mainCategories.value = mcList;
-    subcategories.value = scList;
-  } catch (err) {
-    console.error('Error loading POS data:', err);
-  }
+  products.value = [];
+  mainCategories.value = [
+    { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+    { id: 2, name: 'Raw Material', code: 'raw' }
+  ];
+  subcategories.value = [];
 };
 
 onMounted(() => {
@@ -571,11 +565,20 @@ const handleProcessOrder = async () => {
       cashier: cashierName
     };
 
-    const newOrder = await adminService.createPosOrder(orderData);
+    const newOrder = {
+      id: Date.now(),
+      orderType: orderType.value,
+      items: orderData.items,
+      totalAmount: grandTotal.value,
+      paymentMethod: paymentMethod.value,
+      cashReceived: orderData.cashReceived,
+      cashChange: orderData.cashChange,
+      customerName: orderData.customerName,
+      tableNumber: orderData.tableNumber,
+      cashier: cashierName,
+      createdAt: new Date().toISOString()
+    };
     completedOrder.value = newOrder;
-
-    // Refresh products list for updated stock
-    await loadData();
   } catch (err) {
     alert('Gagal memproses transaksi: ' + err.message);
   } finally {

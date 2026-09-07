@@ -263,7 +263,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
 import ProductModal from '../../components/admin/ProductModal.vue';
 
 const products = ref([]);
@@ -282,14 +281,9 @@ const productToDelete = ref(null);
 
 const loadData = async () => {
   try {
-    const [pList, mcList, cList] = await Promise.all([
-      adminService.getProducts(),
-      adminService.getMainCategories(),
-      adminService.getSubcategories()
-    ]);
-    products.value = pList;
-    mainCategories.value = mcList;
-    categories.value = cList;
+    products.value = [];
+    mainCategories.value = [];
+    categories.value = [];
   } catch (err) {
     console.error('Failed to load products data:', err);
   }
@@ -363,16 +357,16 @@ const openEditModal = (product) => {
 
 const handleSaveProduct = async (productData) => {
   if (isEditMode.value && selectedProduct.value) {
-    await adminService.updateProduct(selectedProduct.value.id, productData);
+    await new Promise(r => setTimeout(r, 300));
   } else {
-    await adminService.createProduct(productData);
+    await new Promise(r => setTimeout(r, 300));
   }
   isModalOpen.value = false;
   await loadData();
 };
 
 const toggleStatus = async (product) => {
-  await adminService.toggleProductStatus(product.id);
+  await new Promise(r => setTimeout(r, 300));
   await loadData();
 };
 
@@ -382,7 +376,7 @@ const confirmDelete = (product) => {
 
 const executeDelete = async () => {
   if (!productToDelete.value) return;
-  await adminService.deleteProduct(productToDelete.value.id);
+  await new Promise(r => setTimeout(r, 300));
   productToDelete.value = null;
   await loadData();
 };

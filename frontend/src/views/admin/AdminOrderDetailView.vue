@@ -247,7 +247,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { adminService } from '../../services/adminService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
 import PrintableReceipt from '../../components/admin/PrintableReceipt.vue';
 import PaymentProofViewer from '../../components/admin/PaymentProofViewer.vue';
@@ -266,8 +265,7 @@ const statusSteps = [
 
 const loadOrder = async () => {
   const id = route.params.id;
-  const res = await adminService.getOrderById(id);
-  order.value = res || {
+  order.value = {
     id: id || 'WN-10230',
     orderNumber: `#${id || 'WN-10230'}`,
     date: '2026-08-27',
@@ -302,14 +300,14 @@ const currentStepIndex = computed(() => {
 
 const changeStatus = async (newStatus) => {
   if (!order.value) return;
-  const updated = await adminService.updateOrderStatus(order.value.id, newStatus);
-  order.value = updated;
+  await new Promise(r => setTimeout(r, 300));
+  order.value = { ...order.value, status: newStatus };
 };
 
 const handleVerifyProof = async (isApproved) => {
   if (!order.value) return;
-  const updated = await adminService.verifyPaymentProof(order.value.id, isApproved);
-  order.value = updated;
+  await new Promise(r => setTimeout(r, 300));
+  order.value = { ...order.value, paymentStatus: isApproved ? 'Verified' : 'Rejected' };
   isProofViewerOpen.value = false;
 };
 </script>

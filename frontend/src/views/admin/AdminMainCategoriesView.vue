@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { adminService } from '../../services/adminService.js';
+
 import MainCategoryModal from '../../components/admin/MainCategoryModal.vue';
 
 const mainCategories = ref([]);
@@ -137,18 +137,12 @@ const selectedCategory = ref(null);
 const categoryToDelete = ref(null);
 
 const loadData = async () => {
-  try {
-    const [mcList, scList, pList] = await Promise.all([
-      adminService.getMainCategories(),
-      adminService.getSubcategories(),
-      adminService.getProducts()
-    ]);
-    mainCategories.value = mcList;
-    subcategories.value = scList;
-    products.value = pList;
-  } catch (err) {
-    console.error('Failed to load main categories:', err);
-  }
+  mainCategories.value = [
+    { id: 1, name: 'Restaurant Menu', code: 'restaurant', description: 'Menu makanan siap santap untuk pelanggan restoran.' },
+    { id: 2, name: 'Raw Material', code: 'raw', description: 'Bahan mentah dan bahan baku dapur.' }
+  ];
+  subcategories.value = [];
+  products.value = [];
 };
 
 onMounted(() => {
@@ -189,12 +183,14 @@ const openEditModal = (cat) => {
 
 const handleSaveMainCategory = async (catData) => {
   if (isEditMode.value && selectedCategory.value) {
-    await adminService.updateMainCategory(selectedCategory.value.id, catData);
+    const idx = mainCategories.value.findIndex(mc => mc.id === selectedCategory.value.id);
+    if (idx !== -1) {
+      mainCategories.value[idx] = { ...mainCategories.value[idx], ...catData };
+    }
   } else {
-    await adminService.createMainCategory(catData);
+    mainCategories.value.push({ id: Date.now(), ...catData });
   }
   isModalOpen.value = false;
-  await loadData();
 };
 
 const confirmDelete = (cat) => {
@@ -203,9 +199,8 @@ const confirmDelete = (cat) => {
 
 const executeDelete = async () => {
   if (!categoryToDelete.value) return;
-  await adminService.deleteMainCategory(categoryToDelete.value.id);
+  mainCategories.value = mainCategories.value.filter(mc => mc.id !== categoryToDelete.value.id);
   categoryToDelete.value = null;
-  await loadData();
 };
 </script>
 

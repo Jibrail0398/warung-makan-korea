@@ -268,7 +268,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth.js';
-import { adminService } from '../../services/adminService.js';
 
 const props = defineProps({
   isOpen: {
@@ -293,17 +292,8 @@ const authStore = useAuthStore();
 
 const pendingOrdersCount = ref(0);
 
-onMounted(async () => {
-  if (!props.isSuperAdmin) {
-    try {
-      const orders = await adminService.getOrders();
-      pendingOrdersCount.value = orders.filter(
-        o => o.status === 'Payment Verification' || o.status === 'Processing'
-      ).length;
-    } catch (e) {
-      console.warn(e);
-    }
-  }
+onMounted(() => {
+  pendingOrdersCount.value = 0;
 });
 
 const isCurrentRoute = (path) => {
