@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Bibimbap Spesial',
                 'description' => 'Nasi campur khas Korea dengan aneka sayuran segar, irisan daging sapi bulgogi, telur mata sapi, dan saus gochujang otentik.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/7491952/pexels-photo-7491952.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 38000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -29,7 +29,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Beef Bulgogi Rice Bowl',
                 'description' => 'Nasi hangat dengan irisan daging sapi empuk yang dimarinasi saus manis gurih wijen khas Korea bertabur daun bawang.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5774000/pexels-photo-5774000.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 42000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -39,7 +39,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Kimchi Bokkeumbap',
                 'description' => 'Nasi goreng kimchi pedas aromatik khas Korea berpadu potongan sosis sapi, nori renyah, dan telur mata sapi setengah matang.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto kimchi fried rice gratis yang spesifik
                 'price' => 30000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -49,7 +49,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Jajangmyeon',
                 'description' => 'Mie kenyal segar disiram saus chunjang kedelai hitam gurih manis pekat dengan irisan daging sapi dan timun segar.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto jajangmyeon gratis yang spesifik
                 'price' => 35000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -59,7 +59,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Japchae Beef',
                 'description' => 'Tumis soun ubi jalar Korea (dangmyeon) dengan sayuran warna-warni, irisan daging sapi, dan aroma minyak wijen harum.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto japchae gratis yang spesifik
                 'price' => 36000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -69,19 +69,19 @@ class ProductSeeder extends Seeder
                 'category_id' => 1,
                 'name' => 'Dakgalbi Rice Bowl',
                 'description' => 'Nasi hangat disajikan bersama potongan ayam berbumbu saus pedas manis gochujang khas Chuncheon dengan taburan biji wijen.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5774093/pexels-photo-5774093.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 34000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
             ],
-
+        
             // 2. Korean Street Food (Category ID: 2)
             [
                 'id' => 7,
                 'category_id' => 2,
                 'name' => 'Tteokbokki Spesial',
                 'description' => 'Kue beras kenyal saus pedas manis gochujang bertabur wijen disajikan lengkap dengan kue ikan (odeng) dan telur rebus.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/35366769/pexels-photo-35366769.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 25000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -91,7 +91,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Rose Tteokbokki',
                 'description' => 'Tteokbokki kekinian dengan perpaduan saus gochujang, susu, krim kental gurih, dan lelehan keju mozarella.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/35366769/pexels-photo-35366769.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — ini foto tteokbokki original, belum ketemu versi rose/creamy gratis
                 'price' => 32000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -101,7 +101,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Odeng / Eomuk Tang',
                 'description' => 'Tusukan kue ikan khas Korea yang empuk dan gurih disajikan dengan kuah kaldu panas kaya rasa daun bawang dan lobak.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto odeng/eomuk gratis yang spesifik
                 'price' => 15000,
                 'weight_or_unit' => '2 Tusuk',
                 'is_active' => true,
@@ -111,7 +111,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Corndog Mozarella Full',
                 'description' => 'Corndog renyah isi keju mozarella meleleh mulur berbalut adonan krispi dengan cocolan saus tomat, sambal, dan mayones.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto corndog Korea gratis yang spesifik
                 'price' => 18000,
                 'weight_or_unit' => '1 Pcs',
                 'is_active' => true,
@@ -121,7 +121,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Corndog Sosis Mozarella',
                 'description' => 'Kombinasi sosis sapi premium dan keju mozarella gurih dalam balutan adonan renyah bertabur sedikit gula bubuk halus.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto corndog Korea gratis yang spesifik
                 'price' => 20000,
                 'weight_or_unit' => '1 Pcs',
                 'is_active' => true,
@@ -131,7 +131,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Yangnyeom Chicken',
                 'description' => 'Ayam krispi tanpa tulang berbalut saus pedas manis karamel khas Korea dengan cita rasa gurih nagih.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773996/pexels-photo-5773996.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 35000,
                 'weight_or_unit' => '5 Pcs',
                 'is_active' => true,
@@ -141,7 +141,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Honey Butter Chicken',
                 'description' => 'Ayam goreng krispi renyah dibalut bumbu mentega madu manis harum khas Korea.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/6368743/pexels-photo-6368743.jpeg?auto=compress&cs=tinysrgb&w=800',
                 'price' => 35000,
                 'weight_or_unit' => '5 Pcs',
                 'is_active' => true,
@@ -151,7 +151,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Gimmari Crispy',
                 'description' => 'Gorengan rumput laut lembaran gulung isi bihun bumbu gurih yang digoreng garing renyah keemasan.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto gimmari gratis yang spesifik
                 'price' => 16000,
                 'weight_or_unit' => '4 Pcs',
                 'is_active' => true,
@@ -161,19 +161,19 @@ class ProductSeeder extends Seeder
                 'category_id' => 2,
                 'name' => 'Mandu Goreng',
                 'description' => 'Pangsit ala Korea berisi olahan daging cincang dan sayuran segar bertekstur kulit renyah garing.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto mandu gratis yang spesifik
                 'price' => 20000,
                 'weight_or_unit' => '4 Pcs',
                 'is_active' => true,
             ],
-
+        
             // 3. Sup & Jjigae (Category ID: 3)
             [
                 'id' => 16,
                 'category_id' => 3,
                 'name' => 'Sundubu Jjigae',
                 'description' => 'Sup tahu sutra lembut berkuah merah pedas gurih kaya kaldu dengan telur setengah matang dan potongan seafood.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto sundubu jjigae gratis yang spesifik
                 'price' => 38000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -183,7 +183,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 3,
                 'name' => 'Kimchi Jjigae',
                 'description' => 'Sup fermentasi kimchi asam pedas otentik Korea berpadu dengan tahu, jamur enoki, dan potongan daging sapi.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto kimchi jjigae gratis yang spesifik
                 'price' => 38000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -193,7 +193,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 3,
                 'name' => 'Doenjang Jjigae',
                 'description' => 'Sup pasta kedelai fermentasi gurih hangat dengan labu, tahu, jamur, dan cabai hijau khas rumahan Korea.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto doenjang jjigae gratis yang spesifik
                 'price' => 32000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
@@ -203,19 +203,19 @@ class ProductSeeder extends Seeder
                 'category_id' => 3,
                 'name' => 'Miyeok Guk',
                 'description' => 'Sup rumput laut kuah kaldu sapi bening gurih menyehatkan, sering disajikan pada perayaan ulang tahun di Korea.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto miyeok guk gratis yang spesifik
                 'price' => 25000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
             ],
-
+        
             // 4. Banchan & Side Dish (Category ID: 4)
             [
                 'id' => 20,
                 'category_id' => 4,
                 'name' => 'Kimchi Baechu Segar',
                 'description' => 'Kimchi sawi putih segar buatan sendiri hasil fermentasi dengan bumbu cabai gochugaru asli Korea.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto kimchi baechu gratis yang spesifik
                 'price' => 12000,
                 'weight_or_unit' => '150 gr',
                 'is_active' => true,
@@ -225,7 +225,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 4,
                 'name' => 'Danmuji',
                 'description' => 'Acar lobak kuning manis renyah khas Korea yang sempurna sebagai penetral rasa pedas.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto danmuji gratis yang spesifik
                 'price' => 8000,
                 'weight_or_unit' => '100 gr',
                 'is_active' => true,
@@ -235,7 +235,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 4,
                 'name' => 'Kkakdugi',
                 'description' => 'Kimchi lobak putih potong dadu bertekstur krispi renyah dengan cita rasa pedas asam segar.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto kkakdugi gratis yang spesifik
                 'price' => 12000,
                 'weight_or_unit' => '150 gr',
                 'is_active' => true,
@@ -245,7 +245,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 4,
                 'name' => 'Seasoned Gim (Rumput Laut)',
                 'description' => 'Lembaran nori rumput laut panggang renyah bertabur minyak wijen aromatik dan sedikit garam laut.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto seasoned gim gratis yang spesifik
                 'price' => 6000,
                 'weight_or_unit' => '1 Bungkus',
                 'is_active' => true,
@@ -255,19 +255,19 @@ class ProductSeeder extends Seeder
                 'category_id' => 4,
                 'name' => 'Nasi Putih Hangat',
                 'description' => 'Nasi putih pulen hangat disajikan dalam mangkuk mangkok stainless khas Korea.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto nasi putih ala Korea gratis yang spesifik
                 'price' => 6000,
                 'weight_or_unit' => '1 Porsi',
                 'is_active' => true,
             ],
-
+        
             // 5. Minuman (Category ID: 5)
             [
                 'id' => 25,
                 'category_id' => 5,
                 'name' => 'Korean Strawberry Milk',
                 'description' => 'Susu segar dingin creamy berpadu selai strawberry buatan rumah dengan bulir buah asli yang melimpah.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto korean strawberry milk gratis yang spesifik
                 'price' => 18000,
                 'weight_or_unit' => '1 Cup (350ml)',
                 'is_active' => true,
@@ -277,7 +277,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Banana Uyu (Korean Banana Milk)',
                 'description' => 'Susu rasa pisang manis lembut ikonik khas Korea yang sangat disukai semua kalangan.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto banana milk gratis yang spesifik
                 'price' => 16000,
                 'weight_or_unit' => '1 Cup (350ml)',
                 'is_active' => true,
@@ -287,7 +287,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Yuzu Honey Iced Tea',
                 'description' => 'Es teh seduh menyegarkan dipadu sari buah jeruk yuja Korea dan madu murni manis alami.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto yuzu tea gratis yang spesifik
                 'price' => 16000,
                 'weight_or_unit' => '1 Cup (400ml)',
                 'is_active' => true,
@@ -297,7 +297,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Oksusu-cha (Teh Rambut Jagung)',
                 'description' => 'Teh seduh rambut jagung tradisional Korea yang harum wangi, bebas kafein, dan sangat menyegarkan tenggorokan.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto oksusu-cha gratis yang spesifik
                 'price' => 10000,
                 'weight_or_unit' => '1 Gelas',
                 'is_active' => true,
@@ -307,7 +307,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Boricha (Es Teh Barley Korea)',
                 'description' => 'Teh gandum barley panggang khas Korea disajikan dingin, beraroma nutty dan tanpa pemanis buatan.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto boricha gratis yang spesifik
                 'price' => 8000,
                 'weight_or_unit' => '1 Gelas',
                 'is_active' => true,
@@ -317,7 +317,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Es Kopi Dalgona',
                 'description' => 'Kopi kocok berbusa karamel kental yang disajikan di atas susu segar dingin creamy.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto dalgona coffee gratis yang spesifik
                 'price' => 20000,
                 'weight_or_unit' => '1 Cup (350ml)',
                 'is_active' => true,
@@ -327,19 +327,19 @@ class ProductSeeder extends Seeder
                 'category_id' => 5,
                 'name' => 'Air Mineral Dingin',
                 'description' => 'Air mineral kemasan botol 600ml disajikan dingin menyegarkan.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto botol air mineral gratis yang spesifik
                 'price' => 5000,
                 'weight_or_unit' => '1 Botol (600ml)',
                 'is_active' => true,
             ],
-
+        
             // 6. Dessert (Category ID: 6)
             [
                 'id' => 32,
                 'category_id' => 6,
                 'name' => 'Bingsu Matcha Red Bean',
                 'description' => 'Es serut susu salju selembut kapas dengan bubuk matcha premium, pasta kacang merah manis, dan mochi kenyal.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto bingsu matcha gratis yang spesifik
                 'price' => 28000,
                 'weight_or_unit' => '1 Mangkuk',
                 'is_active' => true,
@@ -349,7 +349,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 6,
                 'name' => 'Bingsu Choco Oreo',
                 'description' => 'Es serut salju susu dengan remahan biskuit Oreo melimpah, es krim vanila lembut, dan siraman cokelat lezat.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto bingsu choco oreo gratis yang spesifik
                 'price' => 28000,
                 'weight_or_unit' => '1 Mangkuk',
                 'is_active' => true,
@@ -359,7 +359,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 6,
                 'name' => 'Hotteok Cinnamon Brown Sugar',
                 'description' => 'Pancake goreng ala Korea berisi lelehan gula cokelat, kacang kenari renyah, dan wangi kayu manis hangat.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto hotteok gratis yang spesifik
                 'price' => 15000,
                 'weight_or_unit' => '2 Pcs',
                 'is_active' => true,
@@ -369,7 +369,7 @@ class ProductSeeder extends Seeder
                 'category_id' => 6,
                 'name' => 'Hotteok Mozarella Cheese',
                 'description' => 'Pancake kenyal hangat berisi lelehan keju mozarella gurih manis yang mulur saat digigit.',
-                'image' => null,
+                'image' => 'https://images.pexels.com/photos/5773954/pexels-photo-5773954.jpeg?auto=compress&cs=tinysrgb&w=800', // TODO: ganti — belum ketemu foto hotteok keju gratis yang spesifik
                 'price' => 18000,
                 'weight_or_unit' => '2 Pcs',
                 'is_active' => true,

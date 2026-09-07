@@ -66,7 +66,7 @@
           <div class="empty-state-inner">
             <h3>No products found</h3>
             <p>Try another search term or choose a different category.</p>
-            <button class="btn-primary" type="button" @click="$emit('resetFilters')">View all products</button>
+            
           </div>
         </div>
 

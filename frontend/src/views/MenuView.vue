@@ -32,7 +32,7 @@
             />
           </label>
 
-          <div class="category-tabs" role="group" aria-label="Product categories">
+          <!-- <div class="category-tabs" role="group" aria-label="Product categories">
             <button
               type="button"
               :class="{ active: currentCategory === 'all' }"
@@ -57,7 +57,7 @@
             >
               Raw Material ({{ rawCount }})
             </button>
-          </div>
+          </div> -->
         </div>
 
         <!-- Subcategories Pills Row -->
