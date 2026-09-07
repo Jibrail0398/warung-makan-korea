@@ -12,6 +12,14 @@
       aria-label="Mobile navigation"
       :aria-hidden="!isOpen"
     >
+      <router-link class="mobile-drawer-brand" to="/" @click="$emit('close')">
+        <span class="mobile-drawer-brand-mark" aria-hidden="true">WN</span>
+        <span class="mobile-drawer-brand-copy">
+          <strong>Warung Nusantara</strong>
+          <small>Indonesia in Korea</small>
+        </span>
+      </router-link>
+
       <nav>
         <router-link to="/" @click="$emit('close')">Home</router-link>
         <router-link to="/menu" @click="$emit('close')">Menu</router-link>
@@ -88,6 +96,42 @@ defineEmits(['close']);
   }
   .mobile-drawer.open {
     transform: translateX(0);
+  }
+  .mobile-drawer-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding-bottom: 22px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .mobile-drawer-brand-mark {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--red);
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+  }
+  .mobile-drawer-brand-copy {
+    display: grid;
+    gap: 2px;
+  }
+  .mobile-drawer-brand-copy strong {
+    font-size: .94rem;
+    line-height: 1.1;
+  }
+  .mobile-drawer-brand-copy small {
+    color: var(--muted);
+    font-size: .68rem;
+    line-height: 1.1;
   }
   .mobile-drawer nav {
     display: grid;

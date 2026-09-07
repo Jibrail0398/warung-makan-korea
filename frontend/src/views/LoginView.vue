@@ -14,50 +14,13 @@
         <span>{{ errorMessage }}</span>
       </div>
 
-      <!-- Quick Role Fill Pills for easy testing -->
-      <div class="role-selector-wrap">
-        <span class="role-selector-label">Pilih Akun Demo / Role:</span>
-        <div class="role-pills-row">
-          <button
-            type="button"
-            class="role-pill"
-            :class="{ active: selectedRolePreset === 'customer' }"
-            @click="setRolePreset('customer')"
-          >
-            Pelanggan
-          </button>
-          <button
-            type="button"
-            class="role-pill"
-            :class="{ active: selectedRolePreset === 'kasir' }"
-            @click="setRolePreset('kasir')"
-          >
-            Kasir
-          </button>
-          <button
-            type="button"
-            class="role-pill"
-            :class="{ active: selectedRolePreset === 'admin' }"
-            @click="setRolePreset('admin')"
-          >
-            Admin
-          </button>
-          <button
-            type="button"
-            class="role-pill"
-            :class="{ active: selectedRolePreset === 'superadmin' }"
-            @click="setRolePreset('superadmin')"
-          >
-            Super Admin
-          </button>
-        </div>
-      </div>
+     
 
       <AuthInput
         id="login-identifier"
-        label="Nomor HP (Korea) / Username / Email"
+        label="Handphone"
         type="text"
-        placeholder="Contoh: +82 10 2233 4455 atau admin / kasir"
+        placeholder="example: +821022334455"
         v-model="identifier"
         :error="identifierError"
         required
@@ -83,11 +46,11 @@
           <!-- <span>Ingat saya</span> -->
            
         </label>
-        <a href="#" class="forgot-password-link" @click.prevent="handleForgotPassword">Lupa kata sandi?</a>
+        <!-- <a href="#" class="forgot-password-link" @click.prevent="handleForgotPassword">Lupa kata sandi?</a> -->
       </div>
 
       <AuthButton
-        :text="isLoading ? 'MEMVERIFIKASI...' : 'MASUK KE SISTEM'"
+        :text="isLoading ? 'MEMVERIFIKASI...' : 'Log in'"
         :loading="isLoading"
         type="submit"
         variant="primary"
@@ -117,37 +80,16 @@ import AuthDivider from '../components/auth/AuthDivider.vue';
 import { authService } from '../services/authService.js';
 
 const router = useRouter();
+const route = useRoute();
 
-const identifier = ref('+82 10 2233 4455');
-const password = ref('password123');
-const rememberMe = ref(true);
+const identifier = ref('');
+const password = ref('');
 const isLoading = ref(false);
-const errorMessage = ref('');
-
+const errorMessage = ref(route.query.message || '');
 const identifierError = ref('');
 const passwordError = ref('');
-const selectedRolePreset = ref('customer');
 
-const setRolePreset = (preset) => {
-  selectedRolePreset.value = preset;
-  errorMessage.value = '';
-  identifierError.value = '';
-  passwordError.value = '';
 
-  if (preset === 'customer') {
-    identifier.value = '+82 10 2233 4455';
-    password.value = 'password123';
-  } else if (preset === 'kasir') {
-    identifier.value = 'kasir_dina';
-    password.value = 'kasir123';
-  } else if (preset === 'admin') {
-    identifier.value = 'admin_kelvin';
-    password.value = 'admin123';
-  } else if (preset === 'superadmin') {
-    identifier.value = 'superadmin';
-    password.value = 'superadmin123';
-  }
-};
 
 const validateForm = () => {
   let isValid = true;
@@ -177,18 +119,18 @@ const handleLogin = async () => {
 
   try {
     await authService.login({
-      phone_number: phone.value.trim(),
+      phone_number: identifier.value.trim(),
       password: password.value
     });
 
     router.replace({
       path: '/verify-otp',
       state: {
-        phone: phone.value.trim()
+        phone: identifier.value.trim()
       }
     });
   } catch (err) {
-    errorMessage.value = err.message || 'Login gagal. Periksa nomor HP / kredensial dan kata sandi Anda.';
+    errorMessage.value = err.message;
   } finally {
     isLoading.value = false;
   }

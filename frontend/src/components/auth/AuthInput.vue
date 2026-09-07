@@ -32,7 +32,7 @@
   :autocomplete="autocomplete"
   :disabled="disabled"
   :inputmode="type === 'tel' ? 'numeric' : undefined"
-  :maxlength="type === 'tel' ? 13 : undefined"
+  :maxlength="maxlength || undefined"
   :aria-invalid="!!error"
   :aria-describedby="error ? `${inputId}-error` : null"
   class="auth-input"
@@ -162,6 +162,16 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  formatter: {
+    type: Function,
+    default: null
+  },
+
+  maxlength: {
+    type: Number,
+    default: null
   }
 });
 
@@ -208,7 +218,9 @@ const formatKoreanPhone = (value) => {
 
 const formattedValue = computed(() => {
   if (props.type === 'tel') {
-    return formatKoreanPhone(props.modelValue);
+    return props.formatter
+      ? props.formatter(props.modelValue)
+      : formatKoreanPhone(props.modelValue);
   }
 
   return props.modelValue;
@@ -218,11 +230,10 @@ const handleInput = (event) => {
   let value = event.target.value;
 
   if (props.type === 'tel') {
-    // Hanya izinkan angka
     value = value.replace(/[^0-9]/g, '');
-
-    // Maksimal 11 digit
-    value = value.slice(0, 11);
+    if (props.maxlength) {
+      value = value.slice(0, props.maxlength);
+    }
   }
 
   emit('update:modelValue', value);

@@ -107,13 +107,6 @@ export const authService = {
       }
 
       const response = await axios.post(`${apiBaseUrl}/auth/otp/verify`,data);
-      const authData = response.data?.data;
-
-      if (authData) {
-        const encodedAuthData = await this.encode(authData);
-        localStorage.setItem(authStorageKey, encodedAuthData);
-      }
-
       return response.data;
       
     }catch(error){

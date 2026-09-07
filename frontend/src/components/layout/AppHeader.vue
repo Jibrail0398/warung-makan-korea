@@ -49,7 +49,7 @@
         </nav>
 
         <div class="header-actions">
-          <details class="profile-dropdown">
+          <details v-if="authStore.isAuthenticated" class="profile-dropdown">
             <summary class="profile-trigger">
               <span class="profile-avatar">{{ authStore.displayName.charAt(0).toUpperCase() }}</span>
               <span class="profile-name">{{ authStore.displayName }}</span>
@@ -71,17 +71,18 @@
               </svg>
             </summary>
 
-      <router-link to="/order-history">
-        Order History
-      </router-link>
+            <div class="profile-menu">
+              <router-link to="/order-history">
+                Order History
+              </router-link>
 
-      <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" class="staff-link">
-        Admin Dashboard
-      </router-link>
+              <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" class="staff-link">
+                Admin Dashboard
+              </router-link>
 
-      <router-link v-if="isSuperAdmin" to="/super-admin/dashboard" class="staff-link">
-        Super Admin Dashboard
-      </router-link>
+              <router-link v-if="isSuperAdmin" to="/super-admin/dashboard" class="staff-link">
+                Super Admin Dashboard
+              </router-link>
 
               <button
                 v-if="authStore.isAuthenticated"
@@ -206,10 +207,6 @@ const isSuperAdmin = computed(() => {
   return authStore.isSuperAdmin;
 });
 
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
-};
 
 const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
 
@@ -1136,11 +1133,13 @@ function handleLogout() {
     display: inline-grid;
   }
 
-  .header-inner > .brand {
-    justify-self: center;
+  .mobile-header-action {
+    grid-column: 3;
+    justify-self: end;
+  }
 
-    min-width: 0;
-    max-width: 100%;
+  .header-inner > .brand {
+    display: none;
   }
 
   .brand {

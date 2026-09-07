@@ -29,10 +29,12 @@
         id="register-phone"
         label="Nomor HP"
         type="tel"
-        placeholder="Contoh: 081234567890"
-        v-model="phone"
+        placeholder="Contoh: 0812-3456-7890"
+        :modelValue="formattedPhone"
+        @update:modelValue="handlePhoneInput"
+        :formatter="formatPhoneDisplay"
+        :maxlength="15"
         :error="phoneError"
-        @input="handlePhoneInput"
         required
         autocomplete="tel"
         inputmode="numeric"
@@ -99,7 +101,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthLayout from '../components/auth/AuthLayout.vue';
 import AuthInput from '../components/auth/AuthInput.vue';
@@ -124,8 +126,16 @@ const passwordError = ref('');
 const confirmPasswordError = ref('');
 const termsError = ref('');
 
-const handlePhoneInput = (event) => {
-  phone.value = event.target.value.replace(/\D/g, '');
+const formatPhoneDisplay = (value) => {
+  const digits = String(value).replace(/\D/g, '');
+  const parts = digits.match(/.{1,4}/g);
+  return parts ? parts.join('-') : '';
+};
+
+const formattedPhone = computed(() => formatPhoneDisplay(phone.value));
+
+const handlePhoneInput = (value) => {
+  phone.value = value.replace(/\D/g, '').slice(0, 14);
 };
 
 const validateForm = () => {
@@ -145,6 +155,9 @@ const validateForm = () => {
   const phoneVal = phone.value.trim();
   if (!phoneVal) {
     phoneError.value = 'Nomor HP wajib diisi';
+    isValid = false;
+  } else if (phoneVal.length < 11 || phoneVal.length > 14) {
+    phoneError.value = 'Nomor HP harus 11-14 digit';
     isValid = false;
   }
 
@@ -184,7 +197,7 @@ const handleRegister = async () => {
       password: password.value
     });
 
-
+    
     router.push({
       path: '/verify-otp',
       state: {

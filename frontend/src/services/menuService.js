@@ -1,38 +1,75 @@
-import { adminService } from './adminService.js';
+import api from './api.js';
 import { products as fallbackProducts } from '../data/products.js';
 
-/**
- * Menu Service
- * Handles menu item data retrieval and filtering.
- * Connects directly with admin product & category management.
- */
+const CATEGORY_TYPE_MAP = {
+  'makanan-utama': 'restaurant',
+  'korean-street-food': 'restaurant',
+  'sup-jjigae': 'restaurant',
+  'banchan-side-dish': 'restaurant',
+  'minuman': 'restaurant',
+  'dessert': 'restaurant',
+  'bahan-mentah-daging': 'raw',
+  'bumbu-sambal': 'raw',
+  'beras-sembako': 'raw',
+  'camilan-tambahan': 'raw',
+};
+
+function mapProduct(item) {
+  const categorySlug = item.category?.slug || '';
+  const categoryType = CATEGORY_TYPE_MAP[categorySlug] || 'restaurant';
+  const mainCategoryId = categoryType === 'restaurant' ? 1 : 2;
+  const numericPrice = Number(item.price) || 0;
+
+  return {
+    id: item.id,
+    name: item.name,
+    description: item.description || '',
+    image: item.image_url || '',
+    price: `₩${numericPrice.toLocaleString('ko-KR')}`,
+    numericPrice,
+    category: categoryType,
+    mainCategoryId,
+    subcategoryId: item.category_id,
+    categoryId: item.category_id,
+    weightOrUnit: item.weight_or_unit || '',
+    isActive: item.is_active !== false,
+  };
+}
+
 export const menuService = {
   async getProducts() {
     try {
-      const items = await adminService.getProducts();
-      if (items && items.length > 0) {
-        return items;
-      }
+      const { data } = await api.get('/products');
+      const items = data?.data?.data || data?.data || [];
+      return items.map(mapProduct);
     } catch (e) {
-      console.warn('Fallback to local products list:', e);
+      console.warn('Backend unavailable, falling back to local products:', e);
+      return [...fallbackProducts];
     }
-    return [...fallbackProducts];
   },
 
   async getMainCategories() {
     try {
-      return await adminService.getMainCategories();
+      const { data } = await api.get('/categories');
+      const items = data?.data?.data || data?.data || [];
+      return items.map(c => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        code: CATEGORY_TYPE_MAP[c.slug] || 'restaurant',
+      }));
     } catch (e) {
       return [
         { id: 1, name: 'Restaurant Menu', code: 'restaurant', slug: 'restaurant-menu' },
-        { id: 2, name: 'Raw Material', code: 'raw', slug: 'raw-material' }
+        { id: 2, name: 'Raw Material', code: 'raw', slug: 'raw-material' },
       ];
     }
   },
 
   async getSubcategories() {
     try {
-      return await adminService.getSubcategories();
+      const { data } = await api.get('/categories');
+      return data?.data?.data || data?.data || [];
     } catch (e) {
       return [];
     }
@@ -43,20 +80,14 @@ export const menuService = {
     const cleanQuery = query.trim().toLowerCase();
 
     return allProducts.filter(product => {
-      // Main Category match: check by code ('restaurant'/'raw') or mainCategoryId
       let mainCategoryMatch = mainCategory === 'all';
       if (!mainCategoryMatch) {
-        if (mainCategory === 'restaurant' || mainCategory === '1' || mainCategory === 1) {
-          mainCategoryMatch = product.category === 'restaurant' || product.mainCategoryId === 1;
-        } else if (mainCategory === 'raw' || mainCategory === '2' || mainCategory === 2) {
-          mainCategoryMatch = product.category === 'raw' || product.mainCategoryId === 2;
-        }
+        mainCategoryMatch = product.category === mainCategory;
       }
 
-      // Subcategory match
       let subcategoryMatch = subcategory === 'all';
       if (!subcategoryMatch) {
-        subcategoryMatch = String(product.subcategoryId || product.categoryId) === String(subcategory);
+        subcategoryMatch = String(product.categoryId) === String(subcategory);
       }
 
       const searchMatch =
@@ -65,7 +96,5 @@ export const menuService = {
 
       return mainCategoryMatch && subcategoryMatch && searchMatch;
     });
-  }
+  },
 };
-
-

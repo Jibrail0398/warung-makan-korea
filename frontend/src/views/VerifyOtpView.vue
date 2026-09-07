@@ -152,9 +152,21 @@ const handleVerifyOtp = async () => {
 
   isLoading.value = true;
   try {
-    await authService.verifyOtp(rawPhone, code);
+    const response = await authService.verifyOtp(rawPhone, code);
+    const authData = response.data;
+    const encodedAuthData = await authService.encode(authData);
+    localStorage.setItem('warung-auth-data', encodedAuthData);
+
+    const decodedAuthData = await authService.decode(encodedAuthData);
+    const role = decodedAuthData?.user?.role?.toLowerCase();
+
     alert('Verifikasi OTP Berhasil!.');
-    router.push('/');
+
+    if (role === 'member') {
+      router.push('/');
+    } else if (role === 'admin' || role === 'superadmin') {
+      router.push('/admin/dashboard');
+    }
   } catch (err) {
     errorMessage.value = err.message || 'Kode OTP salah. Silakan periksa kembali.';
   } finally {

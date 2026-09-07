@@ -3,18 +3,21 @@ import { ref, computed } from 'vue';
 import { adminService } from '../services/adminService.js';
 import { users } from '../data/user.js';
 import { authService } from '../services/authService.js';
+import { useAuthStore } from './auth.js';
 
 export const useAdminAuthStore = defineStore('adminAuth', () => {
   const authStore = useAuthStore();
 
-  const adminUser = computed(() => {
-    if (authStore.isAdminOrKasir) return authStore.user;
-    return JSON.parse(localStorage.getItem('warung-admin-user') || 'null');
-  });
+  const adminUser = ref(JSON.parse(localStorage.getItem('warung-admin-user') || 'null'));
+  const adminToken = ref(localStorage.getItem('warung-admin-token') || '');
+  const superAdminUser = ref(JSON.parse(localStorage.getItem('warung-superadmin-user') || 'null'));
+  const superAdminToken = ref(localStorage.getItem('warung-superadmin-token') || '');
 
-  const adminToken = computed(() => {
-    if (authStore.isAdminOrKasir) return authStore.token;
-    return localStorage.getItem('warung-admin-token') || '';
+  const isAdminAuthenticated = computed(() => {
+    return ['Admin', 'Kasir'].includes(adminUser.value?.role) || !!adminToken.value;
+  });
+  const isSuperAdminAuthenticated = computed(() => {
+    return superAdminUser.value?.role === 'Super Admin' || !!superAdminToken.value;
   });
 
   async function storeRoleAuthData(userData, accessToken, role) {
@@ -75,13 +78,15 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
       localStorage.setItem('warung-admin-token', adminToken.value);
       await storeRoleAuthData(userData, adminToken.value, 'admin');
 
-  const superAdminToken = computed(() => {
-    if (authStore.isSuperAdmin) return authStore.token;
-    return localStorage.getItem('warung-superadmin-token') || '';
-  });
+      adminService.logActivity(
+        `${userData.name} (${userData.role})`,
+        'LOGIN',
+        'Portal Admin / Kasir',
+        { username: userData.username }
+      );
 
-  const isAdminAuthenticated = computed(() => authStore.isAdminOrKasir || !!adminToken.value);
-  const isSuperAdminAuthenticated = computed(() => authStore.isSuperAdmin || !!superAdminToken.value);
+      return userData;
+    }
 
     // Fallback default admin
     const isKasir = cleanIdent.includes('kasir');

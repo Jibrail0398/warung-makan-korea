@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
-import SuperAdminLayout from '../layouts/SuperAdminLayout.vue'
 import { authService } from '../services/authService.js'
 
 const routes = [
@@ -38,15 +37,13 @@ const routes = [
   {
     path: '/cart',
     name: 'cart',
-    component: () => import('../views/CartView.vue'),
-    meta: { requiredRole: 'member' }
+    component: () => import('../views/CartView.vue')
   },
   {
     path: '/checkout',
     alias: '/Checkout',
     name: 'checkout',
-    component: () => import('../views/CheckoutView.vue'),
-    meta: { requiredRole: 'member' }
+    component: () => import('../views/CheckoutView.vue')
   },
   {
     path: '/orders',
@@ -93,10 +90,12 @@ const routes = [
     path: '/admin/login',
     redirect: '/login'
   },
+  /*
   {
     path: '/super-admin/login',
     redirect: '/login'
   },
+  */
 
   // ==========================================
   // ADMIN / KASIR ROUTES
@@ -104,7 +103,7 @@ const routes = [
   {
     path: '/admin',
     component: AdminLayout,
-    meta: { requiredRole: 'admin' },
+    meta: { requiredRole: ['admin', 'superadmin'] },
     children: [
       {
         path: '',
@@ -169,8 +168,9 @@ const routes = [
   },
 
   // ==========================================
-  // SUPER ADMIN (INTERNAL DEVELOPER) ROUTES
+  // SUPER ADMIN ROUTES DISABLED
   // ==========================================
+  /*
   {
     path: '/super-admin',
     component: SuperAdminLayout,
@@ -197,6 +197,7 @@ const routes = [
       }
     ]
   },
+  */
 
   // Fallback Catch All
   {
@@ -226,19 +227,16 @@ router.beforeEach(async (to) => {
   if (!requiredRole) return true
 
   const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
-  const currentRole = authData?.user?.role
+  const currentRole = authData?.user?.role?.toLowerCase()
 
-  if (currentRole === requiredRole) return true
+  const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
+  const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase())
 
-  if (requiredRole === 'superadmin') {
-    return { name: 'superadmin-login' }
+  if (to.path.startsWith('/admin') && normalizedAllowedRoles.includes(currentRole)) {
+    return true
   }
 
-  if (requiredRole === 'admin') {
-    return { name: 'admin-login' }
-  }
-
-  return { name: 'login' }
+  return { path: '/login' }
 })
 
 export default router;
