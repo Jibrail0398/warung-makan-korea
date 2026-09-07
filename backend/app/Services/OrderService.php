@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Events\NewOrderEvent;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class OrderService
@@ -18,7 +20,7 @@ class OrderService
 
     public function createOrder(array $data): Order
     {
-        return DB::transaction(function () use ($data) {
+        $order = DB::transaction(function () use ($data) {
             // Handle Payment Receipt Upload
             if (isset($data['payment_receipt']) && $data['payment_receipt'] instanceof \Illuminate\Http\UploadedFile) {
                 $data['payment_receipt'] = $data['payment_receipt']->store('receipts', 'public');
@@ -57,6 +59,15 @@ class OrderService
 
             return $order->load('items.product');
         });
+
+        // Broadcast event ke channel 'new-order' via Pusher
+        try {
+            broadcast(new NewOrderEvent($order));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim broadcast NewOrderEvent: ' . $e->getMessage());
+        }
+
+        return $order;
     }
 
     public function updateStatus(Order $order, array $data): Order
