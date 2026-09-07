@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
@@ -7,7 +7,7 @@ import { authService } from '../services/authService.js'
 
 const routes = [
   // ==========================================
-  // CUSTOMER / GUEST & MEMBER ROUTES (UNMODIFIED)
+  // CUSTOMER / GUEST & MEMBER ROUTES
   // ==========================================
   {
     path: '/',
@@ -87,13 +87,20 @@ const routes = [
   },
 
   // ==========================================
-  // ADMIN / KASIR ROUTES
+  // SINGLE LOGIN REDIRECTS (LEGACY PATHS)
   // ==========================================
   {
     path: '/admin/login',
-    name: 'admin-login',
-    component: () => import('../views/admin/AdminLoginView.vue')
+    redirect: '/login'
   },
+  {
+    path: '/super-admin/login',
+    redirect: '/login'
+  },
+
+  // ==========================================
+  // ADMIN / KASIR ROUTES
+  // ==========================================
   {
     path: '/admin',
     component: AdminLayout,
@@ -107,6 +114,11 @@ const routes = [
         path: 'dashboard',
         name: 'admin-dashboard',
         component: () => import('../views/admin/AdminDashboardView.vue')
+      },
+      {
+        path: 'pos',
+        name: 'admin-pos',
+        component: () => import('../views/admin/AdminPosView.vue')
       },
       {
         path: 'orders',
@@ -124,7 +136,13 @@ const routes = [
         component: () => import('../views/admin/AdminProductsView.vue')
       },
       {
+        path: 'main-categories',
+        name: 'admin-main-categories',
+        component: () => import('../views/admin/AdminMainCategoriesView.vue')
+      },
+      {
         path: 'categories',
+        alias: 'subcategories',
         name: 'admin-categories',
         component: () => import('../views/admin/AdminCategoriesView.vue')
       },
@@ -154,11 +172,6 @@ const routes = [
   // SUPER ADMIN (INTERNAL DEVELOPER) ROUTES
   // ==========================================
   {
-    path: '/super-admin/login',
-    name: 'superadmin-login',
-    component: () => import('../views/superadmin/SuperAdminLoginView.vue')
-  },
-  {
     path: '/super-admin',
     component: SuperAdminLayout,
     meta: { requiredRole: 'superadmin' },
@@ -183,19 +196,25 @@ const routes = [
         component: () => import('../views/superadmin/SuperAdminManagementView.vue')
       }
     ]
+  },
+
+  // Fallback Catch All
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     }
-    return { top: 0 }
+    return { top: 0 };
   }
-})
+});
 
 // ==========================================
 // ROLE-BASED NAVIGATION GUARDS
@@ -222,4 +241,4 @@ router.beforeEach(async (to) => {
   return { name: 'login' }
 })
 
-export default router
+export default router;

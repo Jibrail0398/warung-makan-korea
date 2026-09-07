@@ -38,7 +38,7 @@
           :class="{ active: selectedTab === 'restaurant' }"
           @click="selectedTab = 'restaurant'"
         >
-          Menu Restoran ({{ countByType('restaurant') }})
+          Restaurant Menu ({{ countByType('restaurant') }})
         </button>
         <button
           type="button"
@@ -53,6 +53,13 @@
 
       <!-- Search & Status Controls -->
       <div class="filter-controls">
+        <select v-model="selectedSubcatFilter" class="filter-select subcat-filter">
+          <option value="all">Semua Subkategori</option>
+          <option v-for="sc in availableSubcategories" :key="sc.id" :value="sc.id">
+            {{ sc.name }}
+          </option>
+        </select>
+
         <div class="search-box">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" />
@@ -81,7 +88,8 @@
           <tr>
             <th scope="col" class="col-thumb">Foto</th>
             <th scope="col">Nama Produk</th>
-            <th scope="col">Kategori</th>
+            <th scope="col">Kategori Besar</th>
+            <th scope="col">Subkategori</th>
             <th scope="col">Harga</th>
             <th scope="col">Satuan</th>
             <th scope="col">Stok</th>
@@ -104,7 +112,12 @@
             </td>
             <td>
               <span class="type-pill" :class="`type-${product.category}`">
-                {{ product.category === 'restaurant' ? 'Menu Restoran' : 'Raw Material' }}
+                {{ product.category === 'restaurant' || product.mainCategoryId === 1 ? 'Restaurant Menu' : 'Raw Material' }}
+              </span>
+            </td>
+            <td>
+              <span class="subcat-badge">
+                {{ getSubcatName(product.subcategoryId || product.categoryId) }}
               </span>
             </td>
             <td>
@@ -162,7 +175,7 @@
         </tbody>
         <tbody v-else>
           <tr>
-            <td colspan="8" class="empty-state-row">
+            <td colspan="9" class="empty-state-row">
               <div class="empty-box">
                 <p>Tidak ada produk yang sesuai dengan kriteria pencarian.</p>
               </div>
@@ -184,9 +197,14 @@
             <img :src="product.image" :alt="product.name" @error="handleImgError($event)" />
           </div>
           <div class="m-details">
-            <span class="type-pill" :class="`type-${product.category}`">
-              {{ product.category === 'restaurant' ? 'Restoran' : 'Raw Material' }}
-            </span>
+            <div class="m-tags-row">
+              <span class="type-pill" :class="`type-${product.category}`">
+                {{ product.category === 'restaurant' ? 'Restoran' : 'Raw Material' }}
+              </span>
+              <span class="subcat-badge">
+                {{ getSubcatName(product.subcategoryId || product.categoryId) }}
+              </span>
+            </div>
             <h3 class="m-name">{{ product.name }}</h3>
             <span class="product-price">{{ product.price || `₩${(product.numericPrice || 0).toLocaleString('ko-KR')}` }}</span>
           </div>
@@ -221,6 +239,7 @@
       :isOpen="isModalOpen"
       :isEdit="isEditMode"
       :initialData="selectedProduct"
+      :mainCategories="mainCategories"
       :categories="categories"
       @close="isModalOpen = false"
       @save="handleSaveProduct"
@@ -248,8 +267,11 @@ import { adminService } from '../../services/adminService.js';
 import ProductModal from '../../components/admin/ProductModal.vue';
 
 const products = ref([]);
+const mainCategories = ref([]);
 const categories = ref([]);
+
 const selectedTab = ref('all');
+const selectedSubcatFilter = ref('all');
 const searchQuery = ref('');
 const statusFilter = ref('all');
 
@@ -260,14 +282,16 @@ const productToDelete = ref(null);
 
 const loadData = async () => {
   try {
-    const [pList, cList] = await Promise.all([
+    const [pList, mcList, cList] = await Promise.all([
       adminService.getProducts(),
-      adminService.getCategories()
+      adminService.getMainCategories(),
+      adminService.getSubcategories()
     ]);
     products.value = pList;
+    mainCategories.value = mcList;
     categories.value = cList;
   } catch (err) {
-    console.error('Failed to load products:', err);
+    console.error('Failed to load products data:', err);
   }
 };
 
@@ -276,13 +300,43 @@ onMounted(() => {
 });
 
 const countByType = (type) => {
-  return products.value.filter(p => p.category === type).length;
+  return products.value.filter(p => {
+    if (p.mainCategoryId) return type === 'restaurant' ? p.mainCategoryId === 1 : p.mainCategoryId === 2;
+    return p.category === type;
+  }).length;
+};
+
+const availableSubcategories = computed(() => {
+  if (selectedTab.value === 'all') return categories.value;
+  const targetMainId = selectedTab.value === 'restaurant' ? 1 : 2;
+  return categories.value.filter(sc => {
+    if (sc.mainCategoryId) return Number(sc.mainCategoryId) === targetMainId;
+    return selectedTab.value === 'restaurant' ? sc.type === 'restaurant' : sc.type === 'raw';
+  });
+});
+
+const getSubcatName = (subcatId) => {
+  const found = categories.value.find(c => Number(c.id) === Number(subcatId));
+  return found?.name || 'General';
 };
 
 const filteredProducts = computed(() => {
   return products.value.filter(product => {
-    // Tab Filter
-    const tabMatch = selectedTab.value === 'all' || product.category === selectedTab.value;
+    // Kategori Besar Tab Filter
+    let tabMatch = selectedTab.value === 'all';
+    if (!tabMatch) {
+      if (selectedTab.value === 'restaurant') {
+        tabMatch = product.category === 'restaurant' || product.mainCategoryId === 1;
+      } else if (selectedTab.value === 'raw') {
+        tabMatch = product.category === 'raw' || product.mainCategoryId === 2;
+      }
+    }
+
+    // Subkategori Dropdown Filter
+    let subcatMatch = selectedSubcatFilter.value === 'all';
+    if (!subcatMatch) {
+      subcatMatch = String(product.subcategoryId || product.categoryId) === String(selectedSubcatFilter.value);
+    }
 
     // Search query
     const q = searchQuery.value.trim().toLowerCase();
@@ -291,7 +345,7 @@ const filteredProducts = computed(() => {
     // Status filter
     const statusMatch = statusFilter.value === 'all' || product.status === statusFilter.value;
 
-    return tabMatch && searchMatch && statusMatch;
+    return tabMatch && subcatMatch && searchMatch && statusMatch;
   });
 });
 
@@ -568,6 +622,29 @@ const handleImgError = (event) => {
 .type-pill.type-raw {
   background: var(--warm);
   color: #52473f;
+}
+
+.subcat-badge {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.m-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.subcat-filter {
+  min-width: 170px;
 }
 
 .product-price {

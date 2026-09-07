@@ -71,16 +71,17 @@
               </svg>
             </summary>
 
-            <div class="profile-menu">
-              <router-link to="/profile">
-                My Profile
-              </router-link>
+      <router-link to="/order-history">
+        Order History
+      </router-link>
 
-              <router-link to="/order-history">
-                Order History
-              </router-link>
+      <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" class="staff-link">
+        Admin Dashboard
+      </router-link>
 
-              <div class="profile-divider"></div>
+      <router-link v-if="isSuperAdmin" to="/super-admin/dashboard" class="staff-link">
+        Super Admin Dashboard
+      </router-link>
 
               <button
                 v-if="authStore.isAuthenticated"
@@ -142,19 +143,22 @@
     :isOpen="isDrawerOpen"
     @close="closeDrawer"
   />
-</template>
 
+</template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
 import { useCartStore } from '../../stores/cart.js';
 import { useAuthStore } from '../../stores/auth.js';
 import { useHeaderScroll } from '../../composables/useHeaderScroll.js';
+
 import MobileDrawer from './MobileDrawer.vue';
 
 defineProps({
   variant: {
     type: String,
-    default: 'default' // 'default' | 'cart' | 'checkout'
+    default: 'default'
   },
   title: {
     type: String,
@@ -162,9 +166,50 @@ defineProps({
   }
 });
 
+const router = useRouter();
+
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const isDrawerOpen = ref(false);
+
+const isLoggedIn = computed(() => {
+  return (
+    authStore.isAuthenticated ||
+    !!localStorage.getItem('warung-token') ||
+    !!localStorage.getItem('token')
+  );
+});
+
+const userName = computed(() => {
+  return (
+    authStore.user?.name ||
+    authStore.user?.username ||
+    'Pelanggan'
+  );
+});
+
+const userInitial = computed(() => {
+  return userName.value
+    ? userName.value.charAt(0).toUpperCase()
+    : 'U';
+});
+
+const isAdminOrStaff = computed(() => {
+  return (
+    authStore.isAdmin ||
+    authStore.isKasir ||
+    authStore.isSuperAdmin
+  );
+});
+
+const isSuperAdmin = computed(() => {
+  return authStore.isSuperAdmin;
+});
+
+const logout = () => {
+  authStore.logout();
+  router.push('/login');
+};
 
 const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
 
@@ -172,6 +217,7 @@ authStore.hydrate();
 
 function setDrawer(open) {
   isDrawerOpen.value = open;
+
   if (open) {
     document.body.classList.add('drawer-active');
   } else {

@@ -1,16 +1,35 @@
 import { products as initialProducts } from '../data/products.js';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'warung_admin_products_v1',
-  CATEGORIES: 'warung_admin_categories_v1',
-  ORDERS: 'warung_admin_orders_v1',
-  AUDIT_LOGS: 'warung_superadmin_audit_v1',
-  ADMINS: 'warung_superadmin_admins_v1'
+  PRODUCTS: 'warung_admin_products_v2',
+  MAIN_CATEGORIES: 'warung_admin_main_categories_v2',
+  CATEGORIES: 'warung_admin_subcategories_v2',
+  ORDERS: 'warung_admin_orders_v2',
+  AUDIT_LOGS: 'warung_superadmin_audit_v2',
+  ADMINS: 'warung_superadmin_admins_v2'
 };
+
+const initialMainCategories = [
+  {
+    id: 1,
+    name: 'Restaurant Menu',
+    slug: 'restaurant-menu',
+    code: 'restaurant',
+    description: 'Hidangan utama siap saji dan olahan dapur khas Nusantara'
+  },
+  {
+    id: 2,
+    name: 'Raw Material',
+    slug: 'raw-material',
+    code: 'raw',
+    description: 'Bahan baku mentah, daging potong, bumbu racikan, dan sembako Indonesia di Korea'
+  }
+];
 
 const initialCategories = [
   {
     id: 1,
+    mainCategoryId: 1,
     name: 'Makanan Utama',
     slug: 'makanan-utama',
     type: 'restaurant',
@@ -18,6 +37,7 @@ const initialCategories = [
   },
   {
     id: 2,
+    mainCategoryId: 1,
     name: 'Camilan & Tambahan',
     slug: 'camilan-tambahan',
     type: 'restaurant',
@@ -25,20 +45,31 @@ const initialCategories = [
   },
   {
     id: 3,
+    mainCategoryId: 1,
+    name: 'Minuman & Penutup',
+    slug: 'minuman-penutup',
+    type: 'restaurant',
+    description: 'Aneka minuman segar tradisional dan hidangan penutup'
+  },
+  {
+    id: 4,
+    mainCategoryId: 2,
     name: 'Bahan Mentah & Daging',
     slug: 'bahan-mentah-daging',
     type: 'raw',
     description: 'Daging potong segar dan bahan mentah impor'
   },
   {
-    id: 4,
+    id: 5,
+    mainCategoryId: 2,
     name: 'Bumbu & Sambal',
     slug: 'bumbu-sambal',
     type: 'raw',
     description: 'Sambal racikan asli dan rempah-rempah nusantara'
   },
   {
-    id: 5,
+    id: 6,
+    mainCategoryId: 2,
     name: 'Beras & Sembako',
     slug: 'beras-sembako',
     type: 'raw',
@@ -341,19 +372,42 @@ class AdminService {
   }
 
   initData() {
-    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-      const formatted = initialProducts.map(p => ({
-        ...p,
-        stock: p.id === 6 ? 4 : p.id === 7 ? 6 : p.id === 8 ? 3 : 25,
-        unit: p.category === 'raw' ? (p.id === 6 ? '1 kg' : p.id === 7 ? '600 ml' : '250 gr') : '1 porsi',
-        status: 'Available',
-        categoryId: p.category === 'restaurant' ? 1 : 3
-      }));
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(formatted));
+    if (!localStorage.getItem(STORAGE_KEYS.MAIN_CATEGORIES)) {
+      localStorage.setItem(STORAGE_KEYS.MAIN_CATEGORIES, JSON.stringify(initialMainCategories));
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
       localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(initialCategories));
+    }
+
+    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+      const formatted = initialProducts.map(p => {
+        const isRestaurant = p.category === 'restaurant';
+        const mainCategoryId = isRestaurant ? 1 : 2;
+        // Map subcategoryId based on initial products
+        let subcategoryId = 1;
+        if (isRestaurant) {
+          if (p.id === 1 || p.id === 2 || p.id === 3 || p.id === 4) subcategoryId = 1; // Makanan Utama
+          else subcategoryId = 2; // Camilan & Tambahan
+        } else {
+          if (p.id === 5) subcategoryId = 5; // Bumbu & Sambal
+          else if (p.id === 6) subcategoryId = 6; // Beras & Sembako
+          else if (p.id === 7) subcategoryId = 5; // Bumbu & Sambal
+          else subcategoryId = 4; // Bahan Mentah & Daging
+        }
+
+        return {
+          ...p,
+          mainCategoryId,
+          subcategoryId,
+          category: isRestaurant ? 'restaurant' : 'raw',
+          stock: p.id === 6 ? 4 : p.id === 7 ? 6 : p.id === 8 ? 3 : 25,
+          unit: p.category === 'raw' ? (p.id === 6 ? '1 kg' : p.id === 7 ? '600 ml' : '250 gr') : '1 porsi',
+          status: 'Available',
+          categoryId: subcategoryId // backward compatibility
+        };
+      });
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(formatted));
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
@@ -369,9 +423,142 @@ class AdminService {
     }
   }
 
+  // --- MAIN CATEGORIES (KATEGORI BESAR) CRUD ---
+  async getMainCategories() {
+    await new Promise(r => setTimeout(r, 40));
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.MAIN_CATEGORIES) || '[]');
+  }
+
+  async getMainCategoryById(id) {
+    const mainCategories = await this.getMainCategories();
+    return mainCategories.find(mc => String(mc.id) === String(id)) || null;
+  }
+
+  async createMainCategory(mainCatData) {
+    await new Promise(r => setTimeout(r, 80));
+    const mainCategories = await this.getMainCategories();
+    const newId = mainCategories.length ? Math.max(...mainCategories.map(c => Number(c.id) || 0)) + 1 : 1;
+    const newMainCat = {
+      id: newId,
+      name: mainCatData.name,
+      slug: (mainCatData.slug || mainCatData.name).toLowerCase().replace(/\s+/g, '-'),
+      code: mainCatData.code || mainCatData.name.toLowerCase().replace(/\s+/g, '-'),
+      description: mainCatData.description || ''
+    };
+    mainCategories.push(newMainCat);
+    localStorage.setItem(STORAGE_KEYS.MAIN_CATEGORIES, JSON.stringify(mainCategories));
+    this.logActivity('Admin', 'CREATE_MAIN_CATEGORY', `Main Category #${newId} (${newMainCat.name})`, newMainCat);
+    return newMainCat;
+  }
+
+  async updateMainCategory(id, mainCatData) {
+    await new Promise(r => setTimeout(r, 80));
+    const mainCategories = await this.getMainCategories();
+    const idx = mainCategories.findIndex(mc => String(mc.id) === String(id));
+    if (idx === -1) throw new Error('Kategori Besar tidak ditemukan');
+
+    mainCategories[idx] = {
+      ...mainCategories[idx],
+      ...mainCatData,
+      slug: (mainCatData.name || mainCategories[idx].name).toLowerCase().replace(/\s+/g, '-')
+    };
+    localStorage.setItem(STORAGE_KEYS.MAIN_CATEGORIES, JSON.stringify(mainCategories));
+    this.logActivity('Admin', 'UPDATE_MAIN_CATEGORY', `Main Category #${id} (${mainCategories[idx].name})`, mainCatData);
+    return mainCategories[idx];
+  }
+
+  async deleteMainCategory(id) {
+    await new Promise(r => setTimeout(r, 80));
+    let mainCategories = await this.getMainCategories();
+    const target = mainCategories.find(mc => String(mc.id) === String(id));
+    mainCategories = mainCategories.filter(mc => String(mc.id) !== String(id));
+    localStorage.setItem(STORAGE_KEYS.MAIN_CATEGORIES, JSON.stringify(mainCategories));
+    this.logActivity('Admin', 'DELETE_MAIN_CATEGORY', `Main Category #${id} (${target?.name || ''})`);
+    return true;
+  }
+
+  // --- SUBCATEGORIES (SUBKATEGORI) CRUD ---
+  async getSubcategories() {
+    await new Promise(r => setTimeout(r, 50));
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+  }
+
+  async getSubcategoriesByMainCategory(mainCategoryId) {
+    const subcats = await this.getSubcategories();
+    return subcats.filter(sc => String(sc.mainCategoryId) === String(mainCategoryId));
+  }
+
+  // Backward compatibility alias
+  async getCategories() {
+    return this.getSubcategories();
+  }
+
+  async createSubcategory(catData) {
+    await new Promise(r => setTimeout(r, 80));
+    const categories = await this.getSubcategories();
+    const newId = categories.length ? Math.max(...categories.map(c => Number(c.id) || 0)) + 1 : 1;
+    const mainCategoryId = Number(catData.mainCategoryId || (catData.type === 'raw' ? 2 : 1));
+    const newCat = {
+      id: newId,
+      mainCategoryId,
+      name: catData.name,
+      slug: catData.name.toLowerCase().replace(/\s+/g, '-'),
+      type: catData.type || (mainCategoryId === 2 ? 'raw' : 'restaurant'),
+      description: catData.description || ''
+    };
+    categories.push(newCat);
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    this.logActivity('Admin', 'CREATE_SUBCATEGORY', `Subcategory #${newId} (${newCat.name})`, newCat);
+    return newCat;
+  }
+
+  async createCategory(catData) {
+    return this.createSubcategory(catData);
+  }
+
+  async updateSubcategory(id, catData) {
+    await new Promise(r => setTimeout(r, 80));
+    const categories = await this.getSubcategories();
+    const idx = categories.findIndex(c => String(c.id) === String(id));
+    if (idx === -1) throw new Error('Subkategori tidak ditemukan');
+
+    const mainCategoryId = catData.mainCategoryId !== undefined 
+      ? Number(catData.mainCategoryId) 
+      : categories[idx].mainCategoryId;
+
+    categories[idx] = {
+      ...categories[idx],
+      ...catData,
+      mainCategoryId,
+      type: catData.type || (mainCategoryId === 2 ? 'raw' : 'restaurant'),
+      slug: (catData.name || categories[idx].name).toLowerCase().replace(/\s+/g, '-')
+    };
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    this.logActivity('Admin', 'UPDATE_SUBCATEGORY', `Subcategory #${id} (${categories[idx].name})`, catData);
+    return categories[idx];
+  }
+
+  async updateCategory(id, catData) {
+    return this.updateSubcategory(id, catData);
+  }
+
+  async deleteSubcategory(id) {
+    await new Promise(r => setTimeout(r, 80));
+    let categories = await this.getSubcategories();
+    const target = categories.find(c => String(c.id) === String(id));
+    categories = categories.filter(c => String(c.id) !== String(id));
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    this.logActivity('Admin', 'DELETE_SUBCATEGORY', `Subcategory #${id} (${target?.name || ''})`);
+    return true;
+  }
+
+  async deleteCategory(id) {
+    return this.deleteSubcategory(id);
+  }
+
   // --- PRODUCTS CRUD ---
   async getProducts() {
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 50));
     return JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
   }
 
@@ -381,20 +568,26 @@ class AdminService {
   }
 
   async createProduct(productData) {
-    await new Promise(r => setTimeout(r, 120));
+    await new Promise(r => setTimeout(r, 100));
     const products = await this.getProducts();
     const newId = products.length ? Math.max(...products.map(p => Number(p.id) || 0)) + 1 : 1;
     
     const numericPrice = Number(productData.numericPrice || productData.price || 0);
+    const mainCategoryId = Number(productData.mainCategoryId || (productData.category === 'raw' ? 2 : 1));
+    const subcategoryId = Number(productData.subcategoryId || productData.categoryId || (mainCategoryId === 2 ? 4 : 1));
+    const categoryType = mainCategoryId === 2 ? 'raw' : 'restaurant';
+
     const newProduct = {
       id: newId,
       name: productData.name,
       price: `₩${numericPrice.toLocaleString('ko-KR')}`,
       numericPrice,
       description: productData.description || '',
-      category: productData.category || 'restaurant',
-      categoryId: productData.categoryId || 1,
-      unit: productData.unit || (productData.category === 'raw' ? '1 bungkus' : '1 porsi'),
+      category: categoryType,
+      mainCategoryId,
+      subcategoryId,
+      categoryId: subcategoryId,
+      unit: productData.unit || (categoryType === 'raw' ? '1 bungkus' : '1 porsi'),
       stock: Number(productData.stock || 0),
       status: productData.status || 'Available',
       image: productData.image || 'https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=600'
@@ -407,7 +600,7 @@ class AdminService {
   }
 
   async updateProduct(id, productData) {
-    await new Promise(r => setTimeout(r, 120));
+    await new Promise(r => setTimeout(r, 100));
     const products = await this.getProducts();
     const idx = products.findIndex(p => String(p.id) === String(id));
     if (idx === -1) throw new Error('Produk tidak ditemukan');
@@ -416,9 +609,23 @@ class AdminService {
       ? Number(productData.numericPrice) 
       : products[idx].numericPrice;
 
+    const mainCategoryId = productData.mainCategoryId !== undefined 
+      ? Number(productData.mainCategoryId) 
+      : products[idx].mainCategoryId || (products[idx].category === 'raw' ? 2 : 1);
+
+    const subcategoryId = productData.subcategoryId !== undefined 
+      ? Number(productData.subcategoryId) 
+      : (productData.categoryId !== undefined ? Number(productData.categoryId) : products[idx].subcategoryId);
+
+    const categoryType = mainCategoryId === 2 ? 'raw' : 'restaurant';
+
     products[idx] = {
       ...products[idx],
       ...productData,
+      mainCategoryId,
+      subcategoryId,
+      categoryId: subcategoryId,
+      category: categoryType,
       numericPrice,
       price: `₩${numericPrice.toLocaleString('ko-KR')}`
     };
@@ -429,7 +636,7 @@ class AdminService {
   }
 
   async deleteProduct(id) {
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 80));
     let products = await this.getProducts();
     const target = products.find(p => String(p.id) === String(id));
     products = products.filter(p => String(p.id) !== String(id));
@@ -446,27 +653,93 @@ class AdminService {
     return this.updateProduct(id, { status: newStatus });
   }
 
-  // --- CATEGORIES CRUD ---
-  async getCategories() {
-    await new Promise(r => setTimeout(r, 50));
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
-  }
-
-  async createCategory(catData) {
+  // --- POS (POINT OF SALE) TRANSACTIONS ---
+  async createPosOrder(posPayload) {
     await new Promise(r => setTimeout(r, 100));
-    const categories = await this.getCategories();
-    const newId = categories.length ? Math.max(...categories.map(c => c.id)) + 1 : 1;
-    const newCat = {
-      id: newId,
-      name: catData.name,
-      slug: catData.name.toLowerCase().replace(/\s+/g, '-'),
-      type: catData.type || 'restaurant',
-      description: catData.description || ''
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    const orderId = `POS-${randomNum}`;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const dateStr = now.toISOString().split('T')[0];
+
+    const customerName = posPayload.customerName?.trim() || 'Pelanggan Langsung (Walk-in)';
+    const customerPhone = posPayload.customerPhone?.trim() || '+82 10 POS-CASHIER';
+    const subtotal = Number(posPayload.subtotal || 0);
+    const tax = Number(posPayload.tax || 0);
+    const total = Number(posPayload.total || subtotal);
+
+    const formattedItems = (posPayload.items || []).map(item => ({
+      id: item.id,
+      name: item.name,
+      price: Number(item.numericPrice || item.price || 0),
+      quantity: Number(item.quantity || 1),
+      subtotal: Number(item.numericPrice || item.price || 0) * Number(item.quantity || 1),
+      category: item.category || 'restaurant',
+      mainCategoryId: item.mainCategoryId || 1,
+      subcategoryId: item.subcategoryId || 1
+    }));
+
+    const newOrder = {
+      id: orderId,
+      orderNumber: `#${orderId}`,
+      date: dateStr,
+      time: timeStr,
+      customer: {
+        name: customerName,
+        phone: customerPhone,
+        type: 'Walk-in / POS'
+      },
+      orderType: posPayload.orderType || 'Dine In',
+      tableNumber: posPayload.tableNumber || '',
+      note: posPayload.note || 'Transaksi Kasir POS',
+      status: 'Completed',
+      paymentMethod: posPayload.paymentMethod || 'Tunai',
+      paymentStatus: 'Verified',
+      paymentDetails: posPayload.paymentDetails || null,
+      cashierName: posPayload.cashierName || 'Kasir',
+      items: formattedItems,
+      subtotal,
+      tax,
+      total,
+      source: 'POS'
     };
-    categories.push(newCat);
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-    this.logActivity('Admin', 'CREATE_CATEGORY', `Category #${newId} (${newCat.name})`, newCat);
-    return newCat;
+
+    // 1. Save to orders list
+    const orders = await this.getOrders();
+    orders.unshift(newOrder);
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+
+    // 2. Decrement stock for purchased products
+    try {
+      const products = await this.getProducts();
+      let hasStockChange = false;
+      formattedItems.forEach(cartItem => {
+        const pIdx = products.findIndex(p => String(p.id) === String(cartItem.id));
+        if (pIdx !== -1) {
+          const newStock = Math.max(0, (products[pIdx].stock || 0) - cartItem.quantity);
+          products[pIdx].stock = newStock;
+          if (newStock === 0) {
+            products[pIdx].status = 'Sold Out';
+          }
+          hasStockChange = true;
+        }
+      });
+      if (hasStockChange) {
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      }
+    } catch (e) {
+      console.warn('Stock update failed in POS:', e);
+    }
+
+    // 3. Log activity
+    this.logActivity(
+      posPayload.cashierName || 'Kasir',
+      'POS_TRANSACTION',
+      `Order #${orderId} (₩${total.toLocaleString('ko-KR')}) via ${newOrder.paymentMethod}`,
+      { orderId, total, itemsCount: formattedItems.length }
+    );
+
+    return newOrder;
   }
 
   async updateCategory(id, catData) {

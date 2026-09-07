@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { authService } from '../services/authService.js';
+import { adminService } from '../services/adminService.js';
+import { users } from '../data/user.js';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
@@ -25,6 +26,8 @@ export const useAuthStore = defineStore('auth', () => {
     authData.value = null;
     user.value = null;
     token.value = '';
+
+    // Clear all storage keys
     localStorage.removeItem('warung-user');
     localStorage.removeItem('warung-token');
     localStorage.removeItem('warung-auth-data');
@@ -40,3 +43,4 @@ export const useAuthStore = defineStore('auth', () => {
     logout
   };
 });
+

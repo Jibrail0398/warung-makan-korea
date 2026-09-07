@@ -5,14 +5,17 @@ import { users } from '../data/user.js';
 import { authService } from '../services/authService.js';
 
 export const useAdminAuthStore = defineStore('adminAuth', () => {
-  const adminUser = ref(JSON.parse(localStorage.getItem('warung-admin-user') || 'null'));
-  const adminToken = ref(localStorage.getItem('warung-admin-token') || '');
+  const authStore = useAuthStore();
 
-  const superAdminUser = ref(JSON.parse(localStorage.getItem('warung-superadmin-user') || 'null'));
-  const superAdminToken = ref(localStorage.getItem('warung-superadmin-token') || '');
+  const adminUser = computed(() => {
+    if (authStore.isAdminOrKasir) return authStore.user;
+    return JSON.parse(localStorage.getItem('warung-admin-user') || 'null');
+  });
 
-  const isAdminAuthenticated = computed(() => !!adminToken.value);
-  const isSuperAdminAuthenticated = computed(() => !!superAdminToken.value);
+  const adminToken = computed(() => {
+    if (authStore.isAdminOrKasir) return authStore.token;
+    return localStorage.getItem('warung-admin-token') || '';
+  });
 
   async function storeRoleAuthData(userData, accessToken, role) {
     const encodedAuthData = await authService.encode({
@@ -72,15 +75,13 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
       localStorage.setItem('warung-admin-token', adminToken.value);
       await storeRoleAuthData(userData, adminToken.value, 'admin');
 
-      adminService.logActivity(
-        `${userData.name} (${userData.role})`,
-        'LOGIN',
-        'Portal Admin / Kasir',
-        { username: userData.username }
-      );
+  const superAdminToken = computed(() => {
+    if (authStore.isSuperAdmin) return authStore.token;
+    return localStorage.getItem('warung-superadmin-token') || '';
+  });
 
-      return userData;
-    }
+  const isAdminAuthenticated = computed(() => authStore.isAdminOrKasir || !!adminToken.value);
+  const isSuperAdminAuthenticated = computed(() => authStore.isSuperAdmin || !!superAdminToken.value);
 
     // Fallback default admin
     const isKasir = cleanIdent.includes('kasir');
@@ -178,7 +179,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
 
   // Reset / Change Password
   async function changePassword(currentPassword, newPassword) {
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 400));
 
     if (!currentPassword || !newPassword) {
       throw new Error('Semua field kata sandi wajib diisi');
@@ -188,11 +189,11 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
       throw new Error('Kata sandi baru minimal 6 karakter');
     }
 
-    if (adminUser.value) {
+    if (authStore.user) {
       adminService.logActivity(
-        `${adminUser.value.name} (${adminUser.value.role})`,
+        `${authStore.user.name} (${authStore.user.role})`,
         'RESET_PASSWORD',
-        `Account ${adminUser.value.username}`
+        `Account ${authStore.user.username || authStore.user.name}`
       );
     }
 
@@ -213,4 +214,5 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     changePassword
   };
 });
+
 

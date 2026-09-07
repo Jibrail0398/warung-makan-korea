@@ -23,19 +23,22 @@
     </label>
 
     <div class="input-wrapper">
-      <input
-        :id="inputId"
-        :type="computedType"
-        :value="modelValue"
-        :placeholder="placeholder"
-        :required="required"
-        :autocomplete="autocomplete"
-        :disabled="disabled"
-        :aria-invalid="!!error"
-        :aria-describedby="error ? `${inputId}-error` : null"
-        class="auth-input"
-        @input="$emit('update:modelValue', $event.target.value)"
-      />
+<input
+  :id="inputId"
+  :type="computedType"
+  :value="formattedValue"
+  :placeholder="placeholder"
+  :required="required"
+  :autocomplete="autocomplete"
+  :disabled="disabled"
+  :inputmode="type === 'tel' ? 'numeric' : undefined"
+  :maxlength="type === 'tel' ? 13 : undefined"
+  :aria-invalid="!!error"
+  :aria-describedby="error ? `${inputId}-error` : null"
+  class="auth-input"
+  @input="handleInput"
+  @keydown="handleKeydown"
+/>
 
       <button
         v-if="type === 'password' && !disabled"
@@ -162,7 +165,7 @@ const props = defineProps({
   }
 });
 
-defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue']);
 
 const showPassword = ref(false);
 
@@ -181,6 +184,83 @@ const computedType = computed(() => {
 
   return props.type;
 });
+
+/*
+ * Format nomor Korea:
+ *
+ * 01012345678
+ * ↓
+ * 010-1234-5678
+ */
+const formatKoreanPhone = (value) => {
+  const numbers = String(value).replace(/\D/g, '');
+
+  if (numbers.length <= 3) {
+    return numbers;
+  }
+
+  if (numbers.length <= 7) {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+  }
+
+  return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+};
+
+const formattedValue = computed(() => {
+  if (props.type === 'tel') {
+    return formatKoreanPhone(props.modelValue);
+  }
+
+  return props.modelValue;
+});
+
+const handleInput = (event) => {
+  let value = event.target.value;
+
+  if (props.type === 'tel') {
+    // Hanya izinkan angka
+    value = value.replace(/[^0-9]/g, '');
+
+    // Maksimal 11 digit
+    value = value.slice(0, 11);
+  }
+
+  emit('update:modelValue', value);
+};
+
+const handleKeydown = (event) => {
+  if (props.type !== 'tel') return;
+
+  const allowedKeys = [
+    'Backspace',
+    'Delete',
+    'Tab',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Home',
+    'End'
+  ];
+
+  // Izinkan shortcut seperti Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+  if (
+    event.ctrlKey ||
+    event.metaKey
+  ) {
+    return;
+  }
+
+  // Izinkan tombol navigasi
+  if (allowedKeys.includes(event.key)) {
+    return;
+  }
+
+  // Tolak semua selain angka
+  if (!/^[0-9]$/.test(event.key)) {
+    event.preventDefault();
+  }
+};
 </script>
 
 <style scoped>
@@ -235,10 +315,6 @@ const computedType = computed(() => {
   box-shadow: 0 0 0 4px rgba(165, 29, 45, 0.08);
 }
 
-/* =========================
-   DISABLED
-========================= */
-
 .auth-input:disabled {
   background: #f5f3f1;
   border-color: var(--line);
@@ -252,10 +328,6 @@ const computedType = computed(() => {
   color: #9a948f;
 }
 
-/* =========================
-   ERROR
-========================= */
-
 .has-error .auth-input {
   border-color: #dc2626;
 }
@@ -264,10 +336,6 @@ const computedType = computed(() => {
   border-color: #dc2626;
   box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
 }
-
-/* =========================
-   PASSWORD TOGGLE
-========================= */
 
 .toggle-password-btn {
   position: absolute;
@@ -287,10 +355,6 @@ const computedType = computed(() => {
 .toggle-password-btn:hover {
   color: var(--ink);
 }
-
-/* =========================
-   ERROR MESSAGE
-========================= */
 
 .error-text {
   margin-top: 6px;

@@ -60,6 +60,28 @@
           </div>
         </div>
 
+        <!-- Subcategories Pills Row -->
+        <div v-if="availableSubcategories.length > 0" class="subcategories-filter-row">
+          <button
+            type="button"
+            class="subcat-chip-btn"
+            :class="{ active: currentSubcategory === 'all' }"
+            @click="setSubcategory('all')"
+          >
+            All Subcategories
+          </button>
+          <button
+            v-for="sub in availableSubcategories"
+            :key="sub.id"
+            type="button"
+            class="subcat-chip-btn"
+            :class="{ active: currentSubcategory === sub.id }"
+            @click="setSubcategory(sub.id)"
+          >
+            {{ sub.name }}
+          </button>
+        </div>
+
         <!-- Product Grid Area -->
         <div aria-live="polite" :aria-busy="isLoading">
           <!-- Loading skeleton -->
@@ -148,28 +170,50 @@ const cartStore = useCartStore();
 const { isToastVisible, toastMessage, showToast } = useToast();
 
 const allProducts = ref([]);
+const subcategories = ref([]);
 const currentCategory = ref('all');
+const currentSubcategory = ref('all');
 const searchQuery = ref('');
 const isLoading = ref(false);
 let filterTimer = null;
 
 const allCount = computed(() => allProducts.value.length);
 const restaurantCount = computed(
-  () => allProducts.value.filter(p => p.category === 'restaurant').length
+  () => allProducts.value.filter(p => p.category === 'restaurant' || p.mainCategoryId === 1).length
 );
 const rawCount = computed(
-  () => allProducts.value.filter(p => p.category === 'raw').length
+  () => allProducts.value.filter(p => p.category === 'raw' || p.mainCategoryId === 2).length
 );
+
+const availableSubcategories = computed(() => {
+  if (currentCategory.value === 'all') return subcategories.value;
+  const targetMainId = currentCategory.value === 'restaurant' ? 1 : 2;
+  return subcategories.value.filter(s => {
+    if (s.mainCategoryId) return Number(s.mainCategoryId) === targetMainId;
+    return currentCategory.value === 'restaurant' ? s.type === 'restaurant' : s.type === 'raw';
+  });
+});
 
 const filteredProducts = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
   return allProducts.value.filter(product => {
-    const categoryMatch =
-      currentCategory.value === 'all' || product.category === currentCategory.value;
+    let categoryMatch = true;
+    if (currentCategory.value === 'restaurant') {
+      categoryMatch = product.category === 'restaurant' || product.mainCategoryId === 1;
+    } else if (currentCategory.value === 'raw') {
+      categoryMatch = product.category === 'raw' || product.mainCategoryId === 2;
+    }
+
+    let subcatMatch = true;
+    if (currentSubcategory.value !== 'all') {
+      subcatMatch = String(product.subcategoryId || product.categoryId) === String(currentSubcategory.value);
+    }
+
     const searchMatch =
       !query ||
       (product.name + ' ' + (product.description || '')).toLowerCase().includes(query);
-    return categoryMatch && searchMatch;
+
+    return categoryMatch && subcatMatch && searchMatch;
   });
 });
 
@@ -183,17 +227,23 @@ function triggerFilterLoading() {
 
 function setCategory(category) {
   currentCategory.value = category;
+  currentSubcategory.value = 'all';
+  triggerFilterLoading();
+}
+
+function setSubcategory(subId) {
+  currentSubcategory.value = subId;
   triggerFilterLoading();
 }
 
 function resetFilters() {
   searchQuery.value = '';
   currentCategory.value = 'all';
+  currentSubcategory.value = 'all';
   triggerFilterLoading();
 }
 
 function handleSelectProduct(id) {
-  // Can link to detailed view or expand card
   const found = allProducts.value.find(p => p.id === id);
   if (found) {
     showToast(`${found.name} selected`);
@@ -233,7 +283,12 @@ function formatPrice(price) {
 onMounted(async () => {
   isLoading.value = true;
   try {
-    allProducts.value = await menuService.getProducts();
+    const [pList, scList] = await Promise.all([
+      menuService.getProducts(),
+      menuService.getSubcategories()
+    ]);
+    allProducts.value = pList;
+    subcategories.value = scList;
   } finally {
     isLoading.value = false;
   }
@@ -365,6 +420,40 @@ onMounted(async () => {
   background: #fff;
   color: var(--red);
   box-shadow: 0 3px 12px rgba(36, 25, 18, .08);
+}
+
+.subcategories-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-top: -12px;
+  margin-bottom: 24px;
+}
+
+.subcat-chip-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+.subcat-chip-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.subcat-chip-btn.active {
+  background: var(--ink);
+  color: #ffffff;
+  border-color: var(--ink);
 }
 
 .products-count-bar {
