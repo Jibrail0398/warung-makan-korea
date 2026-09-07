@@ -10,7 +10,10 @@
         :currentCategory="currentCategory"
         v-model:searchQuery="searchQuery"
         :isLoading="isLoading"
+        :currentPage="pagination.currentPage"
+        :lastPage="pagination.lastPage"
         @selectCategory="setCategory"
+        @changePage="loadProducts"
         @resetFilters="resetFilters"
         @showToast="showToast"
       />
@@ -35,13 +38,14 @@ import PromoSection from '../components/home/PromoSection.vue';
 import MenuSection from '../components/home/MenuSection.vue';
 import AboutSection from '../components/home/AboutSection.vue';
 import ToastNotification from '../components/common/ToastNotification.vue';
-import { menuService } from '../services/menuService.js';
+import { productService } from '../services/productsService.js';
 import { useToast } from '../composables/useToast.js';
 
 const allProducts = ref([]);
 const currentCategory = ref('all');
 const searchQuery = ref('');
 const isLoading = ref(false);
+const pagination = ref({ currentPage: 1, lastPage: 1, total: 0, perPage: 0 });
 
 const { isToastVisible, toastMessage, showToast } = useToast();
 
@@ -77,7 +81,20 @@ function resetFilters() {
   triggerFilterLoading();
 }
 
-onMounted(async () => {
-  allProducts.value = await menuService.getProducts();
-});
+async function loadProducts(page = 1) {
+  isLoading.value = true;
+
+  try {
+    const result = await productService.getProducts(page);
+    allProducts.value = result.products;
+    pagination.value = result.pagination;
+  } catch (error) {
+    allProducts.value = [];
+    showToast(error.message || 'Gagal memuat produk');
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(() => loadProducts());
 </script>

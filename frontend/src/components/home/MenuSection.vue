@@ -83,6 +83,24 @@
         </div>
       </div>
 
+      <nav v-if="lastPage > 1" class="pagination" aria-label="Product pagination">
+        <button
+          type="button"
+          :disabled="currentPage === 1"
+          @click="$emit('changePage', currentPage - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ lastPage }}</span>
+        <button
+          type="button"
+          :disabled="currentPage === lastPage"
+          @click="$emit('changePage', currentPage + 1)"
+        >
+          Next
+        </button>
+      </nav>
+
       <div class="view-all-row">
         <router-link class="text-link" to="/menu">
           View all products
@@ -115,12 +133,21 @@ const props = defineProps({
   isLoading: {
     type: Boolean,
     default: false
+  },
+  currentPage: {
+    type: Number,
+    default: 1
+  },
+  lastPage: {
+    type: Number,
+    default: 1
   }
 });
 
 const emit = defineEmits([
   'update:searchQuery',
   'selectCategory',
+  'changePage',
   'resetFilters',
   'showToast'
 ]);
@@ -348,6 +375,38 @@ function handleDecrease(product) {
   display: flex;
   justify-content: center;
   margin-top: 38px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+  color: var(--muted);
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.pagination button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 750;
+}
+
+.pagination button:not(:disabled):hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
 }
 
 .text-link {
