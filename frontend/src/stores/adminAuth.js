@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { adminService } from '../services/adminService.js';
 import { users } from '../data/user.js';
+import { authService } from '../services/authService.js';
 
 export const useAdminAuthStore = defineStore('adminAuth', () => {
   const adminUser = ref(JSON.parse(localStorage.getItem('warung-admin-user') || 'null'));
@@ -12,6 +13,20 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
 
   const isAdminAuthenticated = computed(() => !!adminToken.value);
   const isSuperAdminAuthenticated = computed(() => !!superAdminToken.value);
+
+  async function storeRoleAuthData(userData, accessToken, role) {
+    const encodedAuthData = await authService.encode({
+      user: {
+        ...userData,
+        role
+      },
+      access_token: accessToken,
+      token_type: 'bearer',
+      expires_in: null
+    });
+
+    localStorage.setItem('warung-auth-data', encodedAuthData);
+  }
 
   // Admin / Kasir Login
   async function loginAdmin(identifier, password) {
@@ -55,6 +70,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
       adminToken.value = 'admin-jwt-' + Date.now();
       localStorage.setItem('warung-admin-user', JSON.stringify(userData));
       localStorage.setItem('warung-admin-token', adminToken.value);
+      await storeRoleAuthData(userData, adminToken.value, 'admin');
 
       adminService.logActivity(
         `${userData.name} (${userData.role})`,
@@ -83,6 +99,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     adminToken.value = 'admin-jwt-' + Date.now();
     localStorage.setItem('warung-admin-user', JSON.stringify(userData));
     localStorage.setItem('warung-admin-token', adminToken.value);
+    await storeRoleAuthData(userData, adminToken.value, 'admin');
 
     adminService.logActivity(
       `${userData.name} (${userData.role})`,
@@ -106,6 +123,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     adminToken.value = '';
     localStorage.removeItem('warung-admin-user');
     localStorage.removeItem('warung-admin-token');
+    localStorage.removeItem('warung-auth-data');
   }
 
   // Super Admin Login
@@ -142,6 +160,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     superAdminToken.value = 'superadmin-jwt-' + Date.now();
     localStorage.setItem('warung-superadmin-user', JSON.stringify(userData));
     localStorage.setItem('warung-superadmin-token', superAdminToken.value);
+    await storeRoleAuthData(userData, superAdminToken.value, 'superadmin');
 
     adminService.logActivity('Super Admin', 'LOGIN', 'Super Admin Developer Console');
 
@@ -154,6 +173,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     superAdminToken.value = '';
     localStorage.removeItem('warung-superadmin-user');
     localStorage.removeItem('warung-superadmin-token');
+    localStorage.removeItem('warung-auth-data');
   }
 
   // Reset / Change Password

@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import SuperAdminLayout from '../layouts/SuperAdminLayout.vue'
+import { authService } from '../services/authService.js'
 
 const routes = [
   // ==========================================
@@ -37,44 +38,52 @@ const routes = [
   {
     path: '/cart',
     name: 'cart',
-    component: () => import('../views/CartView.vue')
+    component: () => import('../views/CartView.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/checkout',
     alias: '/Checkout',
     name: 'checkout',
-    component: () => import('../views/CheckoutView.vue')
+    component: () => import('../views/CheckoutView.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/orders',
     alias: '/Orders',
     name: 'orders',
-    component: () => import('../views/OrdersView.vue')
+    component: () => import('../views/OrdersView.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/orders/:id',
     name: 'order-tracking',
-    component: () => import('../views/OrderHistoryDetailView.vue')
+    component: () => import('../views/OrderHistoryDetailView.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/profile',
     name: 'CustomerProfile',
-    component: () => import('../views/CustomerProfile.vue')
+    component: () => import('../views/CustomerProfile.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/employeeprofile',
     name: 'EmployeeProfile',
-    component: () => import('../views/EmployeeProfile.vue')
+    component: () => import('../views/EmployeeProfile.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/order-history',
     name: 'OrderHistory',
-    component: () => import('../views/OrderHistoryListView.vue')
+    component: () => import('../views/OrderHistoryListView.vue'),
+    meta: { requiredRole: 'member' }
   },
   {
     path: '/order-history/:id',
     name: 'OrderHistoryDetail',
-    component: () => import('../views/OrderHistoryDetailView.vue')
+    component: () => import('../views/OrderHistoryDetailView.vue'),
+    meta: { requiredRole: 'member' }
   },
 
   // ==========================================
@@ -88,6 +97,7 @@ const routes = [
   {
     path: '/admin',
     component: AdminLayout,
+    meta: { requiredRole: 'admin' },
     children: [
       {
         path: '',
@@ -151,6 +161,7 @@ const routes = [
   {
     path: '/super-admin',
     component: SuperAdminLayout,
+    meta: { requiredRole: 'superadmin' },
     children: [
       {
         path: '',
@@ -189,33 +200,26 @@ const router = createRouter({
 // ==========================================
 // ROLE-BASED NAVIGATION GUARDS
 // ==========================================
-router.beforeEach((to, from, next) => {
-  const adminToken = localStorage.getItem('warung-admin-token')
-  const superAdminToken = localStorage.getItem('warung-superadmin-token')
+router.beforeEach(async (to) => {
+  const requiredRole = to.meta.requiredRole
 
-  // Super Admin route protection
-  if (to.path.startsWith('/super-admin') && to.name !== 'superadmin-login') {
-    if (!superAdminToken) {
-      return next({ name: 'superadmin-login' })
-    }
+  // Login, register, and OTP routes intentionally have no requiredRole.
+  if (!requiredRole) return true
+
+  const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
+  const currentRole = authData?.user?.role
+
+  if (currentRole === requiredRole) return true
+
+  if (requiredRole === 'superadmin') {
+    return { name: 'superadmin-login' }
   }
 
-  if (to.name === 'superadmin-login' && superAdminToken) {
-    return next({ name: 'superadmin-dashboard' })
+  if (requiredRole === 'admin') {
+    return { name: 'admin-login' }
   }
 
-  // Admin / Kasir route protection
-  if (to.path.startsWith('/admin') && to.name !== 'admin-login') {
-    if (!adminToken) {
-      return next({ name: 'admin-login' })
-    }
-  }
-
-  if (to.name === 'admin-login' && adminToken) {
-    return next({ name: 'admin-dashboard' })
-  }
-
-  next()
+  return { name: 'login' }
 })
 
 export default router
