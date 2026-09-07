@@ -3,21 +3,26 @@ import { ref, computed } from 'vue';
 import { authService } from '../services/authService.js';
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(JSON.parse(localStorage.getItem('warung-user') || 'null'));
-  const token = ref(localStorage.getItem('warung-token') || '');
+  const user = ref(null);
+  const token = ref('');
+  const authData = ref(null);
 
-  const isAuthenticated = computed(() => !!token.value);
+  const isAuthenticated = computed(() => !!authData.value?.access_token);
+  const displayName = computed(() => user.value?.name || 'user');
 
-  async function login(phone, password) {
-    const res = await authService.login(phone, password);
-    user.value = res.user;
-    token.value = res.token;
-    localStorage.setItem('warung-user', JSON.stringify(res.user));
-    localStorage.setItem('warung-token', res.token);
-    return res;
+  async function hydrate() {
+    const storedValue = localStorage.getItem('warung-auth-data');
+    const decodedAuthData = await authService.decode(storedValue);
+
+    authData.value = decodedAuthData;
+    user.value = decodedAuthData?.user || null;
+    token.value = decodedAuthData?.access_token || '';
+
+    return decodedAuthData;
   }
 
   function logout() {
+    authData.value = null;
     user.value = null;
     token.value = '';
     localStorage.removeItem('warung-user');
@@ -28,8 +33,10 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     token,
+    authData,
     isAuthenticated,
-    login,
+    displayName,
+    hydrate,
     logout
   };
 });

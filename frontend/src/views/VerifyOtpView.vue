@@ -153,7 +153,7 @@ const handleVerifyOtp = async () => {
   isLoading.value = true;
   try {
     await authService.verifyOtp(rawPhone, code);
-    alert('Verifikasi OTP Berhasil! Akun Anda telah aktif.');
+    alert('Verifikasi OTP Berhasil!.');
     router.push('/');
   } catch (err) {
     errorMessage.value = err.message || 'Kode OTP salah. Silakan periksa kembali.';

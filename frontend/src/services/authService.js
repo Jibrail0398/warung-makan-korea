@@ -25,6 +25,7 @@ const fromBase64 = (value) => {
 
 export const authService = {
 
+  //Untuk encode localstorage
   async encode(data) {
     const secretBytes = new TextEncoder().encode(encryptionSecret);
     const secretHash = await crypto.subtle.digest('SHA-256', secretBytes);
@@ -46,6 +47,7 @@ export const authService = {
     return `${toBase64(iv)}.${toBase64(new Uint8Array(encryptedData))}`;
   },
 
+  //untuk decode localstorage
   async decode(encodedValue) {
     if (!encodedValue) return null;
 
