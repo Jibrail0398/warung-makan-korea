@@ -59,15 +59,13 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { paymentService } from '../../services/paymentService.js';
+import { orderService } from '../../services/orderService.js';
 import { useCartStore } from '../../stores/cart.js';
-import { useAuthStore } from '../../stores/auth.js';
 import { useOrderStore } from '../../stores/order.js';
 
 const emit = defineEmits(['showToast']);
 const router = useRouter();
 const cartStore = useCartStore();
-const authStore = useAuthStore();
 const orderStore = useOrderStore();
 
 const previewUrl = ref('');
@@ -104,57 +102,27 @@ function removeFile() {
 
 async function confirmPayment() {
   if (!previewUrl.value && !uploadedFile.value) {
-    emit('showToast', 'Upload bukti transfer terlebih dahulu');
+    emit('showToast', 'Upload bukti transfer terlebih dahulu', 3000, 'error');
     return;
   }
 
   isSubmitting.value = true;
   try {
-    const orderItems = cartStore.cartItems.length > 0
-      ? cartStore.cartItems.map(item => ({
-          product_id: item.id,
-          name: item.name,
-          price: item.numericPrice || 12000,
-          quantity: item.quantity,
-          subtotal: (item.numericPrice || 12000) * item.quantity,
-          category: item.category || 'restaurant'
-        }))
-      : [
-          { id: 1, name: 'Nasi Goreng', price: 12000, quantity: 2, subtotal: 24000, category: 'restaurant' },
-          { id: 2, name: 'Rendang', price: 15000, quantity: 1, subtotal: 15000, category: 'restaurant' }
-        ];
+    const orderId = localStorage.getItem('warung-order-id');
+    if (!orderId) throw new Error('Order tidak ditemukan. Silakan ulangi checkout.');
 
-    const customerUser = authStore.user;
-    const isMember = authStore.isAuthenticated;
-
-    const orderPayload = {
-      customer: {
-        name: customerUser?.name || 'Pelanggan Guest',
-        phone: customerUser?.phone || '+82 10 9988 7766',
-        type: isMember ? 'Member' : 'Guest'
-      },
-      orderType: 'Takeaway',
-      items: orderItems,
-      subtotal: cartStore.subtotal,
-      total: cartStore.total,
-      paymentMethod: 'Bank Transfer',
-      isMember
-    };
-
-    const res = await paymentService.confirmPayment(uploadedFile.value || previewUrl.value, orderPayload);
+    const res = await orderService.uploadReceipt(uploadedFile.value);
     
-    if (res.order) {
-      orderStore.currentOrder = res.order;
-    }
+    orderStore.currentOrder = res;
     
     cartStore.clearCart();
     emit('showToast', res.message || 'Pesanan berhasil dikirim!');
 
     setTimeout(() => {
-      router.push(`/orders/${res.orderId}`);
+      router.push(`/orders/${orderId}`);
     }, 1000);
   } catch (err) {
-    emit('showToast', err.message || 'Gagal mengirim konfirmasi');
+    emit('showToast', err.message || 'Gagal mengirim konfirmasi', 3000, 'error');
   } finally {
     isSubmitting.value = false;
   }

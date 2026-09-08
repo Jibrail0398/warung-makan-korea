@@ -144,12 +144,17 @@
       <strong>{{ cartStore.formatPrice(cartStore.subtotal) }}</strong>
     </div>
 
-    <router-link class="checkout-button" to="/checkout">
-      Proceed to checkout
+    <button
+      class="checkout-button"
+      type="button"
+      :disabled="isSubmitting"
+      @click="proceedToCheckout"
+    >
+      {{ isSubmitting ? 'Creating order...' : 'Proceed to checkout' }}
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
-    </router-link>
+    </button>
 
     <p class="secure-note">
       Secure checkout · Order confirmation available after payment
@@ -159,11 +164,14 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useCartStore } from '../../stores/cart.js';
 import { useAuthStore } from '../../stores/auth.js';
+import { orderService } from '../../services/orderService.js';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const router = useRouter();
 
 const orderType = ref('dine-in');
 const scheduleType = ref('now');
@@ -175,6 +183,9 @@ const phoneNumber = ref('');
 
 const orderTypeOpen = ref(false);
 const scheduleOpen = ref(false);
+const isSubmitting = ref(false);
+
+const emit = defineEmits(['showToast']);
 
 const isLoggedIn = computed(() => {
   return authStore.isAuthenticated || !!localStorage.getItem('warung-token') || !!localStorage.getItem('token');
@@ -212,6 +223,45 @@ function selectSchedule(val) {
   if (val === 'now') {
     scheduleDate.value = '';
     scheduleTime.value = '';
+  }
+}
+
+async function proceedToCheckout() {
+  if (cartStore.cartItems.length === 0 || isSubmitting.value) return;
+
+  const customer = authStore.user;
+  const customerName = isLoggedIn.value
+    ? customer?.name
+    : guestName.value.trim();
+  const customerPhone = isLoggedIn.value
+    ? (customer?.phone_number || customer?.phone)
+    : phoneNumber.value.trim();
+
+  if (!customerName || !customerPhone) {
+    emit('showToast', 'Isi nama dan nomor telepon terlebih dahulu', 3000, 'error');
+    return;
+  }
+
+  isSubmitting.value = true;
+  try {
+    const order = await orderService.createOrder({
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      user_id: isLoggedIn.value ? customer?.id : undefined,
+      items: cartStore.cartItems.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity
+      }))
+    });
+
+    await router.push({
+      path: '/checkout',
+      query: { order: order.id }
+    });
+  } catch (error) {
+    emit('showToast', error.message || 'Gagal membuat pesanan', 3000, 'error');
+  } finally {
+    isSubmitting.value = false;
   }
 }
 </script>

@@ -207,7 +207,7 @@ defineEmits(['select', 'increase', 'decrease']);
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 
@@ -229,7 +229,7 @@ defineEmits(['select', 'increase', 'decrease']);
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 
@@ -349,7 +349,7 @@ defineEmits(['select', 'increase', 'decrease']);
     font-size: 0.9rem;
     line-height: 1.3;
 
-    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .description {
@@ -358,7 +358,7 @@ defineEmits(['select', 'increase', 'decrease']);
     font-size: 0.75rem;
     line-height: 1.4;
 
-    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   /*

@@ -2,11 +2,13 @@ import { ref, onBeforeUnmount } from 'vue';
 
 const isToastVisible = ref(false);
 const toastMessage = ref('');
+const toastType = ref('success');
 let toastTimer = null;
 
 export function useToast() {
-  function showToast(message, duration = 2200) {
+  function showToast(message, duration = 2200, type = 'success') {
     toastMessage.value = message;
+    toastType.value = type;
     isToastVisible.value = true;
 
     if (toastTimer) {
@@ -30,6 +32,7 @@ export function useToast() {
   return {
     isToastVisible,
     toastMessage,
+    toastType,
     showToast,
     hideToast
   };
