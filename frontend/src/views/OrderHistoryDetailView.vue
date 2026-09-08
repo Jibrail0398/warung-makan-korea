@@ -3,8 +3,8 @@
     <AppHeader variant="default" />
     <main class="order-detail-page">
       <div class="container">
-        <router-link :to="isAuthenticated ? '/order-history' : '/'" class="back-link">
-          <span aria-hidden="true">←</span> {{ isAuthenticated ? 'Kembali ke riwayat pesanan' : 'Belanja kembali' }}
+        <router-link :to="'/'" class="back-link">
+          <span aria-hidden="true">←</span> Belanja Kembali
         </router-link>
         <section v-if="isLoading" class="state-panel">Memuat detail pesanan...</section>
         <section v-else-if="loadError" class="state-panel state-error" role="alert">{{ loadError }}</section>
