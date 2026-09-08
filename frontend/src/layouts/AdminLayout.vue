@@ -4,7 +4,7 @@
     <AdminSidebar
       :isOpen="isSidebarOpen"
       :isCollapsed="isSidebarCollapsed"
-      :isSuperAdmin="false"
+      :isSuperAdmin="isSuperAdmin"
       @close="isSidebarOpen = false"
       @toggle-collapse="isSidebarCollapsed = !isSidebarCollapsed"
     />
@@ -16,7 +16,7 @@
     >
       <!-- Sticky Header -->
       <AdminHeader
-        :isSuperAdmin="false"
+        :isSuperAdmin="isSuperAdmin"
         :isCollapsed="isSidebarCollapsed"
         @toggle-sidebar="handleToggleSidebar"
         @new-order-received="handleNewOrderNotification"
@@ -63,14 +63,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import AdminHeader from '../components/admin/AdminHeader.vue';
 import AdminSidebar from '../components/admin/AdminSidebar.vue';
 import AdminFooter from '../components/admin/AdminFooter.vue';
+import { useAuthStore } from '../stores/auth.js';
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const latestOrder = ref(null);
+const authStore = useAuthStore();
+const isSuperAdmin = ref(false);
+
+onMounted(async () => {
+  await authStore.hydrate();
+  isSuperAdmin.value = authStore.user?.role?.toLowerCase() === 'superadmin';
+});
 
 const handleToggleSidebar = () => {
   if (typeof window !== 'undefined' && window.innerWidth <= 1040) {

@@ -119,6 +119,9 @@ DB_DATABASE=warung_korea
 ## Perintah Penting
 
 ```bash
+# Jalankan Laravel server dan WhatsApp sidecar sekaligus
+php artisan dev
+
 # Lihat log container
 ./vendor/bin/sail logs -f
 
@@ -134,6 +137,22 @@ DB_DATABASE=warung_korea
 # Stop container dan hapus data volumes
 ./vendor/bin/sail down -v
 ```
+
+### Menjalankan Laravel dan WhatsApp Sidecar
+
+Dari direktori `backend`, jalankan:
+
+```bash
+php artisan dev
+```
+
+Command ini menjalankan dua proses:
+
+1. Laravel server melalui `./vendor/bin/sail artisan serve`
+2. WhatsApp sidecar melalui `php artisan whatsapp:sidecar:start`
+
+WhatsApp sidecar berjalan sebagai proses background. Pastikan Docker sudah aktif
+dan sidecar sudah di-install sebelum menjalankan command ini.
 
 ---
 

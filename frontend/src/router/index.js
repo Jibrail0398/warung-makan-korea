@@ -39,6 +39,7 @@ const routes = [
     name: 'checkout',
     component: () => import('../views/CheckoutView.vue')
   },
+
   {
     path: '/orders',
     alias: '/Orders',
@@ -46,6 +47,7 @@ const routes = [
     component: () => import('../views/OrdersView.vue'),
     meta: { requiredRole: 'member' }
   },
+    
   {
     path: '/orders/:id',
     name: 'order-tracking',
@@ -74,6 +76,11 @@ const routes = [
     name: 'OrderHistoryDetail',
     component: () => import('../views/OrderHistoryDetailView.vue'),
     meta: { requiredRole: 'member' }
+  },
+  {
+    path: '/whatsapp-sessions',
+    name: 'whatsapp-sessions',
+    component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView.vue')
   },
 
   // ==========================================
@@ -161,7 +168,22 @@ const routes = [
   },
 
   // ==========================================
-  // SUPER ADMIN ROUTES DISABLED
+  // SUPER ADMIN ROUTES
+  // ==========================================
+  // {
+  //   path: '/super-admin',
+  //   component: AdminLayout,
+  //   meta: { requiredRole: 'superadmin' },
+  //   children: [
+  //     {
+  //       path: '',
+  //       redirect: '/whatsapp-sessions'
+  //     }
+  //   ]
+  // },
+
+  // ==========================================
+  // LEGACY SUPER ADMIN ROUTES (DISABLED)
   // ==========================================
   /*
   {
