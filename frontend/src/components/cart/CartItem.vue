@@ -2,7 +2,7 @@
   <div class="cart-item">
     <div class="cart-item-image">
       <img
-        :src="resolveImageUrl(item.image)"
+        :src="ResolveImageUrl(item.image)"
         :alt="`${item.name} Indonesian product`"
       />
     </div>
@@ -52,6 +52,7 @@
 <script setup>
 import { useCartStore } from '../../stores/cart.js';
 import QuantityControl from '../common/QuantityControl.vue';
+import { ResolveImageUrl } from '@/composables/Image.js';
 
 defineProps({
   item: {
@@ -59,28 +60,6 @@ defineProps({
     required: true
   }
 });
-
-function resolveImageUrl(image) {
-  if (!image) return null;
-
-  const externalImage = image.match(
-    /^https?:\/\/[^/]+\/storage\/(https?:\/\/.+)$/
-  );
-
-  if (externalImage) {
-    return externalImage[1];
-  }
-
-  if (image.startsWith('http://') || image.startsWith('https://')) {
-    return image;
-  }
-
-  if (image.startsWith('images.')) {
-    return `https://${image}`;
-  }
-
-  return `http://localhost:8000/storage/${image}`;
-}
 
 
 const cartStore = useCartStore();

@@ -39,7 +39,7 @@
                   class="summary-item"
                 >
                   <div class="summary-item-image">
-                    <img :src="item.image" :alt="item.name" />
+                    <img :src="ResolveImageUrl(item.image)" :alt="item.name" />
                   </div>
                   <div class="summary-item-info">
                     <strong>{{ item.name }}</strong>
@@ -99,6 +99,7 @@ import PaymentProofUpload from '../components/checkout/PaymentProofUpload.vue';
 import ToastNotification from '../components/common/ToastNotification.vue';
 import { useCartStore } from '../stores/cart.js';
 import { useToast } from '../composables/useToast.js';
+import { ResolveImageUrl } from '@/composables/Image.js';
 
 const cartStore = useCartStore();
 const { isToastVisible, toastMessage, showToast } = useToast();

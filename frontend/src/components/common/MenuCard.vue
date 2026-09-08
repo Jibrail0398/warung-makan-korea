@@ -8,7 +8,7 @@
   >
     <div class="product-image">
       <img
-        :src="resolveImageUrl(product.image)"
+        :src="ResolveImageUrl(product.image)"
         :alt="`${product.name} Indonesian product`"
         width="600"
         height="600"
@@ -45,28 +45,7 @@
 
 <script setup>
 import QuantityControl from './QuantityControl.vue';
-
-function resolveImageUrl(image) {
-  if (!image) return null;
-
-  const externalImage = image.match(
-    /^https?:\/\/[^/]+\/storage\/(https?:\/\/.+)$/
-  );
-
-  if (externalImage) {
-    return externalImage[1];
-  }
-
-  if (image.startsWith('http://') || image.startsWith('https://')) {
-    return image;
-  }
-
-  if (image.startsWith('images.')) {
-    return `https://${image}`;
-  }
-
-  return `http://localhost:8000/storage/${image}`;
-}
+import { ResolveImageUrl } from '@/composables/Image.js';
 
 defineProps({
   product: {
