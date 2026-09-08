@@ -124,10 +124,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-
+import { adminService } from '../../services/adminService.js';
 import MainCategoryModal from '../../components/admin/MainCategoryModal.vue';
 
-const mainCategories = ref([]);
+const mainCategories = ref([
+  { id: 1, name: 'Restaurant Menu', code: 'restaurant', description: 'Menu makanan siap santap untuk pelanggan restoran.' },
+  { id: 2, name: 'Raw Material', code: 'raw', description: 'Bahan mentah dan bahan baku dapur.' }
+]);
 const subcategories = ref([]);
 const products = ref([]);
 
@@ -137,12 +140,16 @@ const selectedCategory = ref(null);
 const categoryToDelete = ref(null);
 
 const loadData = async () => {
-  mainCategories.value = [
-    { id: 1, name: 'Restaurant Menu', code: 'restaurant', description: 'Menu makanan siap santap untuk pelanggan restoran.' },
-    { id: 2, name: 'Raw Material', code: 'raw', description: 'Bahan mentah dan bahan baku dapur.' }
-  ];
-  subcategories.value = [];
-  products.value = [];
+  try {
+    const [cats, prods] = await Promise.all([
+      adminService.getCategories(),
+      adminService.getProducts()
+    ]);
+    subcategories.value = cats;
+    products.value = prods;
+  } catch (err) {
+    console.error('Failed to load main categories data:', err);
+  }
 };
 
 onMounted(() => {
@@ -150,15 +157,18 @@ onMounted(() => {
 });
 
 const getSubcategoriesFor = (mainCatId) => {
-  return subcategories.value.filter(sc => Number(sc.mainCategoryId) === Number(mainCatId));
+  return subcategories.value.filter(sc => {
+    if (sc.mainCategoryId) return Number(sc.mainCategoryId) === Number(mainCatId);
+    return Number(mainCatId) === 2 ? sc.type === 'raw' : sc.type === 'restaurant';
+  });
 };
 
 const mainCategoriesWithCounts = computed(() => {
   return mainCategories.value.map(mc => {
-    const subcats = subcategories.value.filter(sc => Number(sc.mainCategoryId) === Number(mc.id));
+    const subcats = getSubcategoriesFor(mc.id);
     const prodCount = products.value.filter(p => {
       if (p.mainCategoryId) return Number(p.mainCategoryId) === Number(mc.id);
-      return mc.id === 1 ? p.category === 'restaurant' : p.category === 'raw';
+      return mc.id === 1 ? (p.category === 'restaurant' || p.categoryType === 'restaurant') : (p.category === 'raw' || p.categoryType === 'raw');
     }).length;
 
     return {

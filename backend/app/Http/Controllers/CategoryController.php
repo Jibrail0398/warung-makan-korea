@@ -8,6 +8,7 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Services\CategoryService;
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -20,13 +21,18 @@ class CategoryController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $categories = $this->service->getAll(paginate: true);
-        return $this->successResponse(
-            CategoryResource::collection($categories)->response()->getData(true),
-            'Berhasil mengambil daftar kategori'
-        );
+        $paginate = $request->query('paginate', 'true') !== 'false' && $request->query('all') !== 'true';
+        $perPage = (int) $request->query('per_page', 50);
+
+        $categories = $this->service->getAll(paginate: $paginate, perPage: $perPage, filters: $request->all());
+
+        $data = $paginate
+            ? CategoryResource::collection($categories)->response()->getData(true)
+            : CategoryResource::collection($categories);
+
+        return $this->successResponse($data, 'Berhasil mengambil daftar kategori');
     }
 
     public function store(StoreCategoryRequest $request)
@@ -37,6 +43,7 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
+        $category->loadCount('products');
         return $this->successResponse(new CategoryResource($category), 'Detail kategori');
     }
 

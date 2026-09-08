@@ -12,19 +12,23 @@ class UpdateCategoryRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
-    {
-        return [
-            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $this->route('category')->id,
-        ];
-    }
-
     protected function prepareForValidation()
     {
-        if ($this->has('name')) {
+        if ($this->has('name') && !$this->has('slug')) {
             $this->merge([
                 'slug' => Str::slug($this->name),
             ]);
         }
+    }
+
+    public function rules(): array
+    {
+        $categoryId = $this->route('category') ? $this->route('category')->id : null;
+
+        return [
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $categoryId,
+            'slug' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ];
     }
 }

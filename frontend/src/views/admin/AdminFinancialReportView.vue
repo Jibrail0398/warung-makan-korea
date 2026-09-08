@@ -157,6 +157,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { adminService } from '../../services/adminService.js';
 
 const periodType = ref('month');
 const todayStr = new Date().toISOString().split('T')[0];
@@ -166,22 +167,18 @@ const selectedMonth = ref(monthStr);
 const finData = ref({});
 const printTimestamp = ref('');
 
-const loadReport = () => {
-  finData.value = {
-    totalRevenue: 0,
-    formattedRevenue: '₩0',
-    completedCount: 0,
-    formattedAvgOrderValue: '₩0',
-    breakdown: {
-      restaurantRevenue: 0,
-      formattedRestaurantRevenue: '₩0',
-      rawRevenue: 0,
-      formattedRawRevenue: '₩0'
-    },
-    topProducts: []
-  };
-  const now = new Date();
-  printTimestamp.value = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+const loadReport = async () => {
+  try {
+    const params = {
+      month: selectedMonth.value
+    };
+    const data = await adminService.getFinancialReports(params);
+    finData.value = data;
+    const now = new Date();
+    printTimestamp.value = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+  } catch (e) {
+    console.error('Load financial report error:', e);
+  }
 };
 
 onMounted(() => {

@@ -160,11 +160,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-
+import { adminService } from '../../services/adminService.js';
 import CategoryModal from '../../components/admin/CategoryModal.vue';
 
 const categories = ref([]);
-const mainCategories = ref([]);
+const mainCategories = ref([
+  { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+  { id: 2, name: 'Raw Material', code: 'raw' }
+]);
 const products = ref([]);
 
 const selectedMainCatFilter = ref('all');
@@ -176,9 +179,20 @@ const selectedCategory = ref(null);
 const categoryToDelete = ref(null);
 
 const loadData = async () => {
-  categories.value = [];
-  mainCategories.value = [];
-  products.value = [];
+  try {
+    const [cats, prods] = await Promise.all([
+      adminService.getCategories(),
+      adminService.getProducts()
+    ]);
+    categories.value = cats;
+    products.value = prods;
+    mainCategories.value = [
+      { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+      { id: 2, name: 'Raw Material', code: 'raw' }
+    ];
+  } catch (err) {
+    console.error('Failed to load categories data:', err);
+  }
 };
 
 onMounted(() => {
@@ -219,10 +233,12 @@ const filteredCategoriesWithCount = computed(() => {
       return matchMain && matchQuery;
     })
     .map(cat => {
-      const count = products.value.filter(p => {
-        if (p.subcategoryId) return Number(p.subcategoryId) === Number(cat.id);
-        return Number(p.categoryId) === Number(cat.id);
-      }).length;
+      const count = cat.products_count !== undefined
+        ? cat.products_count
+        : products.value.filter(p => {
+            if (p.subcategoryId) return Number(p.subcategoryId) === Number(cat.id);
+            return Number(p.categoryId || p.category_id) === Number(cat.id);
+          }).length;
 
       return {
         ...cat,
@@ -244,15 +260,17 @@ const openEditModal = (cat) => {
 };
 
 const handleSaveCategory = async (catData) => {
-  if (isEditMode.value && selectedCategory.value) {
-    const idx = categories.value.findIndex(c => c.id === selectedCategory.value.id);
-    if (idx !== -1) {
-      categories.value[idx] = { ...categories.value[idx], ...catData };
+  try {
+    if (isEditMode.value && selectedCategory.value) {
+      await adminService.updateCategory(selectedCategory.value.id, catData);
+    } else {
+      await adminService.createCategory(catData);
     }
-  } else {
-    categories.value.push({ id: Date.now(), ...catData, productCount: 0 });
+    isModalOpen.value = false;
+    await loadData();
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan kategori');
   }
-  isModalOpen.value = false;
 };
 
 const confirmDelete = (cat) => {
@@ -261,8 +279,13 @@ const confirmDelete = (cat) => {
 
 const executeDelete = async () => {
   if (!categoryToDelete.value) return;
-  categories.value = categories.value.filter(c => c.id !== categoryToDelete.value.id);
-  categoryToDelete.value = null;
+  try {
+    await adminService.deleteCategory(categoryToDelete.value.id);
+    categoryToDelete.value = null;
+    await loadData();
+  } catch (err) {
+    alert(err.message || 'Gagal menghapus kategori');
+  }
 };
 </script>
 

@@ -62,12 +62,19 @@ class WhatsAppService
 
     protected function sendViaExternalApi(string $phone, string $message): void
     {
-        // Fallback: URL endpoint server WA JS klien
-        $endpoint = env('WA_API_URL', 'http://localhost:3000/send');
+        // Fallback: URL endpoint server WA JS klien / sidecar /send endpoint
+        $endpoint = env('WA_API_URL', 'http://127.0.0.1:3000/send');
+        $sessionId = config('laravel-whatsapp.session_id', env('WHATSAPP_WEB_SESSION', 'main'));
 
-        $response = Http::timeout(10)->post($endpoint, [
+        $headers = [];
+        if ($token = config('laravel-whatsapp.web.token', env('WHATSAPP_WEB_TOKEN'))) {
+            $headers['Authorization'] = 'Bearer ' . $token;
+        }
+
+        $response = Http::withHeaders($headers)->timeout(10)->post($endpoint, [
             'number' => $phone,
-            'message' => $message
+            'message' => $message,
+            'sessionId' => $sessionId,
         ]);
 
         if (! $response->successful()) {

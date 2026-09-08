@@ -85,6 +85,21 @@ class AuthController extends Controller
         return $this->successResponse(null, 'Berhasil logout');
     }
 
+    public function changePassword(\App\Http\Requests\Auth\ChangePasswordRequest $request)
+    {
+        $user = auth('api')->user();
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return $this->errorResponse('Kata sandi saat ini tidak sesuai.', 422);
+        }
+
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->new_password)
+        ]);
+
+        return $this->successResponse(null, 'Kata sandi berhasil diperbarui.');
+    }
+
     /**
      * Detail error untuk debugging — detail penuh hanya saat APP_DEBUG=true.
      */

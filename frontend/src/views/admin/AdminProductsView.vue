@@ -263,10 +263,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { adminService } from '../../services/adminService.js';
 import ProductModal from '../../components/admin/ProductModal.vue';
 
 const products = ref([]);
-const mainCategories = ref([]);
+const mainCategories = ref([
+  { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+  { id: 2, name: 'Raw Material', code: 'raw' }
+]);
 const categories = ref([]);
 
 const selectedTab = ref('all');
@@ -281,9 +285,16 @@ const productToDelete = ref(null);
 
 const loadData = async () => {
   try {
-    products.value = [];
-    mainCategories.value = [];
-    categories.value = [];
+    const [prods, cats] = await Promise.all([
+      adminService.getProducts(),
+      adminService.getCategories()
+    ]);
+    products.value = prods;
+    categories.value = cats;
+    mainCategories.value = [
+      { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+      { id: 2, name: 'Raw Material', code: 'raw' }
+    ];
   } catch (err) {
     console.error('Failed to load products data:', err);
   }
@@ -296,7 +307,7 @@ onMounted(() => {
 const countByType = (type) => {
   return products.value.filter(p => {
     if (p.mainCategoryId) return type === 'restaurant' ? p.mainCategoryId === 1 : p.mainCategoryId === 2;
-    return p.category === type;
+    return p.category === type || p.categoryType === type;
   }).length;
 };
 
@@ -320,16 +331,16 @@ const filteredProducts = computed(() => {
     let tabMatch = selectedTab.value === 'all';
     if (!tabMatch) {
       if (selectedTab.value === 'restaurant') {
-        tabMatch = product.category === 'restaurant' || product.mainCategoryId === 1;
+        tabMatch = product.category === 'restaurant' || product.categoryType === 'restaurant' || product.mainCategoryId === 1;
       } else if (selectedTab.value === 'raw') {
-        tabMatch = product.category === 'raw' || product.mainCategoryId === 2;
+        tabMatch = product.category === 'raw' || product.categoryType === 'raw' || product.mainCategoryId === 2;
       }
     }
 
     // Subkategori Dropdown Filter
     let subcatMatch = selectedSubcatFilter.value === 'all';
     if (!subcatMatch) {
-      subcatMatch = String(product.subcategoryId || product.categoryId) === String(selectedSubcatFilter.value);
+      subcatMatch = String(product.subcategoryId || product.categoryId || product.category_id) === String(selectedSubcatFilter.value);
     }
 
     // Search query
@@ -356,18 +367,30 @@ const openEditModal = (product) => {
 };
 
 const handleSaveProduct = async (productData) => {
-  if (isEditMode.value && selectedProduct.value) {
-    await new Promise(r => setTimeout(r, 300));
-  } else {
-    await new Promise(r => setTimeout(r, 300));
+  try {
+    if (isEditMode.value && selectedProduct.value) {
+      await adminService.updateProduct(selectedProduct.value.id, productData);
+    } else {
+      await adminService.createProduct(productData);
+    }
+    isModalOpen.value = false;
+    await loadData();
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan produk');
   }
-  isModalOpen.value = false;
-  await loadData();
 };
 
 const toggleStatus = async (product) => {
-  await new Promise(r => setTimeout(r, 300));
-  await loadData();
+  try {
+    const newActive = !product.is_active;
+    await adminService.updateProduct(product.id, {
+      is_active: newActive,
+      status: newActive ? 'Available' : 'Sold Out'
+    });
+    await loadData();
+  } catch (err) {
+    console.error('Toggle status error:', err);
+  }
 };
 
 const confirmDelete = (product) => {
@@ -376,9 +399,13 @@ const confirmDelete = (product) => {
 
 const executeDelete = async () => {
   if (!productToDelete.value) return;
-  await new Promise(r => setTimeout(r, 300));
-  productToDelete.value = null;
-  await loadData();
+  try {
+    await adminService.deleteProduct(productToDelete.value.id);
+    productToDelete.value = null;
+    await loadData();
+  } catch (err) {
+    alert(err.message || 'Gagal menghapus produk');
+  }
 };
 
 const handleImgError = (event) => {

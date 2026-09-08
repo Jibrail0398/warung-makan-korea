@@ -21,10 +21,10 @@
       </RouterLink>
     </div>
 
-    <div class="stock-list">
+    <div class="stock-list" v-if="displayProducts.length > 0">
       <article
-        v-for="product in lowStockProducts"
-        :key="product.name"
+        v-for="product in displayProducts"
+        :key="product.id || product.name"
         class="stock-item"
       >
         <div class="stock-product">
@@ -33,7 +33,7 @@
           </span>
 
           <span class="stock-description">
-            {{ product.stock }} items remaining
+            {{ product.stock !== undefined ? `${product.stock} items remaining` : (product.category || 'Product') }}
           </span>
         </div>
 
@@ -41,15 +41,27 @@
           class="stock-number"
           :aria-label="`${product.stock} items remaining`"
         >
-          {{ product.stock }}
+          {{ product.stock !== undefined ? product.stock : 0 }}
         </div>
       </article>
+    </div>
+    <div v-else style="padding: 24px; text-align: center; color: var(--muted); font-size: 0.82rem;">
+      Semua stok produk dalam kondisi baik.
     </div>
   </section>
 </template>
 
 <script setup>
-const lowStockProducts = [
+import { computed } from 'vue';
+
+const props = defineProps({
+  products: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const fallbackProducts = [
   {
     name: 'Beras Pandan',
     stock: 4
@@ -62,7 +74,11 @@ const lowStockProducts = [
     name: 'Kerupuk Udang',
     stock: 3
   }
-]
+];
+
+const displayProducts = computed(() => {
+  return props.products && props.products.length > 0 ? props.products : fallbackProducts;
+});
 </script>
 
 <style scoped>
@@ -112,6 +128,7 @@ const lowStockProducts = [
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .view-link:hover {

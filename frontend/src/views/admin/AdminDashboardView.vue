@@ -33,7 +33,7 @@
       <StatCard
         label="Pesanan Hari Ini"
         :value="stats.todayOrders"
-        trend="+14.2%"
+        :trend="stats.todayOrdersTrend || '+0%'"
         description="vs kemarin"
         tone="red"
         :icon="OrderIcon"
@@ -42,7 +42,7 @@
       <StatCard
         label="Total Pemasukan"
         :value="stats.todayRevenue"
-        trend="+8.5%"
+        :trend="stats.todayRevenueTrend || '+0%'"
         description="vs kemarin"
         tone="red"
         :icon="RevenueIcon"
@@ -59,7 +59,7 @@
       <StatCard
         label="Pesanan Selesai"
         :value="stats.completedOrders"
-        trend="+18"
+        trend="hari ini"
         description="hari ini"
         tone="success"
         :icon="CompletedIcon"
@@ -67,19 +67,20 @@
     </section>
 
     <!-- Visual Sales Overview Chart -->
-    <SalesOverview />
+    <SalesOverview :data="salesOverview" />
 
     <!-- Bottom Two Column Grid -->
     <section class="dashboard-bottom-grid" aria-label="Pesanan terbaru dan stok produk">
-      <RecentOrders />
-      <LowStockAlert />
+      <RecentOrders :orders="recentOrders" />
+      <LowStockAlert :products="lowStockProducts" />
     </section>
   </div>
 </template>
 
 <script setup>
-import { h, ref, computed } from 'vue';
+import { h, ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../../stores/auth.js';
+import { adminService } from '../../services/adminService.js';
 import StatCard from '../../components/admin/StatCard.vue';
 import SalesOverview from '../../components/admin/SalesOverview.vue';
 import RecentOrders from '../../components/admin/RecentOrders.vue';
@@ -89,10 +90,40 @@ const authStore = useAuthStore();
 const adminName = computed(() => authStore.user?.name || 'Admin');
 
 const stats = ref({
-  todayOrders: '28',
-  todayRevenue: '₩1,240,000',
-  pendingOrders: '4',
-  completedOrders: '24'
+  todayOrders: '0',
+  todayOrdersTrend: '+0%',
+  todayRevenue: '₩0',
+  todayRevenueTrend: '+0%',
+  pendingOrders: '0',
+  completedOrders: '0'
+});
+
+const salesOverview = ref({});
+const recentOrders = ref([]);
+const lowStockProducts = ref([]);
+
+const loadDashboardData = async () => {
+  try {
+    const data = await adminService.getDashboardStats();
+    if (data.stats) {
+      stats.value = { ...stats.value, ...data.stats };
+    }
+    if (data.salesOverview) {
+      salesOverview.value = data.salesOverview;
+    }
+    if (data.recentOrders) {
+      recentOrders.value = data.recentOrders;
+    }
+    if (data.lowStockProducts) {
+      lowStockProducts.value = data.lowStockProducts;
+    }
+  } catch (error) {
+    console.warn('Dashboard stats fallback:', error);
+  }
+};
+
+onMounted(() => {
+  loadDashboardData();
 });
 
 const OrderIcon = {

@@ -37,10 +37,10 @@
           <div class="bar-track">
             <div
               class="bar-fill"
-              :style="{ height: `${Math.max(12, (item.amount / maxAmount) * 100)}%` }"
+              :style="{ height: `${Math.max(12, maxAmount > 0 ? (item.amount / maxAmount) * 100 : 12)}%` }"
               :class="{ 'bar-highlight': item.isToday || item.isCurrentHour }"
             >
-              <span class="bar-tooltip">₩{{ item.amount.toLocaleString('ko-KR') }}</span>
+              <span class="bar-tooltip">₩{{ (item.amount || 0).toLocaleString('ko-KR') }}</span>
             </div>
           </div>
           <span class="bar-label" :class="{ 'label-highlight': item.isToday || item.isCurrentHour }">
@@ -54,20 +54,20 @@
     <div class="card-footer-metrics">
       <div class="footer-metric">
         <span class="metric-label">Menu Restoran</span>
-        <strong class="metric-val">₩890,000</strong>
-        <span class="metric-ratio">71.8% dari total</span>
+        <strong class="metric-val">₩{{ (salesOverviewData.restaurantRevenue || 0).toLocaleString('ko-KR') }}</strong>
+        <span class="metric-ratio">{{ salesOverviewData.restaurantPercent || 70 }}% dari total</span>
       </div>
       <div class="metric-divider"></div>
       <div class="footer-metric">
         <span class="metric-label">Raw Material</span>
-        <strong class="metric-val">₩350,000</strong>
-        <span class="metric-ratio">28.2% dari total</span>
+        <strong class="metric-val">₩{{ (salesOverviewData.rawRevenue || 0).toLocaleString('ko-KR') }}</strong>
+        <span class="metric-ratio">{{ salesOverviewData.rawPercent || 30 }}% dari total</span>
       </div>
       <div class="metric-divider"></div>
       <div class="footer-metric">
         <span class="metric-label">Rata-rata Order</span>
-        <strong class="metric-val">₩51,667</strong>
-        <span class="metric-ratio">24 transaksi selesai</span>
+        <strong class="metric-val">₩{{ (salesOverviewData.avgOrderValue || 0).toLocaleString('ko-KR') }}</strong>
+        <span class="metric-ratio">{{ salesOverviewData.completedCount || 0 }} transaksi selesai</span>
       </div>
     </div>
   </section>
@@ -76,35 +76,52 @@
 <script setup>
 import { ref, computed } from 'vue';
 
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({})
+  }
+});
+
 const activeTab = ref('weekly');
 
-const weeklyData = [
-  { label: 'Sen', amount: 920000, isToday: false },
-  { label: 'Sel', amount: 1150000, isToday: false },
-  { label: 'Rab', amount: 840000, isToday: false },
-  { label: 'Kam', amount: 1240000, isToday: true },
-  { label: 'Jum', amount: 1480000, isToday: false },
-  { label: 'Sab', amount: 2100000, isToday: false },
-  { label: 'Min', amount: 1950000, isToday: false }
+const fallbackWeeklyData = [
+  { label: 'Sen', amount: 0, isToday: false },
+  { label: 'Sel', amount: 0, isToday: false },
+  { label: 'Rab', amount: 0, isToday: false },
+  { label: 'Kam', amount: 0, isToday: false },
+  { label: 'Jum', amount: 0, isToday: false },
+  { label: 'Sab', amount: 0, isToday: false },
+  { label: 'Min', amount: 0, isToday: true }
 ];
 
-const hourlyData = [
-  { label: '11:00', amount: 180000, isCurrentHour: false },
-  { label: '12:00', amount: 340000, isCurrentHour: false },
-  { label: '13:00', amount: 290000, isCurrentHour: false },
-  { label: '14:00', amount: 120000, isCurrentHour: false },
-  { label: '15:00', amount: 95000, isCurrentHour: false },
-  { label: '16:00', amount: 150000, isCurrentHour: false },
-  { label: '17:00', amount: 220000, isCurrentHour: false },
-  { label: '18:00', amount: 380000, isCurrentHour: true }
+const fallbackHourlyData = [
+  { label: '11:00', amount: 0, isCurrentHour: false },
+  { label: '12:00', amount: 0, isCurrentHour: false },
+  { label: '13:00', amount: 0, isCurrentHour: false },
+  { label: '14:00', amount: 0, isCurrentHour: false },
+  { label: '15:00', amount: 0, isCurrentHour: false },
+  { label: '16:00', amount: 0, isCurrentHour: false },
+  { label: '17:00', amount: 0, isCurrentHour: false },
+  { label: '18:00', amount: 0, isCurrentHour: true }
 ];
+
+const salesOverviewData = computed(() => props.data || {});
 
 const currentData = computed(() => {
-  return activeTab.value === 'weekly' ? weeklyData : hourlyData;
+  if (activeTab.value === 'weekly') {
+    return salesOverviewData.value.weeklyData && salesOverviewData.value.weeklyData.length > 0
+      ? salesOverviewData.value.weeklyData
+      : fallbackWeeklyData;
+  }
+  return salesOverviewData.value.hourlyData && salesOverviewData.value.hourlyData.length > 0
+    ? salesOverviewData.value.hourlyData
+    : fallbackHourlyData;
 });
 
 const maxAmount = computed(() => {
-  return Math.max(...currentData.value.map(d => d.amount)) || 1;
+  const max = Math.max(...currentData.value.map(d => d.amount || 0));
+  return max > 0 ? max : 100000;
 });
 </script>
 

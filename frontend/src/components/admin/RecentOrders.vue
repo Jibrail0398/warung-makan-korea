@@ -38,32 +38,32 @@
           </tr>
         </thead>
 
-        <tbody>
+        <tbody v-if="displayOrders.length > 0">
           <tr
-            v-for="order in orders"
+            v-for="order in displayOrders"
             :key="order.id"
           >
             <td>
-              <span class="order-id">
-                {{ order.id }}
-              </span>
+              <router-link :to="`/admin/orders/${order.id}`" class="order-id">
+                #{{ order.id }}
+              </router-link>
             </td>
 
             <td>
               <span class="customer-name">
-                {{ order.customer }}
+                {{ order.customer?.name || order.customer_name || order.customer || 'Pelanggan' }}
               </span>
             </td>
 
             <td>
               <span class="item-name">
-                {{ order.item }}
+                {{ getItemsSummary(order) }}
               </span>
             </td>
 
             <td>
               <span class="order-total">
-                {{ formatCurrency(order.total) }}
+                ₩{{ (order.total || order.total_price || 0).toLocaleString('ko-KR') }}
               </span>
             </td>
 
@@ -72,35 +72,42 @@
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--muted); padding: 24px;">
+              Belum ada pesanan terbaru.
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
     <!-- Mobile -->
-    <div class="mobile-orders">
+    <div class="mobile-orders" v-if="displayOrders.length > 0">
       <article
-        v-for="order in orders"
+        v-for="order in displayOrders"
         :key="`mobile-${order.id}`"
         class="mobile-order"
       >
         <div class="mobile-order-top">
-          <span class="order-id">
-            {{ order.id }}
-          </span>
+          <router-link :to="`/admin/orders/${order.id}`" class="order-id">
+            #{{ order.id }}
+          </router-link>
 
           <StatusBadge :status="order.status" />
         </div>
 
         <div class="mobile-order-customer">
-          {{ order.customer }}
+          {{ order.customer?.name || order.customer_name || order.customer || 'Pelanggan' }}
         </div>
 
         <div class="mobile-order-bottom">
           <span class="item-name">
-            {{ order.item }}
+            {{ getItemsSummary(order) }}
           </span>
 
           <span class="order-total">
-            {{ formatCurrency(order.total) }}
+            ₩{{ (order.total || order.total_price || 0).toLocaleString('ko-KR') }}
           </span>
         </div>
       </article>
@@ -109,46 +116,43 @@
 </template>
 
 <script setup>
-import StatusBadge from './StatusBadge.vue'
+import { computed } from 'vue';
+import StatusBadge from './StatusBadge.vue';
 
-const orders = [
+const props = defineProps({
+  orders: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const fallbackOrders = [
   {
-    id: '#WN-10231',
-    customer: 'Kelvin',
-    item: 'Nasi Goreng',
+    id: 'WN-10231',
+    customer: { name: 'Kelvin' },
+    items: [{ quantity: 1, name: 'Nasi Goreng' }],
     total: 24000,
     status: 'Completed'
   },
   {
-    id: '#WN-10230',
-    customer: 'Andi',
-    item: 'Rendang',
+    id: 'WN-10230',
+    customer: { name: 'Andi' },
+    items: [{ quantity: 1, name: 'Rendang' }],
     total: 15000,
     status: 'Pending'
-  },
-  {
-    id: '#WN-10229',
-    customer: 'Rina',
-    item: 'Sate Ayam',
-    total: 28000,
-    status: 'Processing'
-  },
-  {
-    id: '#WN-10228',
-    customer: 'Dina',
-    item: 'Ayam Geprek',
-    total: 13000,
-    status: 'Completed'
   }
-]
+];
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW',
-    maximumFractionDigits: 0
-  }).format(value)
-}
+const displayOrders = computed(() => {
+  return props.orders && props.orders.length > 0 ? props.orders : fallbackOrders;
+});
+
+const getItemsSummary = (order) => {
+  if (order.items && order.items.length > 0) {
+    return order.items.map(i => `${i.quantity || 1}x ${i.name || i.product?.name || 'Item'}`).join(', ');
+  }
+  return order.item || '-';
+};
 </script>
 
 <style scoped>
@@ -198,6 +202,7 @@ const formatCurrency = (value) => {
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .view-link:hover {
@@ -251,6 +256,12 @@ const formatCurrency = (value) => {
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
+}
+
+.order-id:hover {
+  color: var(--red);
+  text-decoration: underline;
 }
 
 .customer-name {
@@ -259,6 +270,11 @@ const formatCurrency = (value) => {
 
 .item-name {
   color: var(--muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .order-total {

@@ -247,6 +247,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { adminService } from '../../services/adminService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
 import PrintableReceipt from '../../components/admin/PrintableReceipt.vue';
 import PaymentProofViewer from '../../components/admin/PaymentProofViewer.vue';
@@ -265,21 +266,14 @@ const statusSteps = [
 
 const loadOrder = async () => {
   const id = route.params.id;
-  order.value = {
-    id: id || 'WN-10230',
-    orderNumber: `#${id || 'WN-10230'}`,
-    date: '2026-08-27',
-    time: '17:35',
-    customer: { name: 'Andi Pratama', phone: '+82 10 9988 7766' },
-    orderType: 'Takeaway',
-    note: 'Bungkus rapi, pisahkan kuah.',
-    status: 'Payment Verification',
-    paymentMethod: 'Bank Transfer',
-    paymentStatus: 'Waiting Verification',
-    paymentProof: 'https://images.pexels.com/photos/259027/pexels-photo-259027.jpeg?auto=compress&cs=tinysrgb&w=900',
-    items: [{ id: 2, name: 'Rendang', price: 15000, quantity: 1, subtotal: 15000, category: 'restaurant' }],
-    total: 15000
-  };
+  try {
+    const data = await adminService.getOrderById(id);
+    if (data) {
+      order.value = data;
+    }
+  } catch (e) {
+    console.error(`Failed to load order ${id}:`, e);
+  }
 };
 
 onMounted(() => {
@@ -294,21 +288,38 @@ const currentStepIndex = computed(() => {
   const s = (order.value?.status || '').toLowerCase();
   if (s === 'completed' || s === 'selesai') return 3;
   if (s === 'ready' || s === 'siap') return 2;
-  if (s === 'processing' || s === 'diproses' || s === 'in progress') return 1;
+  if (s === 'processing' || s === 'diproses' || s === 'in progress' || s === 'preparing') return 1;
   return 0; // Payment verification
 });
 
 const changeStatus = async (newStatus) => {
   if (!order.value) return;
-  await new Promise(r => setTimeout(r, 300));
-  order.value = { ...order.value, status: newStatus };
+  try {
+    const updated = await adminService.updateOrderStatus(order.value.id, { status: newStatus });
+    if (updated) {
+      order.value = updated;
+    } else {
+      order.value = { ...order.value, status: newStatus };
+    }
+  } catch (e) {
+    console.error('Change status error:', e);
+  }
 };
 
 const handleVerifyProof = async (isApproved) => {
   if (!order.value) return;
-  await new Promise(r => setTimeout(r, 300));
-  order.value = { ...order.value, paymentStatus: isApproved ? 'Verified' : 'Rejected' };
-  isProofViewerOpen.value = false;
+  try {
+    const updated = await adminService.updateOrderStatus(order.value.id, {
+      payment_status: isApproved ? 'paid' : 'unpaid',
+      status: isApproved ? 'preparing' : 'pending'
+    });
+    if (updated) {
+      order.value = updated;
+    }
+    isProofViewerOpen.value = false;
+  } catch (e) {
+    console.error('Verify proof error:', e);
+  }
 };
 </script>
 

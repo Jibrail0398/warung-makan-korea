@@ -308,6 +308,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { adminService } from '../../services/adminService.js';
 import { audioService } from '../../services/audioService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
 import PaymentProofViewer from '../../components/admin/PaymentProofViewer.vue';
@@ -321,7 +322,8 @@ const selectedOrderForProof = ref(null);
 
 const loadOrders = async () => {
   try {
-    orders.value = [];
+    const data = await adminService.getOrders();
+    orders.value = data;
   } catch (e) {
     console.error('Load orders error:', e);
   }
@@ -349,8 +351,12 @@ const filteredOrders = computed(() => {
 });
 
 const updateStatus = async (id, newStatus) => {
-  await new Promise(r => setTimeout(r, 300));
-  await loadOrders();
+  try {
+    await adminService.updateOrderStatus(id, { status: newStatus });
+    await loadOrders();
+  } catch (e) {
+    console.error('Update status error:', e);
+  }
 };
 
 const openProofViewer = (order) => {
@@ -359,19 +365,31 @@ const openProofViewer = (order) => {
 };
 
 const handleApproveProof = async (order) => {
-  await new Promise(r => setTimeout(r, 300));
-  isProofOpen.value = false;
-  await loadOrders();
+  try {
+    await adminService.updateOrderStatus(order.id, {
+      payment_status: 'paid',
+      status: 'preparing'
+    });
+    isProofOpen.value = false;
+    await loadOrders();
+  } catch (e) {
+    console.error('Approve proof error:', e);
+  }
 };
 
 const handleRejectProof = async (order) => {
-  await new Promise(r => setTimeout(r, 300));
-  isProofOpen.value = false;
-  await loadOrders();
+  try {
+    await adminService.updateOrderStatus(order.id, {
+      payment_status: 'unpaid'
+    });
+    isProofOpen.value = false;
+    await loadOrders();
+  } catch (e) {
+    console.error('Reject proof error:', e);
+  }
 };
 
 const handleSimulateIncoming = async () => {
-  await new Promise(r => setTimeout(r, 300));
   audioService.playOrderChime();
   await loadOrders();
 };

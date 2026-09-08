@@ -152,6 +152,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { adminService } from '../../services/adminService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
 
 const periodType = ref('today');
@@ -164,18 +165,20 @@ const selectedMonth = ref(monthStr);
 const reportData = ref({ orders: [], summary: {} });
 const printTimestamp = ref('');
 
-const loadReport = () => {
-  reportData.value = {
-    orders: [],
-    summary: {
-      totalOrders: 0,
-      completedOrders: 0,
-      cancelledOrders: 0,
-      formattedRevenue: '₩0'
-    }
-  };
-  const now = new Date();
-  printTimestamp.value = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+const loadReport = async () => {
+  try {
+    const params = {
+      period_type: periodType.value,
+      date: selectedDate.value,
+      month: selectedMonth.value
+    };
+    const data = await adminService.getTransactionReports(params);
+    reportData.value = data;
+    const now = new Date();
+    printTimestamp.value = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+  } catch (e) {
+    console.error('Load transaction report error:', e);
+  }
 };
 
 onMounted(() => {

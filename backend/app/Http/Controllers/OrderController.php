@@ -21,25 +21,29 @@ class OrderController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $orders = $this->service->getAll(paginate: true);
-        return $this->successResponse(
-            OrderResource::collection($orders)->response()->getData(true),
-            'Berhasil mengambil daftar pesanan'
-        );
+        $paginate = $request->query('paginate', 'true') !== 'false' && $request->query('all') !== 'true';
+        $perPage = (int) $request->query('per_page', 50);
+
+        $orders = $this->service->getAll(paginate: $paginate, perPage: $perPage, filters: $request->all());
+
+        $data = $paginate
+            ? OrderResource::collection($orders)->response()->getData(true)
+            : OrderResource::collection($orders);
+
+        return $this->successResponse($data, 'Berhasil mengambil daftar pesanan');
     }
 
     public function store(StoreOrderRequest $request)
     {
         $data = $request->validated();
-        
-        // Jika user login, otomatis ambil data nama dan nomor telepon dari profil
-        // jika tidak diisi di input
+
         if (auth('api')->check()) {
             $user = auth('api')->user();
             $data['customer_name'] = $data['customer_name'] ?? $user->name;
             $data['customer_phone'] = $data['customer_phone'] ?? $user->phone_number;
+            $data['user_id'] = $data['user_id'] ?? $user->id;
         }
 
         $order = $this->service->createOrder($data);
@@ -48,7 +52,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items.product');
+        $order->load(['items.product.category', 'user', 'bankAccount']);
         return $this->successResponse(new OrderResource($order), 'Detail pesanan');
     }
 
@@ -61,7 +65,7 @@ class OrderController extends Controller
     public function uploadReceipt(Request $request, Order $order)
     {
         $request->validate(['payment_receipt' => 'required|image|mimes:jpg,jpeg,png|max:2048']);
-        
+
         $order = $this->service->uploadReceipt($order, $request->file('payment_receipt'));
         return $this->successResponse(new OrderResource($order), 'Bukti pembayaran berhasil diupload');
     }

@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { adminService } from '../../services/adminService.js';
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -123,11 +124,17 @@ const handleResetPassword = async () => {
 
   isSubmitting.value = true;
   try {
-    await new Promise(r => setTimeout(r, 500));
-    errorMessage.value = 'Fitur reset password belum tersedia. Silakan hubungi administrator.';
+    await adminService.changePassword({
+      current_password: currentPassword.value,
+      new_password: newPassword.value,
+      new_password_confirmation: confirmPassword.value
+    });
+    successMessage.value = 'Kata sandi akun Admin berhasil diperbarui!';
     currentPassword.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
+  } catch (err) {
+    errorMessage.value = err.message || 'Gagal memperbarui kata sandi. Periksa kembali kata sandi saat ini.';
   } finally {
     isSubmitting.value = false;
   }

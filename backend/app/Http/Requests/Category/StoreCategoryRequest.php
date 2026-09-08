@@ -12,19 +12,21 @@ class StoreCategoryRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
-    {
-        return [
-            'name' => 'required|string|max:255|unique:categories,name',
-        ];
-    }
-
     protected function prepareForValidation()
     {
-        if ($this->has('name')) {
+        if ($this->has('name') && !$this->has('slug')) {
             $this->merge([
                 'slug' => Str::slug($this->name),
             ]);
         }
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255|unique:categories,name',
+            'slug' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ];
     }
 }

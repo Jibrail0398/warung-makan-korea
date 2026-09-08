@@ -8,6 +8,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -20,18 +21,24 @@ class ProductController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->service->getAll(paginate: true);
-        return $this->successResponse(
-            ProductResource::collection($products)->response()->getData(true),
-            'Berhasil mengambil daftar produk'
-        );
+        $paginate = $request->query('paginate', 'true') !== 'false' && $request->query('all') !== 'true';
+        $perPage = (int) $request->query('per_page', 50);
+
+        $products = $this->service->getAll(paginate: $paginate, perPage: $perPage, filters: $request->all());
+
+        $data = $paginate
+            ? ProductResource::collection($products)->response()->getData(true)
+            : ProductResource::collection($products);
+
+        return $this->successResponse($data, 'Berhasil mengambil daftar produk');
     }
 
     public function store(StoreProductRequest $request)
     {
         $product = $this->service->create($request->validated());
+        $product->load('category');
         return $this->successResponse(new ProductResource($product), 'Produk berhasil dibuat', 201);
     }
 

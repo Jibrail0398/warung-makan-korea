@@ -11,16 +11,36 @@ class UpdateProductRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $categoryInput = $this->input('category_id') ?? $this->input('subcategoryId') ?? $this->input('categoryId');
+        if ($categoryInput) {
+            $this->merge(['category_id' => $categoryInput]);
+        }
+
+        if ($this->has('numericPrice') && !$this->has('price')) {
+            $this->merge(['price' => $this->input('numericPrice')]);
+        }
+
+        if ($this->has('unit') && !$this->has('weight_or_unit')) {
+            $this->merge(['weight_or_unit' => $this->input('unit')]);
+        }
+
+        if ($this->has('status') && !$this->has('is_active')) {
+            $this->merge(['is_active' => $this->input('status') === 'Available']);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'category_id' => 'sometimes|required|exists:categories,id',
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'nullable',
             'price' => 'sometimes|required|numeric|min:0',
             'weight_or_unit' => 'nullable|string|max:50',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ];
     }
 }

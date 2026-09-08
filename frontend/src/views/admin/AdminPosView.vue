@@ -386,6 +386,7 @@
 import { ref, computed, onMounted } from 'vue';
 
 import { useAuthStore } from '../../stores/auth.js';
+import { adminService } from '../../services/adminService.js';
 import PrintableReceipt from '../../components/admin/PrintableReceipt.vue';
 
 const authStore = useAuthStore();
@@ -409,12 +410,20 @@ const isProcessing = ref(false);
 const completedOrder = ref(null);
 
 const loadData = async () => {
-  products.value = [];
-  mainCategories.value = [
-    { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
-    { id: 2, name: 'Raw Material', code: 'raw' }
-  ];
-  subcategories.value = [];
+  try {
+    const [prods, cats] = await Promise.all([
+      adminService.getProducts(),
+      adminService.getCategories()
+    ]);
+    products.value = prods;
+    mainCategories.value = [
+      { id: 1, name: 'Restaurant Menu', code: 'restaurant' },
+      { id: 2, name: 'Raw Material', code: 'raw' }
+    ];
+    subcategories.value = cats;
+  } catch (err) {
+    console.error('POS load data error:', err);
+  }
 };
 
 onMounted(() => {
@@ -447,15 +456,15 @@ const filteredProducts = computed(() => {
     // Main category filter
     let matchMain = true;
     if (selectedMainCat.value === 'restaurant') {
-      matchMain = prod.category === 'restaurant' || prod.mainCategoryId === 1;
+      matchMain = prod.category === 'restaurant' || prod.categoryType === 'restaurant' || prod.mainCategoryId === 1;
     } else if (selectedMainCat.value === 'raw') {
-      matchMain = prod.category === 'raw' || prod.mainCategoryId === 2;
+      matchMain = prod.category === 'raw' || prod.categoryType === 'raw' || prod.mainCategoryId === 2;
     }
 
     // Subcategory filter
     let matchSub = true;
     if (selectedSubcat.value !== 'all') {
-      matchSub = String(prod.subcategoryId || prod.categoryId) === String(selectedSubcat.value);
+      matchSub = String(prod.subcategoryId || prod.categoryId || prod.category_id) === String(selectedSubcat.value);
     }
 
     // Search Query
@@ -475,19 +484,20 @@ const getCartQty = (productId) => {
 
 const addToCart = (product) => {
   const existing = cart.value.find(i => i.id === product.id);
+  const availableStock = product.stock !== undefined ? product.stock : 999;
   if (existing) {
-    if (existing.quantity < product.stock) {
+    if (existing.quantity < availableStock) {
       existing.quantity++;
     }
   } else {
     cart.value.push({
       id: product.id,
       name: product.name,
-      price: product.numericPrice || 0,
-      unit: product.unit || '1 porsi',
-      stock: product.stock,
+      price: product.numericPrice || product.price || 0,
+      unit: product.unit || product.weight_or_unit || '1 porsi',
+      stock: availableStock,
       quantity: 1,
-      image: product.image
+      image: product.image || product.image_url
     });
   }
 };
@@ -545,40 +555,45 @@ const handleProcessOrder = async () => {
   isProcessing.value = true;
   try {
     const cashierName = authStore.user?.name || authStore.user?.username || 'Kasir Warung';
+    const cName = customerName.value.trim() || (orderType.value === 'Dine In' ? `Tamu ${tableNumber.value}` : 'Pelanggan Kasir POS');
 
-    const orderData = {
+    const orderPayload = {
+      customer_name: cName,
+      customer_phone: '',
+      table_number: orderType.value === 'Dine In' ? tableNumber.value : null,
+      payment_status: 'paid',
+      status: 'completed',
+      items: cart.value.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }))
+    };
+
+    const createdOrder = await adminService.createPosOrder(orderPayload);
+
+    completedOrder.value = {
+      id: createdOrder?.id || Date.now(),
+      orderNumber: createdOrder?.orderNumber || `#${createdOrder?.id || Date.now()}`,
       orderType: orderType.value,
-      tableNumber: orderType.value === 'Dine In' ? tableNumber.value : null,
-      customerName: customerName.value.trim() || (orderType.value === 'Dine In' ? `Tamu ${tableNumber.value}` : 'Pelanggan Kasir POS'),
       items: cart.value.map(item => ({
         id: item.id,
-        productId: item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         subtotal: item.price * item.quantity
       })),
       totalAmount: grandTotal.value,
+      total: grandTotal.value,
       paymentMethod: paymentMethod.value,
       cashReceived: paymentMethod.value === 'Cash' ? cashReceived.value : grandTotal.value,
       cashChange: paymentMethod.value === 'Cash' ? Math.max(0, cashChange.value) : 0,
-      cashier: cashierName
-    };
-
-    const newOrder = {
-      id: Date.now(),
-      orderType: orderType.value,
-      items: orderData.items,
-      totalAmount: grandTotal.value,
-      paymentMethod: paymentMethod.value,
-      cashReceived: orderData.cashReceived,
-      cashChange: orderData.cashChange,
-      customerName: orderData.customerName,
-      tableNumber: orderData.tableNumber,
+      customerName: cName,
+      customer: { name: cName },
+      tableNumber: orderType.value === 'Dine In' ? tableNumber.value : null,
       cashier: cashierName,
       createdAt: new Date().toISOString()
     };
-    completedOrder.value = newOrder;
   } catch (err) {
     alert('Gagal memproses transaksi: ' + err.message);
   } finally {
