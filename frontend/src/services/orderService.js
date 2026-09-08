@@ -12,6 +12,15 @@ function getErrorMessage(error, fallback) {
 }
 
 export const orderService = {
+	async getOrderById(orderId) {
+		try {
+			const response = await axios.get(`${apiBaseUrl}/orders/${orderId}`);
+			return response.data?.data || response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil detail pesanan.'));
+		}
+	},
+
 	async createOrder(orderData) {
 		try {
 			const storedAuth = localStorage.getItem('warung-auth-data');
@@ -29,6 +38,7 @@ export const orderService = {
 					quantity: item.quantity
 				}))
 			};
+
 
 			const response = await axios.post(`${apiBaseUrl}/orders`, payload);
 			const createdOrder = response.data?.data || response.data;

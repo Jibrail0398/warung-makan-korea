@@ -49,8 +49,7 @@ const routes = [
   {
     path: '/orders/:id',
     name: 'order-tracking',
-    component: () => import('../views/OrderHistoryDetailView.vue'),
-    meta: { requiredRole: 'member' }
+    component: () => import('../views/OrderHistoryDetailView.vue')
   },
   {
     path: '/profile',

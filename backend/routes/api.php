@@ -22,6 +22,8 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/bank-accounts', [BankAccountController::class, 'index']); 
 Route::post('/orders', [OrderController::class, 'store']);
+Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
+Route::get('/orders/{order}', [OrderController::class, 'show']);
 
 // Protected Endpoints
 Route::middleware('auth:api')->group(function () {
@@ -58,7 +60,4 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
 
-    // Member & Admin bisa akses (misal melihat pesanan sendiri)
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
 });
