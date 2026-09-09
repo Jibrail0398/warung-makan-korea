@@ -237,12 +237,16 @@ const router = createRouter({
 // ==========================================
 router.beforeEach(async (to) => {
   const requiredRole = to.meta.requiredRole
+  const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
+  const currentRole = authData?.user?.role?.toLowerCase()
+  const adminRoles = ['admin', 'superadmin']
+
+  if (adminRoles.includes(currentRole) && ['home', 'login'].includes(to.name)) {
+    return { path: '/admin/dashboard' }
+  }
 
   // Login, register, and OTP routes intentionally have no requiredRole.
   if (!requiredRole) return true
-
-  const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
-  const currentRole = authData?.user?.role?.toLowerCase()
 
   const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
   const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase())
