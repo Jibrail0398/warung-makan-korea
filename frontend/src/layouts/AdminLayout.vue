@@ -4,7 +4,7 @@
     <AdminSidebar
       :isOpen="isSidebarOpen"
       :isCollapsed="isSidebarCollapsed"
-      :isSuperAdmin="false"
+      :isSuperAdmin="isSuperAdmin"
       @close="isSidebarOpen = false"
       @toggle-collapse="isSidebarCollapsed = !isSidebarCollapsed"
     />
@@ -16,7 +16,7 @@
     >
       <!-- Sticky Header -->
       <AdminHeader
-        :isSuperAdmin="false"
+        :isSuperAdmin="isSuperAdmin"
         :isCollapsed="isSidebarCollapsed"
         @toggle-sidebar="handleToggleSidebar"
         @new-order-received="handleNewOrderNotification"
@@ -58,19 +58,44 @@
 
       <!-- Admin Footer -->
       <AdminFooter />
+
+      <ToastNotification
+        :visible="isToastVisible"
+        :message="toastMessage"
+        :type="toastType"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import AdminHeader from '../components/admin/AdminHeader.vue';
 import AdminSidebar from '../components/admin/AdminSidebar.vue';
 import AdminFooter from '../components/admin/AdminFooter.vue';
+import ToastNotification from '../components/common/ToastNotification.vue';
+import { useAuthStore } from '../stores/auth.js';
+import { useToast } from '../composables/useToast.js';
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const latestOrder = ref(null);
+const authStore = useAuthStore();
+const isSuperAdmin = ref(false);
+const { isToastVisible, toastMessage, toastType, showToast } = useToast();
+
+onMounted(async () => {
+  console.log('[AdminLayout] mounted, hydrating auth');
+  await authStore.hydrate();
+  const role = authStore.user?.role?.toLowerCase();
+  isSuperAdmin.value = role === 'superadmin';
+  console.log('[AdminLayout] auth hydrated', {
+    isAuthenticated: authStore.isAuthenticated,
+    role,
+    willListenForNewOrders: role !== 'superadmin'
+  });
+
+});
 
 const handleToggleSidebar = () => {
   if (typeof window !== 'undefined' && window.innerWidth <= 1040) {
@@ -81,6 +106,9 @@ const handleToggleSidebar = () => {
 };
 
 const handleNewOrderNotification = (order) => {
+  console.log('[AdminLayout] handling new order notification');
+  showToast('Ada pesanan masuk');
+  console.log('[AdminLayout] showing incoming order banner', order);
   latestOrder.value = order;
   // Auto dismiss after 15s if not clicked
   setTimeout(() => {

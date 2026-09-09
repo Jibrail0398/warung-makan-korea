@@ -241,6 +241,7 @@
             </svg>
             <span v-if="!isCollapsed" class="nav-label">Management Admin</span>
           </router-link>
+
         </template>
       </nav>
 

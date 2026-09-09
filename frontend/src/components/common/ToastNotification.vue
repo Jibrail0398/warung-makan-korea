@@ -1,18 +1,21 @@
 <template>
-  <div
-    class="toast"
-    :class="{ show: visible }"
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-  >
-    <span class="toast-icon" aria-hidden="true">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </span>
-    <span>{{ message }}</span>
-  </div>
+  <Teleport to="body">
+    <div
+      class="toast"
+      :class="[{ show: visible }, `toast-${type}`]"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <span class="toast-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path v-if="type === 'success'" d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path v-else d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </span>
+      <span>{{ message }}</span>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -24,6 +27,10 @@ defineProps({
   message: {
     type: String,
     default: ''
+  },
+  type: {
+    type: String,
+    default: 'success'
   }
 });
 </script>
@@ -33,7 +40,7 @@ defineProps({
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 80;
+  z-index: 110;
   display: flex;
   min-width: min(360px, calc(100vw - 32px));
   align-items: center;
@@ -62,6 +69,10 @@ defineProps({
   place-items: center;
   border-radius: 50%;
   background: var(--success);
+}
+
+.toast-error .toast-icon {
+  background: var(--red);
 }
 
 .toast > span:last-child {

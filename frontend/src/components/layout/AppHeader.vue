@@ -3,7 +3,7 @@
     class="site-header"
     :class="{ 'header-hidden': !isHeaderVisible }"
   >
-    <div class="container header-inner" :class="{ 'checkout-header-inner': variant === 'checkout' }">
+    <div class="container header-inner" :class="{ 'checkout-header-inner': variant === 'checkout', 'cart-header-inner': variant === 'cart' }">
       <!-- Mobile menu button (Default variant) -->
       <button
         v-if="variant === 'default'"
@@ -18,8 +18,8 @@
         </svg>
       </button>
 
-      <!-- Brand (All variants) -->
-      <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
+      <!-- Brand (All variants except cart which has its own brand above) -->
+      <router-link v-if="variant !== 'cart'" class="brand" to="/" aria-label="Warung Nusantara homepage">
         <span class="brand-mark" aria-hidden="true">WN</span>
         <span class="brand-copy">
           <strong>Warung Nusantara</strong>
@@ -117,8 +117,19 @@
 
       <!-- Cart variant nav -->
       <template v-else-if="variant === 'cart'">
+        <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
+          <span class="brand-mark" aria-hidden="true">WN</span>
+          <span class="brand-copy">
+            <strong>Warung Nusantara</strong>
+            <small>Indonesia in Korea</small>
+          </span>
+        </router-link>
         <nav class="cart-nav">
-          <router-link to="menu">Continue shopping</router-link>
+          <router-link to="/menu" class="back-to-menu-link" aria-label="Back to menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </router-link>
         </nav>
       </template>
 
@@ -291,8 +302,9 @@ function handleLogout() {
   box-sizing: border-box;
 }
 
-.checkout-header-inner {
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+.checkout-header-inner,
+.cart-header-inner {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 
@@ -777,20 +789,18 @@ function handleLogout() {
   justify-self: end;
 }
 
-.cart-nav a {
+.back-to-menu-link {
+  display: inline-flex;
+  align-items: center;
   color: var(--muted);
-
   font-size: 0.9rem;
   font-weight: 700;
-
   text-decoration: none;
-
   white-space: nowrap;
-
   transition: color var(--ease);
 }
 
-.cart-nav a:hover {
+.back-to-menu-link:hover {
   color: var(--red);
 }
 
@@ -1212,7 +1222,13 @@ function handleLogout() {
 
   /* Cart variant */
   .cart-nav a {
-    font-size: 0.84rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-nav a {
+    font-size: 0.72rem;
   }
 }
 

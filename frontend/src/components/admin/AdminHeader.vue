@@ -110,10 +110,11 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth.js';
 import { audioService } from '../../services/audioService.js';
+import { newOrderNotificationService } from '../../services/newOrderNotificationService.js';
 
 const props = defineProps({
   isSuperAdmin: {
@@ -122,15 +123,30 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['toggle-sidebar']);
+const emit = defineEmits(['toggle-sidebar', 'new-order-received']);
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const isSoundOn = ref(true);
 
-onMounted(() => {
+onMounted(async () => {
   isSoundOn.value = audioService.isSoundEnabled();
+  await authStore.hydrate();
+
+  const role = authStore.user?.role?.toLowerCase();
+  if (role === 'admin') {
+    console.log('[AdminHeader] starting new-order listener');
+    newOrderNotificationService.start((order) => {
+      console.log('[AdminHeader] new-order event received, playing audio', order);
+      audioService.playOrderChime();
+      emit('new-order-received', order);
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  newOrderNotificationService.stop();
 });
 
 const toggleSound = () => {

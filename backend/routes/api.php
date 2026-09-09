@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\WhatsAppSessionController;
 
 // Auth Routes (Public)
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -23,6 +24,16 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/bank-accounts', [BankAccountController::class, 'index']); 
 Route::post('/orders', [OrderController::class, 'store']);
+Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
+Route::get('/orders/{order}', [OrderController::class, 'show']);
+
+// Development-only access for the Vue WhatsApp session page.
+if (app()->environment('local')) {
+    Route::prefix('whatsapp')->group(function () {
+        Route::get('/session', [WhatsAppSessionController::class, 'show']);
+        Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
+    });
+}
 
 // Protected Endpoints
 Route::middleware('auth:api')->group(function () {
@@ -32,6 +43,13 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+
+    if (! app()->environment('local')) {
+        Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
+            Route::get('/session', [WhatsAppSessionController::class, 'show']);
+            Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
+        });
+    }
 
     // Admin & Superadmin Only Routes
     Route::middleware('role:superadmin,admin')->group(function () {
@@ -70,7 +88,4 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
 
-    // Member & Admin can access order details and receipt upload
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
 });

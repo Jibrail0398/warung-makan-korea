@@ -144,26 +144,58 @@
       <strong>{{ cartStore.formatPrice(cartStore.subtotal) }}</strong>
     </div>
 
-    <router-link class="checkout-button" to="/checkout">
-      Proceed to checkout
+    <button
+      class="checkout-button"
+      type="button"
+      :disabled="isSubmitting"
+      @click="proceedToCheckout"
+    >
+      {{ isSubmitting ? 'Creating order...' : 'Proceed to checkout' }}
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
-    </router-link>
+    </button>
 
     <p class="secure-note">
       Secure checkout · Order confirmation available after payment
     </p>
+
+    <NoticeModal
+      :visible="isNoticeVisible"
+      :type="noticeType"
+      :title="noticeTitle"
+      :message="noticeMessage"
+      :detail="noticeDetail"
+      :confirm-text="noticeConfirmText"
+      @close="handleNoticeClose"
+      @confirm="handleNoticeConfirm"
+    />
   </aside>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useCartStore } from '../../stores/cart.js';
 import { useAuthStore } from '../../stores/auth.js';
+import { orderService } from '../../services/orderService.js';
+import NoticeModal from '../common/NoticeModal.vue';
+import { useNoticeModal } from '../../composables/useNoticeModal.js';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const router = useRouter();
+const {
+  isNoticeVisible,
+  noticeType,
+  noticeTitle,
+  noticeMessage,
+  noticeDetail,
+  noticeConfirmText,
+  showSuccess,
+  showFailed,
+  hideNotice
+} = useNoticeModal();
 
 const orderType = ref('dine-in');
 const scheduleType = ref('now');
@@ -175,6 +207,8 @@ const phoneNumber = ref('');
 
 const orderTypeOpen = ref(false);
 const scheduleOpen = ref(false);
+const isSubmitting = ref(false);
+const createdOrder = ref(null);
 
 const isLoggedIn = computed(() => {
   return authStore.isAuthenticated || !!localStorage.getItem('warung-token') || !!localStorage.getItem('token');
@@ -212,6 +246,72 @@ function selectSchedule(val) {
   if (val === 'now') {
     scheduleDate.value = '';
     scheduleTime.value = '';
+  }
+}
+
+async function proceedToCheckout() {
+  if (cartStore.cartItems.length === 0 || isSubmitting.value) return;
+
+  const customer = authStore.user;
+  const customerName = isLoggedIn.value
+    ? customer?.name
+    : guestName.value.trim();
+  const customerPhone = isLoggedIn.value
+    ? (customer?.phone_number || customer?.phone)
+    : phoneNumber.value.trim();
+
+  if (!customerName || !customerPhone) {
+    showFailed({
+      title: 'Data belum lengkap',
+      message: 'Nama dan nomor telepon diperlukan sebelum checkout.',
+      detail: 'Lengkapi kedua data tersebut agar pesanan dapat dibuat.'
+    });
+    return;
+  }
+
+  isSubmitting.value = true;
+  try {
+    const order = await orderService.createOrder({
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      user_id: isLoggedIn.value ? customer?.id : undefined,
+      items: cartStore.cartItems.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity
+      }))
+    });
+
+    createdOrder.value = order;
+    showSuccess({
+      title: 'Pesanan berhasil dibuat',
+      message: 'Pesanan Anda sudah tercatat dan siap dilanjutkan ke pembayaran.',
+      detail: `Nomor pesanan: ${order.id}`,
+      confirmText: 'Lanjut ke pembayaran'
+    });
+  } catch (error) {
+    showFailed({
+      title: 'Pesanan gagal dibuat',
+      message: 'Kami belum dapat memproses pesanan Anda.',
+      detail: error.message || 'Periksa koneksi lalu coba lagi.'
+    });
+  } finally {
+    isSubmitting.value = false;
+  }
+}
+
+function handleNoticeClose() {
+  hideNotice();
+}
+
+async function handleNoticeConfirm() {
+  const nextOrder = createdOrder.value;
+  hideNotice();
+
+  if (noticeType.value === 'success' && nextOrder?.id) {
+    await router.push({
+      path: '/checkout',
+      query: { order: nextOrder.id }
+    });
   }
 }
 </script>
