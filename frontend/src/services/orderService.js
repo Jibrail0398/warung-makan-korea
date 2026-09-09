@@ -23,6 +23,7 @@ export const orderService = {
 
 	async createOrder(orderData) {
 		try {
+			console.log('[OrderService] createOrder started', orderData);
 			const storedAuth = localStorage.getItem('warung-auth-data');
 			const authData = storedAuth ? await authService.getStoredAuth() : null;
 			const authenticatedUser = authData?.user;
@@ -42,6 +43,11 @@ export const orderService = {
 
 			const response = await axios.post(`${apiBaseUrl}/orders`, payload);
 			const createdOrder = response.data?.data || response.data;
+			console.log('[OrderService] createOrder response', {
+				status: response.status,
+				orderId: createdOrder?.id || createdOrder?.order_id,
+				data: createdOrder
+			});
 			const orderId = createdOrder?.id || createdOrder?.order_id;
 
 			if (!orderId) {
@@ -58,6 +64,12 @@ export const orderService = {
 	async uploadReceipt(file) {
 		try {
 			const orderId = localStorage.getItem(orderStorageKey);
+			console.log('[OrderService] uploadReceipt started', {
+				orderId,
+				fileName: file?.name,
+				fileType: file?.type,
+				fileSize: file?.size
+			});
 			if (!orderId) {
 				throw new Error('ID order tidak ditemukan. Silakan buat order terlebih dahulu.');
 			}
@@ -70,6 +82,11 @@ export const orderService = {
 				formData
 			);
 			const updatedOrder = response.data?.data || response.data;
+			console.log('[OrderService] uploadReceipt response', {
+				status: response.status,
+				orderId,
+				data: updatedOrder
+			});
 			localStorage.removeItem(orderStorageKey);
 			return updatedOrder;
 		} catch (error) {

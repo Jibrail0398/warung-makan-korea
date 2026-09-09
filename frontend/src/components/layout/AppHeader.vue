@@ -3,7 +3,7 @@
     class="site-header"
     :class="{ 'header-hidden': !isHeaderVisible }"
   >
-    <div class="container header-inner" :class="{ 'checkout-header-inner': variant === 'checkout' }">
+    <div class="container header-inner" :class="{ 'checkout-header-inner': variant === 'checkout', 'cart-header-inner': variant === 'cart' }">
       <!-- Mobile menu button (Default variant) -->
       <button
         v-if="variant === 'default'"
@@ -18,8 +18,8 @@
         </svg>
       </button>
 
-      <!-- Brand (All variants) -->
-      <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
+      <!-- Brand (All variants except cart which has its own brand above) -->
+      <router-link v-if="variant !== 'cart'" class="brand" to="/" aria-label="Warung Nusantara homepage">
         <span class="brand-mark" aria-hidden="true">WN</span>
         <span class="brand-copy">
           <strong>Warung Nusantara</strong>
@@ -117,8 +117,20 @@
 
       <!-- Cart variant nav -->
       <template v-else-if="variant === 'cart'">
+        <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
+          <span class="brand-mark" aria-hidden="true">WN</span>
+          <span class="brand-copy">
+            <strong>Warung Nusantara</strong>
+            <small>Indonesia in Korea</small>
+          </span>
+        </router-link>
         <nav class="cart-nav">
-          <router-link to="menu">Continue shopping</router-link>
+          <router-link to="/menu" class="continue-shopping-link" aria-label="Continue shopping">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6ZM3 6h18M16 10a4 4 0 0 1-8 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="continue-shopping-text">Continue shopping</span>
+          </router-link>
         </nav>
       </template>
 
@@ -291,8 +303,9 @@ function handleLogout() {
   box-sizing: border-box;
 }
 
-.checkout-header-inner {
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+.checkout-header-inner,
+.cart-header-inner {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 
@@ -777,21 +790,26 @@ function handleLogout() {
   justify-self: end;
 }
 
-.cart-nav a {
+.continue-shopping-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   color: var(--muted);
-
   font-size: 0.9rem;
   font-weight: 700;
-
   text-decoration: none;
-
   white-space: nowrap;
-
   transition: color var(--ease);
 }
 
-.cart-nav a:hover {
+.continue-shopping-link:hover {
   color: var(--red);
+}
+
+@media (max-width: 640px) {
+  .continue-shopping-text {
+    display: none;
+  }
 }
 
 
@@ -1212,7 +1230,13 @@ function handleLogout() {
 
   /* Cart variant */
   .cart-nav a {
-    font-size: 0.84rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-nav a {
+    font-size: 0.72rem;
   }
 }
 

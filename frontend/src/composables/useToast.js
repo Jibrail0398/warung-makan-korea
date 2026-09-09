@@ -7,9 +7,14 @@ let toastTimer = null;
 
 export function useToast() {
   function showToast(message, duration = 2200, type = 'success') {
+    console.log('[useToast] showToast called', { message, duration, type });
     toastMessage.value = message;
     toastType.value = type;
     isToastVisible.value = true;
+    console.log('[useToast] toast state updated', {
+      visible: isToastVisible.value,
+      message: toastMessage.value
+    });
 
     if (toastTimer) {
       clearTimeout(toastTimer);
