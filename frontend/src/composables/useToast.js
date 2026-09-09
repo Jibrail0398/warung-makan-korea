@@ -1,4 +1,5 @@
 import { ref, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 
 const isToastVisible = ref(false);
 const toastMessage = ref('');
@@ -6,6 +7,8 @@ const toastType = ref('success');
 let toastTimer = null;
 
 export function useToast() {
+  const router = useRouter();
+
   function showToast(message, duration = 2200, type = 'success') {
     console.log('[useToast] showToast called', { message, duration, type });
     toastMessage.value = message;
@@ -27,11 +30,17 @@ export function useToast() {
 
   function hideToast() {
     isToastVisible.value = false;
-    if (toastTimer) clearTimeout(toastTimer);
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
+    }
   }
 
+  const removeRouteHook = router.afterEach(hideToast);
+
   onBeforeUnmount(() => {
-    if (toastTimer) clearTimeout(toastTimer);
+    removeRouteHook();
+    hideToast();
   });
 
   return {

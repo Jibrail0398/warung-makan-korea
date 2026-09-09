@@ -125,11 +125,10 @@
           </span>
         </router-link>
         <nav class="cart-nav">
-          <router-link to="/menu" class="continue-shopping-link" aria-label="Continue shopping">
+          <router-link to="/menu" class="back-to-menu-link" aria-label="Back to menu">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6ZM3 6h18M16 10a4 4 0 0 1-8 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <span class="continue-shopping-text">Continue shopping</span>
           </router-link>
         </nav>
       </template>
@@ -790,10 +789,9 @@ function handleLogout() {
   justify-self: end;
 }
 
-.continue-shopping-link {
+.back-to-menu-link {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 700;
@@ -802,14 +800,8 @@ function handleLogout() {
   transition: color var(--ease);
 }
 
-.continue-shopping-link:hover {
+.back-to-menu-link:hover {
   color: var(--red);
-}
-
-@media (max-width: 640px) {
-  .continue-shopping-text {
-    display: none;
-  }
 }
 
 

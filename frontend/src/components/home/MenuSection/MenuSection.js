@@ -68,8 +68,8 @@ export default {
       emit(
         'showToast',
         currentQty === 0
-          ? `${product.name} added to cart`
-          : `${product.name} quantity increased`
+          ? `${product.name} berhasil ditambahkan`
+          : `${product.name} jumlahnya bertambah`
       );
     }
 
@@ -77,9 +77,9 @@ export default {
       const currentQty = cartStore.getQuantity(product.id);
       cartStore.decreaseQuantity(product);
       if (currentQty <= 1) {
-        emit('showToast', `${product.name} removed from cart`);
+        emit('showToast', `${product.name} dihapus dari keranjang`);
       } else {
-        emit('showToast', `${product.name} quantity decreased`);
+        emit('showToast', `${product.name} jumlahnya berkurang`);
       }
     }
 
