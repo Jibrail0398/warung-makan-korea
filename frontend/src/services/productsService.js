@@ -47,4 +47,8 @@ export const productService = {
             throw new Error(message);
         }
     },
+
+    async addProducts(body){
+
+    }
 }

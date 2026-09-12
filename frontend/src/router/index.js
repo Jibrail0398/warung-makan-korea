@@ -132,7 +132,7 @@ const routes = [
       {
         path: 'products',
         name: 'admin-products',
-        component: () => import('../views/admin/AdminProductsView.vue')
+        component: () => import('../views/admin/AdminProductsView/AdminProductsView.vue')
       },
       {
         path: 'main-categories',
