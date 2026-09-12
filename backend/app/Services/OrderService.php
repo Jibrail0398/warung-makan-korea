@@ -60,13 +60,8 @@ class OrderService
             return $order->load('items.product');
         });
 
-        // Broadcast event ke channel 'new-order' via Pusher
-        try {
-            broadcast(new NewOrderEvent($order));
-        } catch (\Throwable $e) {
-            Log::error('Gagal mengirim broadcast NewOrderEvent: ' . $e->getMessage());
-        }
-
+        
+        
         return $order;
     }
 
@@ -88,6 +83,12 @@ class OrderService
             'payment_receipt' => $path,
             'payment_status' => 'awaiting_verification'
         ]);
+        // Broadcast event ke channel 'new-order' via Pusher
+        try {
+            broadcast(new NewOrderEvent($order));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim broadcast NewOrderEvent: ' . $e->getMessage());
+        }
 
         return $order;
     }

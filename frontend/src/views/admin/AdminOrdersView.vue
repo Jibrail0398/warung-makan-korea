@@ -41,37 +41,28 @@
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'pending' }"
-          @click="selectedTab = 'pending'"
+          :class="{ active: selectedTab === 'unpaid' }"
+          @click="selectedTab = 'unpaid'"
         >
-          Pending ({{ countByStatus('pending') }})
+          Unpaid ({{ countByPaymentStatus('unpaid') }})
         </button>
         <button
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'processing' }"
-          @click="selectedTab = 'processing'"
+          :class="{ active: selectedTab === 'awaiting_verification' }"
+          @click="selectedTab = 'awaiting_verification'"
         >
-          Processing ({{ countByStatus('processing') }})
+          Awaiting Verification ({{ countByPaymentStatus('awaiting_verification') }})
         </button>
         <button
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'completed' }"
-          @click="selectedTab = 'completed'"
+          :class="{ active: selectedTab === 'paid' }"
+          @click="selectedTab = 'paid'"
         >
-          Completed ({{ countByStatus('completed') }})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
-          :class="{ active: selectedTab === 'cancelled' }"
-          @click="selectedTab = 'cancelled'"
-        >
-          Cancelled ({{ countByStatus('cancelled') }})
+          Paid ({{ countByPaymentStatus('paid') }})
         </button>
       </div>
 
@@ -256,13 +247,13 @@ onMounted(() => {
   loadOrders();
 });
 
-const countByStatus = (status) => {
-  return orders.value.filter(o => o.status === status).length;
+const countByPaymentStatus = (paymentStatus) => {
+  return orders.value.filter(order => order.payment_status === paymentStatus).length;
 };
 
 const filteredOrders = computed(() => {
   return orders.value.filter(order => {
-    const tabMatch = selectedTab.value === 'all' || order.status === selectedTab.value;
+    const tabMatch = selectedTab.value === 'all' || order.payment_status === selectedTab.value;
     const q = searchQuery.value.trim().toLowerCase();
     const searchMatch = !q || (
       (order.id + ' ' + (order.customer_name || '') + ' ' + (order.customer_phone || ''))
