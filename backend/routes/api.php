@@ -31,6 +31,7 @@ if (app()->environment('local')) {
     Route::prefix('whatsapp')->group(function () {
         Route::get('/session', [WhatsAppSessionController::class, 'show']);
         Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
+        Route::delete('/session', [WhatsAppSessionController::class, 'destroy']);
     });
 }
 
@@ -46,6 +47,7 @@ Route::middleware('auth:api')->group(function () {
         Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
             Route::get('/session', [WhatsAppSessionController::class, 'show']);
             Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
+            Route::delete('/session', [WhatsAppSessionController::class, 'destroy']);
         });
     }
 

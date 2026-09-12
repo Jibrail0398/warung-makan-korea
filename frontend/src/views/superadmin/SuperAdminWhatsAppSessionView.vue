@@ -8,12 +8,7 @@
           Hubungkan satu nomor WhatsApp operasional untuk kebutuhan aplikasi.
         </p>
       </div>
-      <button class="refresh-button" type="button" :disabled="isLoading" title="Refresh status" @click="loadSession">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M20 11a8 8 0 0 0-14.9-4M4 5v4h4M4 13a8 8 0 0 0 14.9 4M20 19v-4h-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <span>Refresh</span>
-      </button>
+     
     </header>
 
     <div v-if="errorMessage" class="feedback feedback-error" role="alert">
@@ -82,11 +77,20 @@
           v-if="!isReady && !isQrState"
           class="primary-button"
           type="button"
-          :disabled="isStarting"
+          :disabled="isStarting || isDeleting"
           @click="startSession"
         >
           <span v-if="isStarting" class="button-spinner"></span>
           <span>{{ isStarting ? 'Mengaktifkan...' : 'Aktifkan kembali' }}</span>
+        </button>
+        <button
+          class="danger-button"
+          type="button"
+          :disabled="isDeleting || isStarting"
+          @click="destroySession"
+        >
+          <span v-if="isDeleting" class="button-spinner"></span>
+          <span>{{ isDeleting ? 'Menghapus...' : 'Hapus sesi & scan ulang' }}</span>
         </button>
       </div>
     </section>
@@ -103,6 +107,7 @@ const defaultSession = { id: 'warung-korea', status: 'disconnected', qr: null };
 const session = ref({ ...defaultSession });
 const isLoading = ref(true);
 const isStarting = ref(false);
+const isDeleting = ref(false);
 const errorMessage = ref('');
 let pollTimer;
 
@@ -162,6 +167,21 @@ const startSession = async () => {
   }
 };
 
+const destroySession = async () => {
+  if (!window.confirm('Hapus sesi WhatsApp dan data login tersimpan? QR baru akan diperlukan.')) return;
+
+  isDeleting.value = true;
+  errorMessage.value = '';
+
+  try {
+    session.value = { ...defaultSession, ...(await whatsappSessionService.destroy()) };
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || error.message || 'Gagal menghapus session.';
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
 onMounted(async () => {
   await loadSession();
   pollTimer = window.setInterval(loadSession, 4000);
@@ -214,7 +234,8 @@ onBeforeUnmount(() => {
 }
 
 .refresh-button,
-.primary-button {
+.primary-button,
+.danger-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -479,6 +500,17 @@ button:disabled {
   background: #991b1b;
 }
 
+.danger-button {
+  padding: 0 16px;
+  border: 1px solid #b91c1c;
+  background: #fff;
+  color: #b91c1c;
+}
+
+.danger-button:hover:not(:disabled) {
+  background: #fff1f2;
+}
+
 .button-spinner {
   width: 14px;
   height: 14px;
@@ -542,6 +574,7 @@ button:disabled {
   }
 
   .primary-button,
+  .danger-button,
   .refresh-button {
     width: 100%;
   }

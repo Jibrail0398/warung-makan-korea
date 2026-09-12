@@ -48,6 +48,22 @@ class WhatsAppSessionController extends Controller
         }
     }
 
+    public function destroy()
+    {
+        try {
+            $this->session()->destroy();
+            Cache::forget($this->qrCacheKey());
+
+            return $this->successResponse($this->sessionSnapshot(), 'WhatsApp session berhasil dihapus.');
+        } catch (Throwable $exception) {
+            return $this->errorResponse(
+                'Gagal menghapus WhatsApp session.',
+                $this->statusCode($exception),
+                $this->debugPayload($exception)
+            );
+        }
+    }
+
     private function session()
     {
         return $this->client->session($this->sessionId());
