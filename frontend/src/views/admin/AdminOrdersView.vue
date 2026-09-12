@@ -41,46 +41,37 @@
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'Payment Verification' }"
-          @click="selectedTab = 'Payment Verification'"
+          :class="{ active: selectedTab === 'pending' }"
+          @click="selectedTab = 'pending'"
         >
-          Verifikasi Bayar ({{ countByStatus('Payment Verification') }})
+          Pending ({{ countByStatus('pending') }})
         </button>
         <button
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'Processing' }"
-          @click="selectedTab = 'Processing'"
+          :class="{ active: selectedTab === 'processing' }"
+          @click="selectedTab = 'processing'"
         >
-          Diproses ({{ countByStatus('Processing') }})
+          Processing ({{ countByStatus('processing') }})
         </button>
         <button
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'Ready' }"
-          @click="selectedTab = 'Ready'"
+          :class="{ active: selectedTab === 'completed' }"
+          @click="selectedTab = 'completed'"
         >
-          Siap ({{ countByStatus('Ready') }})
+          Completed ({{ countByStatus('completed') }})
         </button>
         <button
           type="button"
           role="tab"
           class="tab-btn"
-          :class="{ active: selectedTab === 'Completed' }"
-          @click="selectedTab = 'Completed'"
+          :class="{ active: selectedTab === 'cancelled' }"
+          @click="selectedTab = 'cancelled'"
         >
-          Selesai ({{ countByStatus('Completed') }})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
-          :class="{ active: selectedTab === 'Cancelled' }"
-          @click="selectedTab = 'Cancelled'"
-        >
-          Batal ({{ countByStatus('Cancelled') }})
+          Cancelled ({{ countByStatus('cancelled') }})
         </button>
       </div>
 
@@ -103,14 +94,15 @@
       <table class="orders-table">
         <thead>
           <tr>
-            <th scope="col">No. Pesanan</th>
+            <th scope="col">ID Pesanan</th>
             <th scope="col">Waktu</th>
             <th scope="col">Customer</th>
-            <th scope="col">Tipe</th>
+            <th scope="col">No. Meja</th>
             <th scope="col">Item Pesanan</th>
-            <th scope="col">Total</th>
+            <th scope="col">Total Harga</th>
+            <th scope="col">Status Pembayaran</th>
             <th scope="col">Bukti Transfer</th>
-            <th scope="col">Status</th>
+            <th scope="col">Status Pesanan</th>
             <th scope="col" class="col-actions">Aksi</th>
           </tr>
         </thead>
@@ -118,55 +110,55 @@
           <tr v-for="order in filteredOrders" :key="order.id">
             <td>
               <router-link :to="`/admin/orders/${order.id}`" class="order-link-code">
-                {{ order.orderNumber || order.id }}
+                #{{ order.id }}
               </router-link>
             </td>
             <td>
               <div class="time-cell">
-                <span>{{ order.time || '12:00' }}</span>
-                <small>{{ order.date }}</small>
+                <span>{{ new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</span>
+                <small>{{ new Date(order.created_at).toLocaleDateString() }}</small>
               </div>
             </td>
             <td>
               <div class="customer-cell">
-                <strong>{{ order.customer?.name || 'Customer' }}</strong>
-                <small>{{ order.customer?.phone }}</small>
+                <strong>{{ order.customer_name || 'Guest' }}</strong>
+                <small>{{ order.customer_phone || '-' }}</small>
               </div>
             </td>
             <td>
               <span class="order-type-tag">
-                {{ order.orderType || 'Dine In' }}
-                <span v-if="order.tableNumber" class="table-num">({{ order.tableNumber }})</span>
+                {{ order.table_number ? `Meja ${order.table_number}` : 'Takeaway' }}
               </span>
             </td>
             <td>
               <div class="items-cell">
                 <span class="items-summary">
-                  {{ order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') }}
+                  {{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}
                 </span>
-                <small v-if="order.note" class="order-note-text">
-                  Catatan: "{{ order.note }}"
-                </small>
               </div>
             </td>
             <td>
-              <span class="price-val">₩{{ (order.total || 0).toLocaleString('ko-KR') }}</span>
+              <span class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</span>
             </td>
             <td>
-              <button
-                v-if="order.paymentProof"
-                type="button"
+              <span class="payment-status-badge" :class="order.payment_status">
+                {{ order.payment_status }}
+              </span>
+            </td>
+            <td>
+              <a
+                v-if="order.payment_receipt_url"
+                :href="order.payment_receipt_url"
+                target="_blank"
                 class="proof-btn"
-                :class="{ 'verified': order.paymentStatus === 'Verified' }"
-                @click="openProofViewer(order)"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
                   <polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="1.8" />
                 </svg>
-                <span>{{ order.paymentStatus === 'Verified' ? 'Terverifikasi' : 'Cek Bukti' }}</span>
-              </button>
+                <span>Lihat Bukti</span>
+              </a>
               <span v-else class="no-proof-text">-</span>
             </td>
             <td>
@@ -174,37 +166,6 @@
             </td>
             <td class="col-actions">
               <div class="quick-actions">
-                <!-- Status specific fast triggers -->
-                <button
-                  v-if="order.status === 'Payment Verification'"
-                  type="button"
-                  class="action-btn verify-btn"
-                  title="Verifikasi & Proses"
-                  @click="updateStatus(order.id, 'Processing')"
-                >
-                  Proses
-                </button>
-
-                <button
-                  v-if="order.status === 'Processing'"
-                  type="button"
-                  class="action-btn ready-btn"
-                  title="Tandai Siap Diambil/Diantar"
-                  @click="updateStatus(order.id, 'Ready')"
-                >
-                  Siap
-                </button>
-
-                <button
-                  v-if="order.status === 'Ready'"
-                  type="button"
-                  class="action-btn complete-btn"
-                  title="Selesaikan Pesanan"
-                  @click="updateStatus(order.id, 'Completed')"
-                >
-                  Selesai
-                </button>
-
                 <router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn">
                   Detail
                 </router-link>
@@ -214,7 +175,7 @@
         </tbody>
         <tbody v-else>
           <tr>
-            <td colspan="9" class="empty-state-row">
+            <td colspan="10" class="empty-state-row">
               <div class="empty-box">
                 <p>Tidak ada pesanan pada status ini.</p>
               </div>
@@ -234,9 +195,9 @@
         <div class="m-card-header">
           <div>
             <router-link :to="`/admin/orders/${order.id}`" class="order-link-code">
-              {{ order.orderNumber || order.id }}
+              #{{ order.id }}
             </router-link>
-            <span class="m-time">{{ order.date }} {{ order.time }}</span>
+            <span class="m-time">{{ new Date(order.created_at).toLocaleString() }}</span>
           </div>
           <StatusBadge :status="order.status" />
         </div>
@@ -244,84 +205,48 @@
         <div class="m-card-body">
           <div class="m-row">
             <span class="m-label">Customer:</span>
-            <strong>{{ order.customer?.name }} ({{ order.customer?.phone }})</strong>
+            <strong>{{ order.customer_name }} ({{ order.customer_phone }})</strong>
           </div>
           <div class="m-row">
             <span class="m-label">Item:</span>
-            <span>{{ order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') }}</span>
+            <span>{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span>
           </div>
           <div class="m-row">
             <span class="m-label">Total:</span>
-            <strong class="price-val">₩{{ (order.total || 0).toLocaleString('ko-KR') }}</strong>
+            <strong class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong>
           </div>
-          <div v-if="order.paymentProof" class="m-row">
+          <div v-if="order.payment_receipt_url" class="m-row">
             <span class="m-label">Bukti Bayar:</span>
-            <button type="button" class="proof-btn" @click="openProofViewer(order)">
+            <a :href="order.payment_receipt_url" target="_blank" class="proof-btn">
               Lihat Bukti
-            </button>
+            </a>
           </div>
         </div>
 
         <div class="m-card-footer">
-          <button
-            v-if="order.status === 'Payment Verification'"
-            type="button"
-            class="action-btn verify-btn full-btn"
-            @click="updateStatus(order.id, 'Processing')"
-          >
-            Verifikasi & Masak
-          </button>
-          <button
-            v-else-if="order.status === 'Processing'"
-            type="button"
-            class="action-btn ready-btn full-btn"
-            @click="updateStatus(order.id, 'Ready')"
-          >
-            Pesanan Siap
-          </button>
-          <button
-            v-else-if="order.status === 'Ready'"
-            type="button"
-            class="action-btn complete-btn full-btn"
-            @click="updateStatus(order.id, 'Completed')"
-          >
-            Selesaikan Pesanan
-          </button>
-
           <router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn full-btn">
             Buka Detail
           </router-link>
         </div>
       </article>
     </div>
-
-    <!-- Payment Proof Viewer Lightbox -->
-    <PaymentProofViewer
-      :isOpen="isProofOpen"
-      :order="selectedOrderForProof"
-      @close="isProofOpen = false"
-      @approve="handleApproveProof"
-      @reject="handleRejectProof"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { audioService } from '../../services/audioService.js';
+import { orderService } from '../../services/orderService.js';
 import StatusBadge from '../../components/admin/StatusBadge.vue';
-import PaymentProofViewer from '../../components/admin/PaymentProofViewer.vue';
 
 const orders = ref([]);
 const selectedTab = ref('all');
 const searchQuery = ref('');
 
-const isProofOpen = ref(false);
-const selectedOrderForProof = ref(null);
-
 const loadOrders = async () => {
   try {
-    orders.value = [];
+    const data = await orderService.getAllOrders();
+    orders.value = data.data || data;
   } catch (e) {
     console.error('Load orders error:', e);
   }
@@ -340,7 +265,7 @@ const filteredOrders = computed(() => {
     const tabMatch = selectedTab.value === 'all' || order.status === selectedTab.value;
     const q = searchQuery.value.trim().toLowerCase();
     const searchMatch = !q || (
-      (order.id + ' ' + (order.orderNumber || '') + ' ' + (order.customer?.name || '') + ' ' + (order.customer?.phone || ''))
+      (order.id + ' ' + (order.customer_name || '') + ' ' + (order.customer_phone || ''))
         .toLowerCase()
         .includes(q)
     );
@@ -348,30 +273,7 @@ const filteredOrders = computed(() => {
   });
 });
 
-const updateStatus = async (id, newStatus) => {
-  await new Promise(r => setTimeout(r, 300));
-  await loadOrders();
-};
-
-const openProofViewer = (order) => {
-  selectedOrderForProof.value = order;
-  isProofOpen.value = true;
-};
-
-const handleApproveProof = async (order) => {
-  await new Promise(r => setTimeout(r, 300));
-  isProofOpen.value = false;
-  await loadOrders();
-};
-
-const handleRejectProof = async (order) => {
-  await new Promise(r => setTimeout(r, 300));
-  isProofOpen.value = false;
-  await loadOrders();
-};
-
 const handleSimulateIncoming = async () => {
-  await new Promise(r => setTimeout(r, 300));
   audioService.playOrderChime();
   await loadOrders();
 };

@@ -4,6 +4,7 @@ import { authService } from './authService.js';
 const apiBaseUrl = import.meta.env.VITE_API_URL
 	|| `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
 const orderStorageKey = 'warung-order-id';
+const authStorageKeys = ['warung-auth-key', 'warung-auth-data'];
 
 function getErrorMessage(error, fallback) {
 	return error.response?.data?.message
@@ -11,10 +12,30 @@ function getErrorMessage(error, fallback) {
 		|| fallback;
 }
 
+async function getAuthorizationHeaders() {
+	let authData = null;
+
+	for (const storageKey of authStorageKeys) {
+		const storedAuth = localStorage.getItem(storageKey);
+		if (storedAuth) {
+			authData = await authService.decode(storedAuth);
+			if (authData?.access_token) break;
+		}
+	}
+
+	const token = authData?.access_token || '';
+
+	return {
+		Authorization: `Bearer ${token}`
+	};
+}
+
 export const orderService = {
 	async getOrderById(orderId) {
 		try {
-			const response = await axios.get(`${apiBaseUrl}/orders/${orderId}`);
+			const response = await axios.get(`${apiBaseUrl}/orders/${orderId}`, {
+				headers: await getAuthorizationHeaders()
+			});
 			return response.data?.data || response.data;
 		} catch (error) {
 			throw new Error(getErrorMessage(error, 'Gagal mengambil detail pesanan.'));
@@ -58,6 +79,17 @@ export const orderService = {
 			return createdOrder;
 		} catch (error) {
 			throw new Error(getErrorMessage(error, 'Gagal membuat pesanan.'));
+		}
+	},
+
+	async getAllOrders() {
+		try {
+			const response = await axios.get(`${apiBaseUrl}/orders`, {
+				headers: await getAuthorizationHeaders()
+			});
+			return response.data?.data || response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil daftar pesanan.'));
 		}
 	},
 
