@@ -1,13 +1,19 @@
 /**
- * Auth Service
+ * Product Service
  * Handles Products Request
  */
 
 import axios from 'axios';
+import { authService } from './authService.js';
+
 const apiBaseUrl = import.meta.env.VITE_API_URL
   || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
 
-
+async function getAuthHeaders() {
+    const authData = await authService.getStoredAuth();
+    const token = authData?.access_token || '';
+    return { Authorization: `Bearer ${token}` };
+}
 
 export const productService = {
     async getProducts(page = 1) {
@@ -48,7 +54,29 @@ export const productService = {
         }
     },
 
-    async addProducts(body){
+    async getCategories() {
+        try {
+            const response = await axios.get(`${apiBaseUrl}/categories`);
+            return response.data?.data?.data || [];
+        } catch (error) {
+            const message = error.response?.data?.message || 'Gagal mengambil kategori.';
+            throw new Error(message);
+        }
+    },
 
+    async addProduct(body) {
+        try {
+            const headers = await getAuthHeaders();
+            const response = await axios.post(`${apiBaseUrl}/products`, body, {
+                headers: {
+                    ...headers,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || 'Gagal menambahkan produk.';
+            throw new Error(message);
+        }
     }
 }

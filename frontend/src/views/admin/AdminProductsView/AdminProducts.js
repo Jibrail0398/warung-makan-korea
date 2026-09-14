@@ -1,5 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal.vue';
+import { productService } from '../../../services/productsService.js';
+import { useToast } from '../../../composables/useToast.js';
 import "./AdminProducts.css"
 
 export default {
@@ -9,7 +11,6 @@ export default {
   },
   setup() {
     const products = ref([]);
-    const mainCategories = ref([]);
     const categories = ref([]);
 
     const selectedTab = ref('all');
@@ -22,18 +23,28 @@ export default {
     const selectedProduct = ref(null);
     const productToDelete = ref(null);
 
+    const { showToast } = useToast();
+
     const loadData = async () => {
       try {
-        products.value = [];
-        mainCategories.value = [];
-        categories.value = [];
+        const result = await productService.getProducts();
+        products.value = result.products;
       } catch (err) {
         console.error('Failed to load products data:', err);
       }
     };
 
+    const loadCategories = async () => {
+      try {
+        categories.value = await productService.getCategories();
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    };
+
     onMounted(() => {
       loadData();
+      loadCategories();
     });
 
     const countByType = (type) => {
@@ -98,14 +109,15 @@ export default {
       isModalOpen.value = true;
     };
 
-    const handleSaveProduct = async (productData) => {
-      if (isEditMode.value && selectedProduct.value) {
-        await new Promise(r => setTimeout(r, 300));
-      } else {
-        await new Promise(r => setTimeout(r, 300));
+    const handleSaveProduct = async (formData) => {
+      try {
+        await productService.addProduct(formData);
+        showToast('Produk berhasil ditambahkan', 2500, 'success');
+        isModalOpen.value = false;
+        await loadData();
+      } catch (err) {
+        showToast(err.message || 'Gagal menambahkan produk', 3000, 'error');
       }
-      isModalOpen.value = false;
-      await loadData();
     };
 
     const toggleStatus = async (product) => {
@@ -130,7 +142,6 @@ export default {
 
     return {
       products,
-      mainCategories,
       categories,
       selectedTab,
       selectedSubcatFilter,

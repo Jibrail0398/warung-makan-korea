@@ -239,7 +239,6 @@
       :isOpen="isModalOpen"
       :isEdit="isEditMode"
       :initialData="selectedProduct"
-      :mainCategories="mainCategories"
       :categories="categories"
       @close="isModalOpen = false"
       @save="handleSaveProduct"
@@ -258,14 +257,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <ToastNotification
+      :visible="isToastVisible"
+      :message="toastMessage"
+      :type="toastType"
+    />
   </div>
 </template>
 
 <script>
 import AdminProductsScript from './AdminProducts.js';
+import ToastNotification from '../../../components/common/ToastNotification.vue';
+import { useToast } from '../../../composables/useToast.js';
 
 export default {
-  ...AdminProductsScript
+  ...AdminProductsScript,
+  components: {
+    ...AdminProductsScript.components,
+    ToastNotification
+  },
+  setup() {
+    const parentReturn = AdminProductsScript.setup();
+    const { isToastVisible, toastMessage, toastType } = useToast();
+    return {
+      ...parentReturn,
+      isToastVisible,
+      toastMessage,
+      toastType
+    };
+  }
 };
 </script>
 
