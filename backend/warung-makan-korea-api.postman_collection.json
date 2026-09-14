@@ -335,6 +335,143 @@
                             "path": ["users"]
                         }
                     }
+                },
+                {
+                    "name": "Change User Password (Superadmin)",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "PUT",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/users/USER_ID_HERE/password",
+                            "host": ["{{base_url}}"],
+                            "path": ["users", "USER_ID_HERE", "password"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "7. Activity Logs (Superadmin)",
+            "item": [
+                {
+                    "name": "Get All Activity Logs",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/activity-logs?per_page=15",
+                            "host": ["{{base_url}}"],
+                            "path": ["activity-logs"],
+                            "query": [
+                                { "key": "per_page", "value": "15" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Activity Log Detail",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/activity-logs/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["activity-logs", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "8. Sales Reports (Admin & Superadmin)",
+            "item": [
+                {
+                    "name": "Sales Report (Flexible ?period=daily|weekly|monthly|yearly)",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/reports/sales?period=monthly&month=9&year=2026",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports", "sales"],
+                            "query": [
+                                { "key": "period", "value": "monthly" },
+                                { "key": "month", "value": "9" },
+                                { "key": "year", "value": "2026" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Daily Sales Report",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/reports/sales/daily?date=2026-09-07",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports", "sales", "daily"],
+                            "query": [
+                                { "key": "date", "value": "2026-09-07" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Weekly Sales Report",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/reports/sales/weekly",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports", "sales", "weekly"]
+                        }
+                    }
+                },
+                {
+                    "name": "Monthly Sales Report",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/reports/sales/monthly?month=9&year=2026",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports", "sales", "monthly"],
+                            "query": [
+                                { "key": "month", "value": "9" },
+                                { "key": "year", "value": "2026" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yearly Sales Report",
+                    "request": {
+                        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/reports/sales/yearly?year=2026",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports", "sales", "yearly"],
+                            "query": [
+                                { "key": "year", "value": "2026" }
+                            ]
+                        }
+                    }
                 }
             ]
         }

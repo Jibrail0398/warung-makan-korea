@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
@@ -24,6 +25,29 @@ class UserService
     public function update(User $user, array $data): User
     {
         $user->update($data);
+        return $user;
+    }
+
+    public function changePassword(User $user, string $newPassword): User
+    {
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        $causer = auth('api')->user();
+
+        activity('user_management')
+            ->performedOn($user)
+            ->causedBy($causer)
+            ->event('password_changed')
+            ->withProperties([
+                'target_user_name' => $user->name,
+                'target_user_phone' => $user->phone_number,
+                'target_user_role' => $user->role,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log("Superadmin " . ($causer?->name ?? '') . " mengganti password pengguna {$user->name}");
+
         return $user;
     }
 
