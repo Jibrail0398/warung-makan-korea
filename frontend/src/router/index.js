@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue'
-import AdminLayout from '../views/admin/AdminLayout.vue'
+import AdminLayout from '../views/admin/AdminLayout/AdminLayout.vue'
 import { authService } from '../services/authService.js'
 
 const routes = [
@@ -117,17 +117,17 @@ const routes = [
       {
         path: 'pos',
         name: 'admin-pos',
-        component: () => import('../views/admin/AdminPosView.vue')
+        component: () => import('../views/admin/AdminPosView/AdminPosView.vue')
       },
       {
         path: 'orders',
         name: 'admin-orders',
-        component: () => import('../views/admin/AdminOrdersView.vue')
+        component: () => import('../views/admin/AdminOrdersView/AdminOrdersView.vue')
       },
       {
         path: 'orders/:id',
         name: 'admin-order-detail',
-        component: () => import('../views/admin/AdminOrderDetailView.vue')
+        component: () => import('../views/admin/AdminOrderDetailView/AdminOrderDetailView.vue')
       },
       {
         path: 'products',
@@ -152,17 +152,17 @@ const routes = [
       {
         path: 'reports/transactions',
         name: 'admin-reports-transactions',
-        component: () => import('../views/admin/AdminTransactionReportView.vue')
+        component: () => import('../views/admin/AdminTransactionReportView/AdminTransactionReportView.vue')
       },
       {
         path: 'reports/financial',
         name: 'admin-reports-financial',
-        component: () => import('../views/admin/AdminFinancialReportView.vue')
+        component: () => import('../views/admin/AdminFinancialReportView/AdminFinancialReportView.vue')
       },
       {
         path: 'reset-password',
         name: 'admin-reset-password',
-        component: () => import('../views/admin/AdminResetPasswordView.vue')
+        component: () => import('../views/admin/AdminResetPasswordView/AdminResetPasswordView.vue')
       }
     ]
   },
