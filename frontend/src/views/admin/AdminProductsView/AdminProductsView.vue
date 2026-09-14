@@ -20,44 +20,18 @@
 
     <!-- Filter & Search Bar -->
     <section class="filter-section">
-      <!-- Tabs: All / Restaurant / Raw Material -->
-      <div class="category-tabs" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
-          :class="{ active: selectedTab === 'all' }"
-          @click="selectedTab = 'all'"
-        >
-          Semua ({{ products.length }})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
-          :class="{ active: selectedTab === 'restaurant' }"
-          @click="selectedTab = 'restaurant'"
-        >
-          Restaurant Menu ({{ countByType('restaurant') }})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
-          :class="{ active: selectedTab === 'raw' }"
-          @click="selectedTab = 'raw'"
-        >
-          Raw Material ({{ countByType('raw') }})
-        </button>
-      </div>
-
-      <!-- Search & Status Controls -->
       <div class="filter-controls">
         <select v-model="selectedSubcatFilter" class="filter-select subcat-filter">
-          <option value="all">Semua Subkategori</option>
+          <option value="all">Semua Kategori</option>
           <option v-for="sc in availableSubcategories" :key="sc.id" :value="sc.id">
             {{ sc.name }}
           </option>
+        </select>
+
+        <select v-model="statusFilter" class="filter-select status-filter">
+          <option value="all">Semua Status</option>
+          <option value="Available">Tersedia</option>
+          <option value="Sold Out">Sold Out</option>
         </select>
 
         <div class="search-box">
@@ -72,12 +46,6 @@
             class="search-input"
           />
         </div>
-
-        <select v-model="statusFilter" class="filter-select">
-          <option value="all">Semua Status</option>
-          <option value="Available">Tersedia</option>
-          <option value="Sold Out">Habis (Sold Out)</option>
-        </select>
       </div>
     </section>
 
