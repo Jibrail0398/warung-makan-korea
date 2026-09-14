@@ -137,7 +137,7 @@ const routes = [
       {
         path: 'main-categories',
         name: 'admin-main-categories',
-        component: () => import('../views/admin/AdminMainCategoriesView.vue')
+        component: () => import('../views/admin/AdminMainCategoriesView/AdminMainCategoriesView.vue')
       },
       {
         path: 'categories',
