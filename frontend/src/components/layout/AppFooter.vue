@@ -16,8 +16,8 @@
           <h2 class="footer-col-title">Explore</h2>
           <ul class="footer-links">
             <li><router-link to="/">Home</router-link></li>
-            <li><router-link to="/menu">Menu</router-link></li>
-            <li><a href="/#about">About</a></li>
+            <li><router-link to="/#menu">Menu</router-link></li>
+            <li><router-link to="/#about">About</router-link></li>
           </ul>
         </div>
         <div>

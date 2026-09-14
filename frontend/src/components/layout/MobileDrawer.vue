@@ -22,9 +22,9 @@
 
       <nav>
         <router-link to="/" @click="$emit('close')">Home</router-link>
-        <router-link to="/menu" @click="$emit('close')">Menu</router-link>
+        <router-link to="/#menu" @click="$emit('close')">Menu</router-link>
         <router-link to="/order-history" @click="$emit('close')">Order History</router-link>
-        <a href="/#about" @click="$emit('close')">About</a>
+        <router-link to="/#about" @click="$emit('close')">About</router-link>
         <details>
           <summary>
             Language

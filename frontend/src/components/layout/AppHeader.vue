@@ -30,9 +30,9 @@
       <!-- Default variant desktop nav & actions -->
       <template v-if="variant === 'default'">
         <nav class="desktop-nav" aria-label="Primary navigation">
-          <router-link to="/">Home</router-link>
-          <router-link to="/menu">Menu</router-link>
-          <a href="/#about">About</a>
+          <router-link to="/" :class="{ active: activeSection === 'home' }">Home</router-link>
+          <router-link to="/#menu" :class="{ active: activeSection === 'menu' }">Menu</router-link>
+          <router-link to="/#about" :class="{ active: activeSection === 'about' }">About</router-link>
           <details class="language-selector">
             <summary>
               Language
@@ -159,7 +159,7 @@
 </template>
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 import { useCartStore } from '../../stores/cart.js';
 import { useAuthStore } from '../../stores/auth.js';
@@ -179,6 +179,7 @@ defineProps({
 });
 
 const router = useRouter();
+const route = useRoute();
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
@@ -216,6 +217,13 @@ const isAdminOrStaff = computed(() => {
 
 const isSuperAdmin = computed(() => {
   return authStore.isSuperAdmin;
+});
+
+const activeSection = computed(() => {
+  if (route.path !== '/') return '';
+  if (route.hash === '#menu') return 'menu';
+  if (route.hash === '#about') return 'about';
+  return 'home';
 });
 
 
@@ -442,13 +450,13 @@ function handleLogout() {
 }
 
 .desktop-nav > a:hover,
-.desktop-nav > a.router-link-active,
+.desktop-nav > a.active,
 .language-selector summary:hover {
   color: var(--red);
 }
 
 .desktop-nav > a:hover::after,
-.desktop-nav > a.router-link-active::after {
+.desktop-nav > a.active::after {
   opacity: 1;
   transform: scaleX(1);
 }
