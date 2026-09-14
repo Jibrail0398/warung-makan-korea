@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import { useCartStore } from '../../../stores/cart.js';
 import { useAuthStore } from '../../../stores/auth.js';
 import { orderService } from '../../../services/orderService.js';
-import NoticeModal from '../../common/NoticeModal.vue';
+import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import './CartSummary.css';
 

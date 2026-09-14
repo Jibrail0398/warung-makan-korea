@@ -1,11 +1,11 @@
 import { ref, computed, onMounted } from 'vue';
-import AppHeader from '../../../components/layout/AppHeader.vue';
-import AppFooter from '../../../components/layout/AppFooter.vue';
-import HeroSection from '../../../components/home/HeroSection.vue';
-import PromoSection from '../../../components/home/PromoSection.vue';
+import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
+import HeroSection from '../../../components/home/HeroSection/HeroSection.vue';
+import PromoSection from '../../../components/home/PromoSection/PromoSection.vue';
 import MenuSection from '../../../components/home/MenuSection/MenuSection.vue';
-import AboutSection from '../../../components/home/AboutSection.vue';
-import ToastNotification from '../../../components/common/ToastNotification.vue';
+import AboutSection from '../../../components/home/AboutSection/AboutSection.vue';
+import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
 import { productService } from '../../../services/productsService.js';
 import { categoriesService } from '../../../services/categoriesService.js';
 import { useToast } from '../../../composables/useToast.js';

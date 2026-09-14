@@ -1,5 +1,5 @@
 import { useCartStore } from '../../../stores/cart.js';
-import QuantityControl from '../../common/QuantityControl.vue';
+import QuantityControl from '../../common/QuantityControl/QuantityControl.vue';
 import { ResolveImageUrl } from '../../../composables/Image.js';
 import './CartItem.css';
 

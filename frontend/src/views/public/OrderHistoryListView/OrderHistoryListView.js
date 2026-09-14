@@ -1,8 +1,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import AppHeader from '../../../components/layout/AppHeader.vue';
-import AppFooter from '../../../components/layout/AppFooter.vue';
-import OrderCard from '../../../components/orders/OrderCard.vue';
+import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
+import OrderCard from '../../../components/orders/OrderCard/OrderCard.vue';
 import { orderService } from '../../../services/orderService.js';
 import './OrderHistoryListView.css';
 

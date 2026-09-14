@@ -1,5 +1,5 @@
 import { computed, reactive, ref, onBeforeUnmount } from 'vue';
-import ProfileForm from '../../../components/Profile/ProfileForm.vue';
+import ProfileForm from '../../../components/Profile/ProfileForm/ProfileForm.vue';
 import './EmployeeProfile.css';
 
 export default {

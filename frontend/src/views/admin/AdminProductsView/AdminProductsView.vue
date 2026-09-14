@@ -211,7 +211,7 @@
 
 <script>
 import AdminProductsScript from './AdminProducts.js';
-import ToastNotification from '../../../components/common/ToastNotification.vue';
+import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
 import { useToast } from '../../../composables/useToast.js';
 
 export default {

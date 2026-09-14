@@ -1,8 +1,8 @@
-import AppHeader from '../../../components/layout/AppHeader.vue';
-import AppFooter from '../../../components/layout/AppFooter.vue';
+import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import CartItem from '../../../components/cart/CartItem/CartItem.vue';
 import CartSummary from '../../../components/cart/CartSummary/CartSummary.vue';
-import ToastNotification from '../../../components/common/ToastNotification.vue';
+import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
 import { useCartStore } from '../../../stores/cart.js';
 import { useToast } from '../../../composables/useToast.js';
 import './CartView.css';

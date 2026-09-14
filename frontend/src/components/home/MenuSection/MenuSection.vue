@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import MenuCard from '../../common/MenuCard.vue';
+import MenuCard from '../../common/MenuCard/MenuCard.vue';
 import MenuSectionScript from './MenuSection.js';
 import "./MenuSection.css";
 

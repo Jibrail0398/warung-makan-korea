@@ -1,11 +1,11 @@
 import { ref, onMounted } from 'vue';
-import AppHeader from '../../../components/layout/AppHeader.vue';
-import AppFooter from '../../../components/layout/AppFooter.vue';
-import OrderTrackingProgress from '../../../components/orders/OrderTrackingProgress.vue';
-import OrderDetailCard from '../../../components/orders/OrderDetailCard.vue';
-import OrderPaymentCard from '../../../components/orders/OrderPaymentCard.vue';
-import PaymentProofModal from '../../../components/orders/PaymentProofModal.vue';
-import ToastNotification from '../../../components/common/ToastNotification.vue';
+import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
+import OrderTrackingProgress from '../../../components/orders/OrderTrackingProgress/OrderTrackingProgress.vue';
+import OrderDetailCard from '../../../components/orders/OrderDetailCard/OrderDetailCard.vue';
+import OrderPaymentCard from '../../../components/orders/OrderPaymentCard/OrderPaymentCard.vue';
+import PaymentProofModal from '../../../components/orders/PaymentProofModal/PaymentProofModal.vue';
+import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
 import { useOrderStore } from '../../../stores/order.js';
 import { useToast } from '../../../composables/useToast.js';
 import './OrdersView.css';

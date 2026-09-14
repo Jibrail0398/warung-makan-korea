@@ -1,9 +1,9 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { jsPDF } from 'jspdf';
-import AppHeader from '../../../components/layout/AppHeader.vue';
-import AppFooter from '../../../components/layout/AppFooter.vue';
-import ToastNotification from '../../../components/common/ToastNotification.vue';
+import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
+import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
 import { orderService } from '../../../services/orderService.js';
 import { useToast } from '../../../composables/useToast.js';
 import './OrderHistoryDetailView.css';
