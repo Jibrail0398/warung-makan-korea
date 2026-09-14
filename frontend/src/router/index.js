@@ -80,7 +80,7 @@ const routes = [
   {
     path: '/whatsapp-sessions',
     name: 'whatsapp-sessions',
-    component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView.vue')
+    component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView/SuperAdminWhatsAppSessionView.vue')
   },
 
   // ==========================================
@@ -198,17 +198,17 @@ const routes = [
       {
         path: 'dashboard',
         name: 'superadmin-dashboard',
-        component: () => import('../views/superadmin/SuperAdminDashboardView.vue')
+        component: () => import('../views/superadmin/SuperAdminDashboardView/SuperAdminDashboardView.vue')
       },
       {
         path: 'audit-logs',
         name: 'superadmin-audit-logs',
-        component: () => import('../views/superadmin/SuperAdminAuditLogView.vue')
+        component: () => import('../views/superadmin/SuperAdminAuditLogView/SuperAdminAuditLogView.vue')
       },
       {
         path: 'admins',
         name: 'superadmin-management',
-        component: () => import('../views/superadmin/SuperAdminManagementView.vue')
+        component: () => import('../views/superadmin/SuperAdminManagementView/SuperAdminManagementView.vue')
       }
     ]
   },
