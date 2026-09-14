@@ -1,9 +1,9 @@
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import AuthLayout from '../../../components/auth/AuthLayout.vue';
-import AuthInput from '../../../components/auth/AuthInput.vue';
-import AuthButton from '../../../components/auth/AuthButton.vue';
-import AuthDivider from '../../../components/auth/AuthDivider.vue';
+import AuthLayout from '../../../components/auth/AuthLayout/AuthLayout.vue';
+import AuthInput from '../../../components/auth/AuthInput/AuthInput.vue';
+import AuthButton from '../../../components/auth/AuthButton/AuthButton.vue';
+import AuthDivider from '../../../components/auth/AuthDivider/AuthDivider.vue';
 import { authService } from '../../../services/authService.js';
 import './LoginView.css';
 

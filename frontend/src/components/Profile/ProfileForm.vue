@@ -155,8 +155,8 @@
 
 <script setup>
 import { computed, reactive, ref, watch } from 'vue';
-import AuthField from '../auth/AuthInput.vue';
-import AuthSelect from '../auth/AuthSelect.vue';
+import AuthField from '../auth/AuthInput/AuthInput.vue';
+import AuthSelect from '../auth/AuthSelect/AuthSelect.vue';
 
 const props = defineProps({
   type: {

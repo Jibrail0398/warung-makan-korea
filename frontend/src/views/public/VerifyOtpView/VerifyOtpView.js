@@ -1,8 +1,8 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import AuthLayout from '../../../components/auth/AuthLayout.vue';
-import AuthButton from '../../../components/auth/AuthButton.vue';
-import AuthDivider from '../../../components/auth/AuthDivider.vue';
+import AuthLayout from '../../../components/auth/AuthLayout/AuthLayout.vue';
+import AuthButton from '../../../components/auth/AuthButton/AuthButton.vue';
+import AuthDivider from '../../../components/auth/AuthDivider/AuthDivider.vue';
 import { authService } from '../../../services/authService.js';
 import './VerifyOtpView.css';
 
