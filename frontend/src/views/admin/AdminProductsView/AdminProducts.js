@@ -1,5 +1,5 @@
 import { ref, computed, onMounted } from 'vue';
-import ProductModal from '../../../components/admin/ProductModal.vue';
+import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
 import { productService } from '../../../services/productsService.js';
 import { useToast } from '../../../composables/useToast.js';
 import "./AdminProducts.css"

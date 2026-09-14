@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import AdminHeader from '../../../components/admin/AdminHeader/AdminHeader.vue';
-import AdminSidebar from '../../../components/admin/AdminSidebar.vue';
-import AdminFooter from '../../../components/admin/AdminFooter.vue';
+import AdminSidebar from '../../../components/admin/AdminSidebar/AdminSidebar.vue';
+import AdminFooter from '../../../components/admin/AdminFooter/AdminFooter.vue';
 import './SuperAdminLayout.css';
 
 export default {

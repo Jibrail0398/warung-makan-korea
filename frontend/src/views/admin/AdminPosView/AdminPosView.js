@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../../../stores/auth.js';
-import PrintableReceipt from '../../../components/admin/PrintableReceipt.vue';
+import PrintableReceipt from '../../../components/admin/PrintableReceipt/PrintableReceipt.vue';
 import './AdminPosView.css';
 
 export default {

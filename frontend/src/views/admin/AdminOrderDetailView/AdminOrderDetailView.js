@@ -1,8 +1,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import StatusBadge from '../../../components/admin/StatusBadge.vue';
-import PrintableReceipt from '../../../components/admin/PrintableReceipt.vue';
-import PaymentProofViewer from '../../../components/admin/PaymentProofViewer.vue';
+import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
+import PrintableReceipt from '../../../components/admin/PrintableReceipt/PrintableReceipt.vue';
+import PaymentProofViewer from '../../../components/admin/PaymentProofViewer/PaymentProofViewer.vue';
 import './AdminOrderDetailView.css';
 
 export default {

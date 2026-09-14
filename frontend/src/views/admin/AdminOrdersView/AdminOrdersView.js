@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
-import StatusBadge from '../../../components/admin/StatusBadge.vue';
+import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import './AdminOrdersView.css';
 
 export default {

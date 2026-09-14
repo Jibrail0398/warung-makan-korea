@@ -1,8 +1,8 @@
 import { h } from 'vue';
-import StatCard from '../../../components/admin/StatCard.vue';
-import SalesOverview from '../../../components/admin/SalesOverview.vue';
-import RecentOrders from '../../../components/admin/RecentOrders.vue';
-import LowStockAlert from '../../../components/admin/LowStockAlert.vue';
+import StatCard from '../../../components/admin/StatCard/StatCard.vue';
+import SalesOverview from '../../../components/admin/SalesOverview/SalesOverview.vue';
+import RecentOrders from '../../../components/admin/RecentOrders/RecentOrders.vue';
+import LowStockAlert from '../../../components/admin/LowStockAlert/LowStockAlert.vue';
 import './AdminDashboard.css';
 
 const OrderIcon = {

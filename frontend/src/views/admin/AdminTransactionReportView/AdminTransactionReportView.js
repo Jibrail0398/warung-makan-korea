@@ -1,5 +1,5 @@
 import { ref, computed, onMounted } from 'vue';
-import StatusBadge from '../../../components/admin/StatusBadge.vue';
+import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import './AdminTransactionReportView.css';
 
 export default {
