@@ -27,7 +27,7 @@ export default {
 
     const loadData = async () => {
       try {
-        const result = await productService.getProducts();
+        const result = await productService.getAdminProducts();
         products.value = result.products;
       } catch (err) {
         console.error('Failed to load products data:', err);
@@ -46,13 +46,6 @@ export default {
       loadData();
       loadCategories();
     });
-
-    const countByType = (type) => {
-      return products.value.filter(p => {
-        if (p.mainCategoryId) return type === 'restaurant' ? p.mainCategoryId === 1 : p.mainCategoryId === 2;
-        return p.category === type;
-      }).length;
-    };
 
     const availableSubcategories = computed(() => {
       if (selectedTab.value === 'all') return categories.value;
@@ -151,7 +144,6 @@ export default {
       isEditMode,
       selectedProduct,
       productToDelete,
-      countByType,
       availableSubcategories,
       getSubcatName,
       filteredProducts,

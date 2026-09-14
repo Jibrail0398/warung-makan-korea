@@ -64,6 +64,47 @@ export const productService = {
         }
     },
 
+    async getAdminProducts(page = 1) {
+        try {
+            const headers = await getAuthHeaders();
+            const response = await axios.get(`${apiBaseUrl}/admin/products`, {
+                params: { page },
+                headers
+            });
+            const payload = response.data?.data || {};
+
+            return {
+                products: (payload.data || []).map((item) => {
+                    const numericPrice = Number(item.price) || 0;
+                    const categorySlug = item.category?.slug || '';
+
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        description: item.description || '',
+                        image: item.image_url || '',
+                        numericPrice,
+                        price: `₩${numericPrice.toLocaleString('ko-KR')}`,
+                        category: categorySlug,
+                        categoryId: item.category_id,
+                        weightOrUnit: item.weight_or_unit || '',
+                        isActive: item.is_active !== false,
+                        status: item.status || 'Available'
+                    };
+                }),
+                pagination: {
+                    currentPage: payload.meta?.current_page || page,
+                    lastPage: payload.meta?.last_page || 1,
+                    total: payload.meta?.total || 0,
+                    perPage: payload.meta?.per_page || 0
+                }
+            };
+        } catch (error) {
+            const message = error.response?.data?.message || 'Gagal mengambil produk.';
+            throw new Error(message);
+        }
+    },
+
     async addProduct(body) {
         try {
             const headers = await getAuthHeaders();

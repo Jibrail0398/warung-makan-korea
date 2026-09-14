@@ -56,11 +56,9 @@
           <tr>
             <th scope="col" class="col-thumb">Foto</th>
             <th scope="col">Nama Produk</th>
-            <th scope="col">Kategori Besar</th>
-            <th scope="col">Subkategori</th>
+            <th scope="col">Deskripsi</th>
+            <th scope="col">Kategori</th>
             <th scope="col">Harga</th>
-            <th scope="col">Satuan</th>
-            <th scope="col">Stok</th>
             <th scope="col">Status</th>
             <th scope="col" class="col-actions">Aksi</th>
           </tr>
@@ -73,43 +71,27 @@
               </div>
             </td>
             <td>
-              <div class="product-cell-name">
-                <strong>{{ product.name }}</strong>
-                <small class="product-desc-snippet">{{ product.description }}</small>
-              </div>
+              <strong>{{ product.name }}</strong>
+            </td>
+            <td>
+              <small class="product-desc-snippet">{{ product.description }}</small>
             </td>
             <td>
               <span class="type-pill" :class="`type-${product.category}`">
-                {{ product.category === 'restaurant' || product.mainCategoryId === 1 ? 'Restaurant Menu' : 'Raw Material' }}
+                {{ product.category === 'restaurant' ? 'Restaurant Menu' : 'Raw Material' }}
               </span>
             </td>
             <td>
-              <span class="subcat-badge">
-                {{ getSubcatName(product.subcategoryId || product.categoryId) }}
-              </span>
+              <span class="product-price">{{ product.price }}</span>
             </td>
             <td>
-              <span class="product-price">{{ product.price || `₩${(product.numericPrice || 0).toLocaleString('ko-KR')}` }}</span>
-            </td>
-            <td>
-              <span class="unit-text">{{ product.unit || (product.category === 'raw' ? '1 bungkus' : '1 porsi') }}</span>
-            </td>
-            <td>
-              <span class="stock-badge" :class="{ 'low-stock': (product.stock || 0) <= 5 }">
-                {{ product.stock }} pcs
-              </span>
-            </td>
-            <td>
-              <button
-                type="button"
+              <span
                 class="status-toggle-btn"
                 :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
-                @click="toggleStatus(product)"
-                title="Klik untuk ubah status ketersediaan"
               >
                 <span class="status-dot"></span>
                 <span>{{ product.status === 'Available' ? 'Tersedia' : 'Habis' }}</span>
-              </button>
+              </span>
             </td>
             <td class="col-actions">
               <div class="action-btns">
@@ -143,7 +125,7 @@
         </tbody>
         <tbody v-else>
           <tr>
-            <td colspan="9" class="empty-state-row">
+            <td colspan="7" class="empty-state-row">
               <div class="empty-box">
                 <p>Tidak ada produk yang sesuai dengan kriteria pencarian.</p>
               </div>
@@ -167,27 +149,19 @@
           <div class="m-details">
             <div class="m-tags-row">
               <span class="type-pill" :class="`type-${product.category}`">
-                {{ product.category === 'restaurant' ? 'Restoran' : 'Raw Material' }}
+                {{ product.category === 'restaurant' ? 'Restaurant Menu' : 'Raw Material' }}
               </span>
-              <span class="subcat-badge">
-                {{ getSubcatName(product.subcategoryId || product.categoryId) }}
+              <span
+                class="status-toggle-btn"
+                :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
+              >
+                <span class="status-dot"></span>
+                {{ product.status === 'Available' ? 'Tersedia' : 'Habis' }}
               </span>
             </div>
             <h3 class="m-name">{{ product.name }}</h3>
-            <span class="product-price">{{ product.price || `₩${(product.numericPrice || 0).toLocaleString('ko-KR')}` }}</span>
-          </div>
-        </div>
-
-        <div class="m-card-meta">
-          <div class="meta-item">
-            <span>Stok:</span>
-            <strong :class="{ 'low-stock': (product.stock || 0) <= 5 }">{{ product.stock }} pcs</strong>
-          </div>
-          <div class="meta-item">
-            <span>Status:</span>
-            <span :class="product.status === 'Available' ? 'text-avail' : 'text-sold'">
-              {{ product.status === 'Available' ? 'Tersedia' : 'Habis' }}
-            </span>
+            <small class="product-desc-snippet">{{ product.description }}</small>
+            <span class="product-price">{{ product.price }}</span>
           </div>
         </div>
 
