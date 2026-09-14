@@ -70,12 +70,12 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import AdminHeader from '../components/admin/AdminHeader/AdminHeader.vue';
-import AdminSidebar from '../components/admin/AdminSidebar.vue';
-import AdminFooter from '../components/admin/AdminFooter.vue';
-import ToastNotification from '../components/common/ToastNotification.vue';
-import { useAuthStore } from '../stores/auth.js';
-import { useToast } from '../composables/useToast.js';
+import AdminHeader from '../../components/admin/AdminHeader/AdminHeader.vue';
+import AdminSidebar from '../../components/admin/AdminSidebar.vue';
+import AdminFooter from '../../components/admin/AdminFooter.vue';
+import ToastNotification from '../../components/common/ToastNotification.vue';
+import { useAuthStore } from '../../stores/auth.js';
+import { useToast } from '../../composables/useToast.js';
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
