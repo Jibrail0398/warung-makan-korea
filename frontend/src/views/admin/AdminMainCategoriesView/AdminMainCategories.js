@@ -1,5 +1,6 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import MainCategoryModal from '../../../components/admin/MainCategoryModal.vue';
+import { categoriesService } from '../../../services/categoriesService.js';
 import './AdminMainCategories.css';
 
 export default {
@@ -9,8 +10,6 @@ export default {
   },
   setup() {
     const mainCategories = ref([]);
-    const subcategories = ref([]);
-    const products = ref([]);
 
     const isModalOpen = ref(false);
     const isEditMode = ref(false);
@@ -18,36 +17,17 @@ export default {
     const categoryToDelete = ref(null);
 
     const loadData = async () => {
-      mainCategories.value = [
-        { id: 1, name: 'Restaurant Menu', code: 'restaurant', description: 'Menu makanan siap santap untuk pelanggan restoran.' },
-        { id: 2, name: 'Raw Material', code: 'raw', description: 'Bahan mentah dan bahan baku dapur.' }
-      ];
-      subcategories.value = [];
-      products.value = [];
+      try {
+        const categories = await categoriesService.getCategories();
+        mainCategories.value = categories;
+      } catch (error) {
+        console.error(error);
+        mainCategories.value = [];
+      }
     };
 
     onMounted(() => {
       loadData();
-    });
-
-    const getSubcategoriesFor = (mainCatId) => {
-      return subcategories.value.filter(sc => Number(sc.mainCategoryId) === Number(mainCatId));
-    };
-
-    const mainCategoriesWithCounts = computed(() => {
-      return mainCategories.value.map(mc => {
-        const subcats = subcategories.value.filter(sc => Number(sc.mainCategoryId) === Number(mc.id));
-        const prodCount = products.value.filter(p => {
-          if (p.mainCategoryId) return Number(p.mainCategoryId) === Number(mc.id);
-          return mc.id === 1 ? p.category === 'restaurant' : p.category === 'raw';
-        }).length;
-
-        return {
-          ...mc,
-          subcategoryCount: subcats.length,
-          productCount: prodCount
-        };
-      });
     });
 
     const openAddModal = () => {
@@ -69,7 +49,7 @@ export default {
           mainCategories.value[idx] = { ...mainCategories.value[idx], ...catData };
         }
       } else {
-        mainCategories.value.push({ id: Date.now(), ...catData });
+        mainCategories.value.push({ id: Date.now(), ...catData, slug: catData.name.toLowerCase().replace(/\s+/g, '-') });
       }
       isModalOpen.value = false;
     };
@@ -86,14 +66,10 @@ export default {
 
     return {
       mainCategories,
-      subcategories,
-      products,
       isModalOpen,
       isEditMode,
       selectedCategory,
       categoryToDelete,
-      getSubcategoriesFor,
-      mainCategoriesWithCounts,
       openAddModal,
       openEditModal,
       handleSaveMainCategory,
