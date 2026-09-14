@@ -15,6 +15,8 @@ export default {
     const isEditMode = ref(false);
     const selectedCategory = ref(null);
     const categoryToDelete = ref(null);
+    const categoryToUpdate = ref(null);
+    const pendingUpdateData = ref(null);
 
     const notificationModal = reactive({
       isOpen: false,
@@ -49,28 +51,42 @@ export default {
     };
 
     const handleSaveMainCategory = async (catData) => {
-      try {
-        if (isEditMode.value && selectedCategory.value) {
-          const idx = mainCategories.value.findIndex(mc => mc.id === selectedCategory.value.id);
-          if (idx !== -1) {
-            mainCategories.value[idx] = { ...mainCategories.value[idx], ...catData };
-          }
-          notificationModal.isSuccess = true;
-          notificationModal.message = 'Kategori berhasil diperbarui';
-          notificationModal.isOpen = true;
-        } else {
+      if (isEditMode.value && selectedCategory.value) {
+        pendingUpdateData.value = catData;
+        categoryToUpdate.value = { ...selectedCategory.value, name: catData.name };
+        isModalOpen.value = false;
+      } else {
+        try {
           const res = await categoriesService.createCategory({ name: catData.name });
           await loadData();
           notificationModal.isSuccess = true;
-          notificationModal.message = res?.message || 'Berhasil mengambil daftar kategori / Kategori berhasil dibuat';
+          notificationModal.message = res?.message || 'Kategori berhasil dibuat';
           notificationModal.isOpen = true;
+          isModalOpen.value = false;
+        } catch (error) {
+          notificationModal.isSuccess = false;
+          notificationModal.message = error.message || 'Gagal membuat kategori';
+          notificationModal.isOpen = true;
+          isModalOpen.value = false;
         }
-        isModalOpen.value = false;
+      }
+    };
+
+    const executeUpdate = async () => {
+      if (!categoryToUpdate.value) return;
+      try {
+        await categoriesService.updateCategory(categoryToUpdate.value.id, { name: categoryToUpdate.value.name });
+        await loadData();
+        notificationModal.isSuccess = true;
+        notificationModal.message = 'Kategori berhasil diperbarui';
+        notificationModal.isOpen = true;
       } catch (error) {
         notificationModal.isSuccess = false;
-        notificationModal.message = error.message || 'Gagal membuat kategori';
+        notificationModal.message = error.message || 'Gagal memperbarui kategori';
         notificationModal.isOpen = true;
       }
+      categoryToUpdate.value = null;
+      pendingUpdateData.value = null;
     };
 
     const closeNotification = () => {
@@ -83,7 +99,17 @@ export default {
 
     const executeDelete = async () => {
       if (!categoryToDelete.value) return;
-      mainCategories.value = mainCategories.value.filter(mc => mc.id !== categoryToDelete.value.id);
+      try {
+        await categoriesService.deleteCategory(categoryToDelete.value.id);
+        await loadData();
+        notificationModal.isSuccess = true;
+        notificationModal.message = 'Kategori berhasil dihapus';
+        notificationModal.isOpen = true;
+      } catch (error) {
+        notificationModal.isSuccess = false;
+        notificationModal.message = error.message || 'Gagal menghapus kategori';
+        notificationModal.isOpen = true;
+      }
       categoryToDelete.value = null;
     };
 
@@ -93,10 +119,12 @@ export default {
       isEditMode,
       selectedCategory,
       categoryToDelete,
+      categoryToUpdate,
       notificationModal,
       openAddModal,
       openEditModal,
       handleSaveMainCategory,
+      executeUpdate,
       closeNotification,
       confirmDelete,
       executeDelete

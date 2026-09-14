@@ -75,11 +75,25 @@
       <div class="confirm-dialog">
         <h3 class="dialog-title">Hapus Kategori</h3>
         <p class="dialog-desc">
-          Apakah Anda yakin ingin menghapus Kategori <strong>"{{ categoryToDelete.name }}"</strong>?
+          Peringatan Jika kategori ini dihapus semua data produk yang berkategori <strong>{{ categoryToDelete.name }}</strong> akan ikut terhapus
         </p>
         <div class="dialog-actions">
           <button type="button" class="btn-cancel" @click="categoryToDelete = null">Batal</button>
           <button type="button" class="btn-danger" @click="executeDelete">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Confirmation Modal -->
+    <div v-if="categoryToUpdate" class="modal-backdrop" @click.self="categoryToUpdate = null">
+      <div class="confirm-dialog">
+        <h3 class="dialog-title">Konfirmasi Perubahan</h3>
+        <p class="dialog-desc">
+          Apakah Anda yakin ingin memperbarui kategori menjadi <strong>"{{ categoryToUpdate.name }}"</strong>?
+        </p>
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" @click="categoryToUpdate = null">Batal</button>
+          <button type="button" class="btn-primary" @click="executeUpdate">Simpan</button>
         </div>
       </div>
     </div>
