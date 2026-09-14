@@ -1,0 +1,128 @@
+import axios from 'axios';
+import { authService } from './authService.js';
+
+const apiBaseUrl = import.meta.env.VITE_API_URL
+	|| `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
+const orderStorageKey = 'warung-order-id';
+const authStorageKeys = ['warung-auth-key', 'warung-auth-data'];
+
+function getErrorMessage(error, fallback) {
+	return error.response?.data?.message
+		|| Object.values(error.response?.data?.errors || {})[0]?.[0]
+		|| fallback;
+}
+
+async function getAuthorizationHeaders() {
+	let authData = null;
+
+	for (const storageKey of authStorageKeys) {
+		const storedAuth = localStorage.getItem(storageKey);
+		if (storedAuth) {
+			authData = await authService.decode(storedAuth);
+			if (authData?.access_token) break;
+		}
+	}
+
+	const token = authData?.access_token || '';
+
+	return {
+		Authorization: `Bearer ${token}`
+	};
+}
+
+export const orderService = {
+	async getOrderById(orderId) {
+		try {
+			const response = await axios.get(`${apiBaseUrl}/orders/${orderId}`, {
+				headers: await getAuthorizationHeaders()
+			});
+			return response.data?.data || response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil detail pesanan.'));
+		}
+	},
+
+	async createOrder(orderData) {
+		try {
+			console.log('[OrderService] createOrder started', orderData);
+			const storedAuth = localStorage.getItem('warung-auth-data');
+			const authData = storedAuth ? await authService.getStoredAuth() : null;
+			const authenticatedUser = authData?.user;
+
+			const payload = {
+				customer_name: authenticatedUser?.name || orderData.customer_name,
+				customer_phone: authenticatedUser?.phone_number || orderData.customer_phone,
+				user_id: orderData.user_id || undefined,
+				table_number: orderData.table_number || undefined,
+				bank_account_id: orderData.bank_account_id || undefined,
+				items: orderData.items.map(item => ({
+					product_id: item.product_id,
+					quantity: item.quantity
+				}))
+			};
+
+
+			const response = await axios.post(`${apiBaseUrl}/orders`, payload);
+			const createdOrder = response.data?.data || response.data;
+			console.log('[OrderService] createOrder response', {
+				status: response.status,
+				orderId: createdOrder?.id || createdOrder?.order_id,
+				data: createdOrder
+			});
+			const orderId = createdOrder?.id || createdOrder?.order_id;
+
+			if (!orderId) {
+				throw new Error('ID order tidak ditemukan dari response server.');
+			}
+
+			localStorage.setItem(orderStorageKey, orderId);
+			return createdOrder;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal membuat pesanan.'));
+		}
+	},
+
+	async getAllOrders() {
+		try {
+			const response = await axios.get(`${apiBaseUrl}/orders`, {
+				headers: await getAuthorizationHeaders()
+			});
+			return response.data?.data || response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil daftar pesanan.'));
+		}
+	},
+
+	async uploadReceipt(file) {
+		try {
+			const orderId = localStorage.getItem(orderStorageKey);
+			console.log('[OrderService] uploadReceipt started', {
+				orderId,
+				fileName: file?.name,
+				fileType: file?.type,
+				fileSize: file?.size
+			});
+			if (!orderId) {
+				throw new Error('ID order tidak ditemukan. Silakan buat order terlebih dahulu.');
+			}
+
+			const formData = new FormData();
+			formData.append('payment_receipt', file);
+
+			const response = await axios.post(
+				`${apiBaseUrl}/orders/${orderId}/receipt`,
+				formData
+			);
+			const updatedOrder = response.data?.data || response.data;
+			console.log('[OrderService] uploadReceipt response', {
+				status: response.status,
+				orderId,
+				data: updatedOrder
+			});
+			localStorage.removeItem(orderStorageKey);
+			return updatedOrder;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengunggah bukti pembayaran.'));
+		}
+	}
+};

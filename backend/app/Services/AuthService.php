@@ -28,12 +28,18 @@ class AuthService
             ]
         );
 
-        $message = "Halo! Ini adalah kode OTP untuk login/register Warung Makan Korea Anda:\n\n*{$code}*\n\nBerlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.";
+        // 3. Kirim via WA JS
+        $message = "chounen:\n\n*{$code}*\n\nKansamhamnida";
         return $this->waService->sendMessage($phone, $message);
     }
 
     public function register(array $data): bool
     {
+        $otp = $this->sendOtp($data["phone_number"]);
+        if(!$otp){
+            return "";
+        }
+        // Buat user dalam status belum terverifikasi
         $user = User::create([
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
