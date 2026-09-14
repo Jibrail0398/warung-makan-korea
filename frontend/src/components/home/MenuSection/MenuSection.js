@@ -1,5 +1,6 @@
-import { watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useCartStore } from '../../../stores/cart.js';
+import { categoriesService } from '../../../services/categoriesService.js';
 
 export default {
   name: 'MenuSection',
@@ -48,6 +49,39 @@ export default {
   setup(props, { emit }) {
     const cartStore = useCartStore();
 
+    // Kategori yang diambil langsung dari API (GET /api/categories)
+    const apiCategories = ref([]);
+
+    // Gabungkan: prioritaskan data dari API, fallback ke prop dari parent
+    const categoryList = computed(() => {
+      if (apiCategories.value.length > 0) {
+        return apiCategories.value;
+      }
+      return props.availableSubcategories;
+    });
+
+    async function loadCategories() {
+      try {
+        const categories = await categoriesService.getCategories();
+        apiCategories.value = categories || [];
+        console.log( `Isi categories pada menusection:${JSON.stringify(categories)}`)
+      } catch (error) {
+        // Jika API gagal, tetap gunakan prop dari parent
+        apiCategories.value = [];
+      }
+    }
+
+    onMounted(() => {
+      loadCategories();
+    });
+
+    // Refetch kategori jika API berhasil dimuat ulang dari parent
+    watch(() => props.availableSubcategories, () => {
+      if (apiCategories.value.length === 0 && props.availableSubcategories.length > 0) {
+        loadCategories();
+      }
+    });
+
     function setSubcategory(subcategory) {
       emit('update:currentSubcategory', subcategory);
     }
@@ -85,6 +119,7 @@ export default {
 
     return {
       cartStore,
+      categoryList,
       setSubcategory,
       navigateToProduct,
       handleIncrease,
