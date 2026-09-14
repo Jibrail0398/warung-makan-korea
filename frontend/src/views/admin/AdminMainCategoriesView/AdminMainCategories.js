@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue';
-import MainCategoryModal from '../../../components/admin/MainCategoryModal.vue';
+import MainCategoryModal from '../../../components/admin/MainCategoryModal/MainCategoryModal.vue';
 import { categoriesService } from '../../../services/categoriesService.js';
 import './AdminMainCategories.css';
 
