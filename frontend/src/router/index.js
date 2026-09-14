@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import HomeView from '../views/HomeView.vue'
+import HomeView from '../views/public/HomeView/HomeView.vue'
 import AdminLayout from '../views/admin/AdminLayout/AdminLayout.vue'
 import { authService } from '../services/authService.js'
 
@@ -16,65 +16,65 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('../views/LoginView.vue')
+    component: () => import('../views/public/LoginView/LoginView.vue')
   },
   {
     path: '/register',
     name: 'register',
-    component: () => import('../views/RegisterView.vue')
+    component: () => import('../views/public/RegisterView/RegisterView.vue')
   },
   {
     path: '/verify-otp',
     name: 'verify-otp',
-    component: () => import('../views/VerifyOtpView.vue')
+    component: () => import('../views/public/VerifyOtpView/VerifyOtpView.vue')
   },
   {
     path: '/cart',
     name: 'cart',
-    component: () => import('../views/CartView.vue')
+    component: () => import('../views/public/CartView/CartView.vue')
   },
   {
     path: '/checkout',
     alias: '/Checkout',
     name: 'checkout',
-    component: () => import('../views/CheckoutView.vue')
+    component: () => import('../views/public/CheckoutView/CheckoutView.vue')
   },
 
   {
     path: '/orders',
     alias: '/Orders',
     name: 'orders',
-    component: () => import('../views/OrdersView.vue'),
+    component: () => import('../views/public/OrdersView/OrdersView.vue'),
     meta: { requiredRole: 'member' }
   },
     
   {
     path: '/orders/:id',
     name: 'order-tracking',
-    component: () => import('../views/OrderHistoryDetailView.vue')
+    component: () => import('../views/public/OrderHistoryDetailView/OrderHistoryDetailView.vue')
   },
   {
     path: '/profile',
     name: 'CustomerProfile',
-    component: () => import('../views/CustomerProfile.vue'),
+    component: () => import('../views/public/CustomerProfile/CustomerProfile.vue'),
     meta: { requiredRole: 'member' }
   },
   {
     path: '/employeeprofile',
     name: 'EmployeeProfile',
-    component: () => import('../views/EmployeeProfile.vue'),
+    component: () => import('../views/public/EmployeeProfile/EmployeeProfile.vue'),
     meta: { requiredRole: 'member' }
   },
   {
     path: '/order-history',
     name: 'OrderHistory',
-    component: () => import('../views/OrderHistoryListView.vue'),
+    component: () => import('../views/public/OrderHistoryListView/OrderHistoryListView.vue'),
     meta: { requiredRole: 'member' }
   },
   {
     path: '/order-history/:id',
     name: 'OrderHistoryDetail',
-    component: () => import('../views/OrderHistoryDetailView.vue'),
+    component: () => import('../views/public/OrderHistoryDetailView/OrderHistoryDetailView.vue'),
     meta: { requiredRole: 'member' }
   },
   {
