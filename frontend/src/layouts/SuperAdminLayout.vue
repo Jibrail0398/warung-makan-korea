@@ -36,7 +36,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import AdminHeader from '../components/admin/AdminHeader.vue';
+import AdminHeader from '../components/admin/AdminHeader/AdminHeader.vue';
 import AdminSidebar from '../components/admin/AdminSidebar.vue';
 import AdminFooter from '../components/admin/AdminFooter.vue';
 
