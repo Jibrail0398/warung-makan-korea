@@ -83,6 +83,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Notification Modal -->
+    <div v-if="notificationModal.isOpen" class="modal-backdrop" @click.self="closeNotification">
+      <div class="confirm-dialog">
+        <h3 class="dialog-title" :class="notificationModal.isSuccess ? 'text-success' : 'text-danger'">
+          {{ notificationModal.isSuccess ? 'Berhasil' : 'Gagal' }}
+        </h3>
+        <p class="dialog-desc">
+          {{ notificationModal.message }}
+        </p>
+        <div class="dialog-actions">
+          <button type="button" class="btn-primary" @click="closeNotification">Tutup</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

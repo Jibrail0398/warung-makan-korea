@@ -3,9 +3,9 @@
     <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editMainCatTitle' : 'addMainCatTitle'">
       <div class="modal-header">
         <div>
-          <p class="modal-eyebrow">STRUKTUR KATEGORI PARENT</p>
+          <p class="modal-eyebrow">FORM KATEGORI</p>
           <h2 id="addMainCatTitle" class="modal-title">
-            {{ isEdit ? 'Edit Kategori Besar' : 'Tambah Kategori Besar' }}
+            {{ isEdit ? 'Edit Kategori' : 'Tambah Kategori' }}
           </h2>
         </div>
         <button type="button" class="close-btn" aria-label="Tutup modal" @click="$emit('close')">
@@ -22,36 +22,14 @@
 
         <div class="form-grid">
           <div class="form-group full-width">
-            <label class="form-label required">Nama Kategori Besar</label>
+            <label class="form-label required">Nama Kategori</label>
             <input
               type="text"
               v-model="formData.name"
               class="form-input"
-              placeholder="Contoh: Restaurant Menu atau Raw Material"
+              placeholder="Contoh: makanan jawa"
               required
             />
-          </div>
-
-          <div class="form-group full-width">
-            <label class="form-label required">Kode Identifikasi</label>
-            <input
-              type="text"
-              v-model="formData.code"
-              class="form-input"
-              placeholder="Contoh: restaurant / raw"
-              required
-            />
-            <small class="form-hint">Digunakan oleh sistem untuk membedakan alur dapur dan inventaris mentah.</small>
-          </div>
-
-          <div class="form-group full-width">
-            <label class="form-label">Deskripsi Kategori Besar</label>
-            <textarea
-              v-model="formData.description"
-              class="form-textarea"
-              rows="3"
-              placeholder="Jelaskan cakupan kelompok kategori besar ini..."
-            ></textarea>
           </div>
         </div>
 
@@ -60,7 +38,7 @@
             Batal
           </button>
           <button type="submit" class="btn-submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Menyimpan...' : (isEdit ? 'Simpan Perubahan' : 'Tambah Kategori Besar') }}
+            {{ isSubmitting ? 'Menyimpan...' : (isEdit ? 'Simpan Perubahan' : 'Tambah Kategori') }}
           </button>
         </div>
       </form>
