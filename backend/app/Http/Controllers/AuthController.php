@@ -38,13 +38,23 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $success = $this->authService->login($request->validated());
+        $result = $this->authService->login($request->validated());
 
-        if ($success) {
-            return $this->successResponse(null, 'Kredensial valid. Kode OTP telah dikirim ke WhatsApp Anda.');
+        if (!$result) {
+            return $this->errorResponse('Nomor telepon atau password salah.', 401);
         }
 
-        return $this->errorResponse('Nomor telepon atau password salah.', 401);
+        // Superadmin langsung login tanpa OTP.
+        if (!empty($result['token'])) {
+            return $this->successResponse([
+                'user' => $result['user'],
+                'access_token' => $result['token'],
+                'token_type' => $result['type'],
+                'expires_in' => auth('api')->factory()->getTTL() * 60
+            ], 'Login berhasil.');
+        }
+
+        return $this->successResponse(null, 'Kredensial valid. Kode OTP telah dikirim ke WhatsApp Anda.');
     }
 
     public function sendOtp(SendOtpRequest $request)

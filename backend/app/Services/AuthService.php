@@ -56,17 +56,31 @@ class AuthService
     }
 
     /**
-     * Verifikasi kredensial login dan kirim OTP
+     * Verifikasi kredensial login.
+     *
+     * Superadmin langsung mendapatkan token JWT tanpa OTP, sedangkan role
+     * lainnya tetap dikirimi OTP untuk verifikasi.
      */
-    public function login(array $credentials): bool
+    public function login(array $credentials): ?array
     {
         $user = User::where('phone_number', $credentials['phone_number'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return false;
+            return null;
         }
 
-        return $this->sendOtp($credentials['phone_number']);
+        // Superadmin tidak perlu OTP: langsung terbitkan token.
+        if (strtolower($user->role) === 'superadmin') {
+            return [
+                'user' => $user,
+                'token' => auth('api')->login($user),
+                'type' => 'bearer',
+            ];
+        }
+
+        return $this->sendOtp($credentials['phone_number'])
+            ? ['requires_otp' => true]
+            : null;
     }
 
     /**
