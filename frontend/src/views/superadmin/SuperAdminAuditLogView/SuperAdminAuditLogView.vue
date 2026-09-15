@@ -14,7 +14,7 @@
         <input
           v-model="filters.search"
           type="text"
-          placeholder="Cari deskripsi aktivitas..."
+          placeholder="Cari Aksi atau Aktor..."
           class="search-input"
           @keyup.enter="applyFilters"
         />

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BankAccount;
+use Illuminate\Validation\ValidationException;
 
 class BankAccountService
 {
@@ -19,6 +20,13 @@ class BankAccountService
 
     public function create(array $data): BankAccount
     {
+        // Batasi hanya satu rekening bank yang diizinkan.
+        if (BankAccount::count() >= 1) {
+            throw ValidationException::withMessages([
+                'bank_account' => 'Hanya satu rekening bank yang diizinkan. Hapus rekening yang ada terlebih dahulu.',
+            ]);
+        }
+
         return BankAccount::create($data);
     }
 

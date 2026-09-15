@@ -133,6 +133,12 @@ const routes = [
         component: () => import('../views/admin/AdminMainCategoriesView/AdminMainCategoriesView.vue')
       },
       {
+        path: 'bank-accounts',
+        name: 'admin-bank-accounts',
+        component: () => import('../views/admin/AdminBankAccountsView/AdminBankAccountsView.vue'),
+        meta: { requiredRole: 'admin' }
+      },
+      {
         path: 'reports',
         redirect: '/admin/reports/transactions'
       },
@@ -140,11 +146,6 @@ const routes = [
         path: 'reports/transactions',
         name: 'admin-reports-transactions',
         component: () => import('../views/admin/AdminTransactionReportView/AdminTransactionReportView.vue')
-      },
-      {
-        path: 'reset-password',
-        name: 'admin-reset-password',
-        component: () => import('../views/admin/AdminResetPasswordView/AdminResetPasswordView.vue')
       },
       {
         path: 'audit-logs',

@@ -57,12 +57,6 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/products/{product}', [ProductController::class, 'update']);
         Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
-        Route::get('/bank-accounts', [BankAccountController::class, 'index']);
-        Route::get('/bank-accounts/{bank_account}', [BankAccountController::class, 'show']);
-        Route::post('/bank-accounts', [BankAccountController::class, 'store']);
-        Route::put('/bank-accounts/{bank_account}', [BankAccountController::class, 'update']);
-        Route::delete('/bank-accounts/{bank_account}', [BankAccountController::class, 'destroy']);
-
         Route::get('/orders', [OrderController::class, 'index']);
         Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
 
@@ -86,6 +80,14 @@ Route::middleware('auth:api')->group(function () {
 
         Route::get('/activity-logs', [ActivityLogController::class, 'index']);
         Route::get('/activity-logs/{activity_log}', [ActivityLogController::class, 'show']);
+    });
+
+    // Fitur Bank Accounts: hanya untuk role admin (member & superadmin tidak diizinkan).
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/bank-accounts/{bank_account}', [BankAccountController::class, 'show']);
+        Route::post('/bank-accounts', [BankAccountController::class, 'store']);
+        Route::put('/bank-accounts/{bank_account}', [BankAccountController::class, 'update']);
+        Route::delete('/bank-accounts/{bank_account}', [BankAccountController::class, 'destroy']);
     });
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);

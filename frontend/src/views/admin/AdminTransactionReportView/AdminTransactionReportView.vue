@@ -1,13 +1,12 @@
 <template>
   <div class="report-page">
-    <header class="page-header no-print">
+    <header class="page-header">
       <div><p class="page-eyebrow">REKAPITULASI LAPORAN</p><h1 class="page-title">Laporan Transaksi</h1><p class="page-description">Daftar seluruh riwayat transaksi pesanan harian dan bulanan beserta status pembayaran.</p></div>
       <div class="header-actions">
         <button type="button" class="btn-download" :disabled="isLoading || !reportData.orders?.length" @click="downloadCsv"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>Download CSV</span></button>
-        <button type="button" class="btn-print" :disabled="isLoading || !reportData.orders?.length" @click="handlePrint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9" stroke="currentColor" stroke-width="1.8" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="1.8" /><rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="1.8" /></svg><span>Cetak Rekap Laporan</span></button>
       </div>
     </header>
-    <section class="period-selector-card no-print">
+    <section class="period-selector-card">
       <div class="period-tabs">
         <button type="button" class="tab-btn" :class="{ active: periodType === 'today' }" @click="setPeriod('today')">Harian (Hari Ini)</button>
         <button type="button" class="tab-btn" :class="{ active: periodType === 'month' }" @click="setPeriod('month')">Bulanan (Bulan Ini)</button>
@@ -24,7 +23,6 @@
         </select>
       </div>
     </section>
-    <div class="print-report-header"><h2>WARUNG NUSANTARA — LAPORAN TRANSAKSI</h2><p>Periode: {{ periodTitle }} | Dicetak pada: {{ printTimestamp }}</p></div>
     <section class="summary-metrics-grid">
       <div class="metric-card"><span class="m-label">Total Transaksi</span><strong class="m-val">{{ reportData.summary?.totalOrders || 0 }}</strong><span class="m-sub">Semua status</span></div>
       <div class="metric-card"><span class="m-label">Transaksi Berhasil</span><strong class="m-val success-val">{{ reportData.summary?.completedOrders || 0 }}</strong><span class="m-sub">Pesanan selesai</span></div>

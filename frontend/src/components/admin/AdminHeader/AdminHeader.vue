@@ -21,7 +21,7 @@
 
     <div class="header-right">
       <!-- Real-time Sound Alert Toggle (Cashier/Admin) -->
-      <button
+      <!-- <button
         v-if="!isSuperAdmin"
         class="sound-toggle-btn"
         :class="{ 'sound-active': isSoundOn }"
@@ -39,7 +39,7 @@
           <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
         <span class="sound-label">{{ isSoundOn ? 'Sound: ON' : 'Sound: OFF' }}</span>
-      </button>
+      </button> -->
 
       <!-- Profile Dropdown -->
       <details class="user-dropdown">
@@ -62,18 +62,6 @@
           </div>
 
           <div class="dropdown-divider"></div>
-
-          <router-link
-            v-if="!isSuperAdmin"
-            to="/admin/reset-password"
-            class="dropdown-item"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="1.8" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" />
-            </svg>
-            <span>Reset Password</span>
-          </router-link>
 
           <div class="dropdown-divider"></div>
 

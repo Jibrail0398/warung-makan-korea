@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import { orderService } from '../../../services/orderService.js';
 import './AdminTransactionReportView.css';
@@ -63,7 +63,6 @@ export default {
     ];
 
     const reportData = ref({ orders: [], summary: {} });
-    const printTimestamp = ref('');
     const isLoading = ref(false);
     const errorMessage = ref('');
 
@@ -104,9 +103,6 @@ export default {
             formattedRevenue: formatCurrency(revenue)
           }
         };
-
-        const now = new Date();
-        printTimestamp.value = `${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
       } catch (error) {
         errorMessage.value = error.message || 'Gagal memuat laporan transaksi.';
       } finally {
@@ -122,13 +118,6 @@ export default {
       periodType.value = type;
       loadReport();
     };
-
-    const periodTitle = computed(() => {
-      if (periodType.value === 'today') return `Harian (${selectedDate.value})`;
-      return `Bulanan (${selectedMonth.value})`;
-    });
-
-    const handlePrint = () => { window.print(); };
 
     const buildExportFileName = () => {
       const period = periodType.value === 'today' ? selectedDate.value : selectedMonth.value;
@@ -180,13 +169,10 @@ export default {
       statusFilter,
       statusOptions,
       reportData,
-      printTimestamp,
       isLoading,
       errorMessage,
       loadReport,
       setPeriod,
-      periodTitle,
-      handlePrint,
       downloadCsv
     };
   }
