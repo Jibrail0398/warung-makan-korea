@@ -141,7 +141,9 @@ export const authService = {
       return response.data;
     } catch (error) {
       const message = error.response?.data?.message || 'Login gagal. Silakan coba lagi.';
-      throw new Error(message);
+      const loginError = new Error(message);
+      loginError.status = error.response?.status;
+      throw loginError;
     }
   },
 

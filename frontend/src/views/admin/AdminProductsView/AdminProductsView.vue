@@ -193,45 +193,35 @@
       <div class="confirm-dialog">
         <h3 class="dialog-title">Konfirmasi Hapus Produk</h3>
         <p class="dialog-desc">
-          Apakah Anda yakin ingin menghapus produk <strong>"{{ productToDelete.name }}"</strong>? Tindakan ini tidak dapat dibatalkan.
+          Apakah anda yakin akan menghapus data ini <strong>"{{ productToDelete.name }}"</strong>?
         </p>
         <div class="dialog-actions">
-          <button type="button" class="btn-cancel" @click="productToDelete = null">Batal</button>
-          <button type="button" class="btn-danger" @click="executeDelete">Ya, Hapus Produk</button>
+          <button type="button" class="btn-cancel" @click="productToDelete = null">Tidak</button>
+          <button type="button" class="btn-danger" @click="executeDelete">Ya</button>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification -->
-    <ToastNotification
-      :visible="isToastVisible"
-      :message="toastMessage"
-      :type="toastType"
-    />
+    <!-- Status Notification Modal -->
+    <div v-if="notificationModal.isOpen" class="modal-backdrop" @click.self="closeNotification">
+      <div class="confirm-dialog">
+        <h3 class="dialog-title" :class="notificationModal.isSuccess ? 'text-success' : 'text-danger'">
+          {{ notificationModal.isSuccess ? 'Berhasil' : 'Gagal' }}
+        </h3>
+        <p class="dialog-desc">{{ notificationModal.message }}</p>
+        <div class="dialog-actions">
+          <button type="button" class="btn-primary" @click="closeNotification">Tutup</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import AdminProductsScript from './AdminProducts.js';
-import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
-import { useToast } from '../../../composables/useToast.js';
 
 export default {
-  ...AdminProductsScript,
-  components: {
-    ...AdminProductsScript.components,
-    ToastNotification
-  },
-  setup() {
-    const parentReturn = AdminProductsScript.setup();
-    const { isToastVisible, toastMessage, toastType } = useToast();
-    return {
-      ...parentReturn,
-      isToastVisible,
-      toastMessage,
-      toastType
-    };
-  }
+  ...AdminProductsScript
 };
 </script>
 

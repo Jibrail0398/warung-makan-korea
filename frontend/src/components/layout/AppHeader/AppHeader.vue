@@ -64,8 +64,8 @@
                 Admin Dashboard
               </router-link>
 
-              <router-link v-if="isSuperAdmin" to="/super-admin/dashboard" class="staff-link">
-                Super Admin Dashboard
+              <router-link v-if="isSuperAdmin" to="/admin/audit-logs" class="staff-link">
+                Audit Log
               </router-link>
 
               <button

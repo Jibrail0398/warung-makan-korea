@@ -56,10 +56,9 @@
           </svg>
         </summary>
 
-        <div class="dropdown-menu">
+        <div class="dropdown-menu">            
           <div class="dropdown-header">
             <strong>{{ userName }}</strong>
-            <small>{{ userEmail }}</small>
           </div>
 
           <div class="dropdown-divider"></div>
@@ -74,19 +73,6 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" />
             </svg>
             <span>Reset Password</span>
-          </router-link>
-
-          <router-link
-            to="/"
-            target="_blank"
-            class="dropdown-item"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              <polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              <line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span>Lihat Website Toko</span>
           </router-link>
 
           <div class="dropdown-divider"></div>

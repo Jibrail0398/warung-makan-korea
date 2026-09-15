@@ -163,6 +163,18 @@ const routes = [
         component: () => import('../views/admin/AdminResetPasswordView/AdminResetPasswordView.vue')
       },
       {
+        path: 'audit-logs',
+        name: 'admin-audit-logs',
+        component: () => import('../views/superadmin/SuperAdminAuditLogView/SuperAdminAuditLogView.vue'),
+        meta: { requiredRole: 'superadmin' }
+      },
+      {
+        path: 'admins',
+        name: 'admin-management',
+        component: () => import('../views/superadmin/SuperAdminManagementView/SuperAdminManagementView.vue'),
+        meta: { requiredRole: 'superadmin' }
+      },
+      {
         path: 'whatsapp-sessions',
         name: 'admin-whatsapp-sessions',
         component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView/SuperAdminWhatsAppSessionView.vue'),
@@ -255,7 +267,7 @@ router.beforeEach(async (to) => {
   const adminRoles = ['admin', 'superadmin']
 
   if (adminRoles.includes(currentRole) && ['home', 'login'].includes(to.name)) {
-    return { path: '/admin/dashboard' }
+    return { path: currentRole === 'superadmin' ? '/admin/audit-logs' : '/admin/dashboard' }
   }
 
   // Login, register, and OTP routes intentionally have no requiredRole.

@@ -425,6 +425,14 @@
   cursor: pointer;
 }
 
+.text-success {
+  color: #16a34a !important;
+}
+
+.text-danger {
+  color: #dc2626 !important;
+}
+
 @media (max-width: 900px) {
   .table-container {
     display: none;

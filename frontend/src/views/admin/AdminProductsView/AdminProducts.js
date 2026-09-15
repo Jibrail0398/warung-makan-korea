@@ -1,7 +1,6 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, reactive } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
 import { productService } from '../../../services/productsService.js';
-import { useToast } from '../../../composables/useToast.js';
 import "./AdminProducts.css"
 
 export default {
@@ -23,7 +22,11 @@ export default {
     const selectedProduct = ref(null);
     const productToDelete = ref(null);
 
-    const { showToast } = useToast();
+    const notificationModal = reactive({
+      isOpen: false,
+      isSuccess: true,
+      message: ''
+    });
 
     const loadData = async () => {
       try {
@@ -104,13 +107,27 @@ export default {
 
     const handleSaveProduct = async (formData) => {
       try {
-        await productService.addProduct(formData);
-        showToast('Produk berhasil ditambahkan', 2500, 'success');
+        let res;
+        if (isEditMode.value && selectedProduct.value) {
+          res = await productService.updateProduct(selectedProduct.value.id, formData);
+        } else {
+          res = await productService.addProduct(formData);
+        }
+        notificationModal.isSuccess = true;
+        notificationModal.message = res?.message || (isEditMode.value ? 'Produk berhasil diperbarui' : 'Produk berhasil ditambahkan');
+        notificationModal.isOpen = true;
         isModalOpen.value = false;
         await loadData();
       } catch (err) {
-        showToast(err.message || 'Gagal menambahkan produk', 3000, 'error');
+        notificationModal.isSuccess = false;
+        notificationModal.message = err.message || 'Gagal menyimpan produk';
+        notificationModal.isOpen = true;
+        isModalOpen.value = false;
       }
+    };
+
+    const closeNotification = () => {
+      notificationModal.isOpen = false;
     };
 
     const toggleStatus = async (product) => {
@@ -124,7 +141,16 @@ export default {
 
     const executeDelete = async () => {
       if (!productToDelete.value) return;
-      await new Promise(r => setTimeout(r, 300));
+      try {
+        const res = await productService.deleteProduct(productToDelete.value.id);
+        notificationModal.isSuccess = true;
+        notificationModal.message = res?.message || 'Produk berhasil dihapus';
+        notificationModal.isOpen = true;
+      } catch (err) {
+        notificationModal.isSuccess = false;
+        notificationModal.message = err.message || 'Gagal menghapus produk';
+        notificationModal.isOpen = true;
+      }
       productToDelete.value = null;
       await loadData();
     };
@@ -144,12 +170,14 @@ export default {
       isEditMode,
       selectedProduct,
       productToDelete,
+      notificationModal,
       availableSubcategories,
       getSubcatName,
       filteredProducts,
       openAddModal,
       openEditModal,
       handleSaveProduct,
+      closeNotification,
       toggleStatus,
       confirmDelete,
       executeDelete,

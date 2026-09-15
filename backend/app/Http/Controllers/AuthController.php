@@ -41,7 +41,7 @@ class AuthController extends Controller
         $result = $this->authService->login($request->validated());
 
         if (!$result) {
-            return $this->errorResponse('Nomor telepon atau password salah.', 401);
+            return $this->errorResponse('Nomor handphone atau password salah.', 401);
         }
 
         // Superadmin langsung login tanpa OTP.

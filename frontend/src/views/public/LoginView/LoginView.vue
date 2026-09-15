@@ -10,6 +10,7 @@
       <router-link to="/" class="guest-btn-link"><AuthButton text="Lanjutkan sebagai Guest (Tanpa Login)" type="button" variant="secondary" /></router-link>
       <div class="auth-footer-nav"><span>Belum memiliki akun Pelanggan?</span><router-link to="/register" class="auth-switch-link">Daftar Sekarang</router-link></div>
     </form>
+    <NoticeModal :visible="isNoticeVisible" :type="noticeType" :title="noticeTitle" :message="noticeMessage" :detail="noticeDetail" :confirm-text="noticeConfirmText" @close="handleNoticeClose" @confirm="handleNoticeConfirm" />
   </AuthLayout>
 </template>
 

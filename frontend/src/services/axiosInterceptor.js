@@ -8,8 +8,13 @@ export function setupAxiosInterceptors(router) {
     (error) => {
       const status = error.response?.status;
       const message = error.response?.data?.message || '';
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = requestUrl.includes('/auth/');
+      const hasStoredAuth = Boolean(localStorage.getItem('warung-auth-data'));
 
-      if (status === 401 || message.toLowerCase().includes('unauthenticated')) {
+      // Modal "Sesi Berakhir" hanya untuk request ber-token (halaman admin).
+      // Percobaan login/register/OTP dan request tanpa sesi tidak memicunya.
+      if ((status === 401 || message.toLowerCase().includes('unauthenticated')) && !isAuthEndpoint && hasStoredAuth) {
         if (!isShowingAuthModal) {
           isShowingAuthModal = true;
 

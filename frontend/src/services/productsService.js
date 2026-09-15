@@ -119,5 +119,38 @@ export const productService = {
             const message = error.response?.data?.message || 'Gagal menambahkan produk.';
             throw new Error(message);
         }
+    },
+
+    async updateProduct(id, formData) {
+        try {
+            const headers = await getAuthHeaders();
+
+            // Laravel tidak menerima multipart untuk PUT langsung, gunakan method spoofing
+            formData.append('_method', 'PUT');
+
+            const response = await axios.post(`${apiBaseUrl}/products/${id}`, formData, {
+                headers: {
+                    ...headers,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || 'Gagal memperbarui produk.';
+            throw new Error(message);
+        }
+    },
+
+    async deleteProduct(id) {
+        try {
+            const headers = await getAuthHeaders();
+            const response = await axios.delete(`${apiBaseUrl}/products/${id}`, {
+                headers
+            });
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || 'Gagal menghapus produk.';
+            throw new Error(message);
+        }
     }
 }
