@@ -27,17 +27,17 @@
         </label>
 
       </div>
-       <div v-if="availableSubcategories.length > 0" class="subcategories-filter-row">
+       <div v-if="categoryList.length > 0" class="subcategories-filter-row">
           <button
             type="button"
             class="subcat-chip-btn"
             :class="{ active: currentSubcategory === 'all' }"
             @click="setSubcategory('all')"
           >
-            All Subcategories
+            All Categories
           </button>
           <button
-            v-for="sub in availableSubcategories"
+            v-for="sub in categoryList"
             :key="sub.id"
             type="button"
             class="subcat-chip-btn"
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import MenuCard from '../../common/MenuCard.vue';
+import MenuCard from '../../common/MenuCard/MenuCard.vue';
 import MenuSectionScript from './MenuSection.js';
 import "./MenuSection.css";
 

@@ -23,7 +23,8 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = $this->service->getAll(paginate: true);
+        // Halaman manajemen ini dikhususkan untuk akun dengan role admin.
+        $users = $this->service->getAll(paginate: true, role: 'admin');
         return $this->successResponse(
             UserResource::collection($users)->response()->getData(true),
             'Berhasil mengambil daftar pengguna'

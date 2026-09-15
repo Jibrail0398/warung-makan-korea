@@ -42,4 +42,46 @@ export const categoriesService = {
       throw new Error(message);
     }
   },
+
+  async updateCategory(id, categoryData) {
+    try {
+      const stored = localStorage.getItem('warung-auth-data');
+      const authData = await authService.decode(stored);
+      const token = authData?.access_token || '';
+
+      const response = await axios.put(`${apiBaseUrl}/categories/${id}`, {
+        name: categoryData.name
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Gagal memperbarui kategori.';
+      throw new Error(message);
+    }
+  },
+
+  async deleteCategory(id) {
+    try {
+      const stored = localStorage.getItem('warung-auth-data');
+      const authData = await authService.decode(stored);
+      const token = authData?.access_token || '';
+
+      const response = await axios.delete(`${apiBaseUrl}/categories/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Gagal menghapus kategori.';
+      throw new Error(message);
+    }
+  },
 };

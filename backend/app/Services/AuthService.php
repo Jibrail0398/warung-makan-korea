@@ -61,7 +61,14 @@ class AuthService
         return $this->sendOtp($data['phone_number']);
     }
 
-    public function login(array $credentials): bool
+    /**
+     * Verifikasi kredensial login.
+     *
+     * Login tidak memerlukan OTP untuk semua role: bila kredensial valid,
+     * token JWT langsung diterbitkan. OTP hanya dipakai pada saat pendaftaran
+     * member (lihat register() dan verifyOtp()).
+     */
+    public function login(array $credentials): ?array
     {
         $user = User::where('phone_number', $credentials['phone_number'])->first();
 
@@ -80,7 +87,11 @@ class AuthService
             return false;
         }
 
-        return $this->sendOtp($credentials['phone_number']);
+        return [
+            'user' => $user,
+            'token' => auth('api')->login($user),
+            'type' => 'bearer',
+        ];
     }
 
     public function verifyOtp(string $phone, string $code): ?array

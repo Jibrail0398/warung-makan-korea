@@ -27,4 +27,9 @@ export const whatsappSessionService = {
     const response = await axios.post(`${apiBaseUrl}/whatsapp/session/start`, {}, await getAuthConfig());
     return unwrapResponse(response);
   },
+
+  async destroy() {
+    const response = await axios.delete(`${apiBaseUrl}/whatsapp/session`, await getAuthConfig());
+    return unwrapResponse(response);
+  },
 };

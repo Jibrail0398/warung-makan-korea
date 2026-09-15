@@ -1,5 +1,16 @@
 .menu-section {
   padding: 78px 0 72px;
+  
+}
+
+/* Full width pada desktop (di atas 1280px) */
+@media (min-width: 1281px) {
+  .menu-section .container {
+    width: 100%;
+    max-width: none;
+    padding-inline: 48px;
+    box-sizing: border-box;
+  }
 }
 
 .menu-heading-row {
@@ -272,6 +283,27 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
+}
+
+/* Mobile: filter kategori jadi scroll horizontal satu baris */
+@media (max-width: 640px) {
+  .subcategories-filter-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+
+  .subcategories-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subcat-chip-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
 }
 
 .subcat-chip-btn {
