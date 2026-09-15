@@ -21,9 +21,13 @@ class OrderController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $orders = $this->service->getAll(paginate: true);
+        $orders = $this->service->getAll(paginate: true, filters: [
+            'payment_status' => $request->query('payment_status'),
+            'status' => $request->query('status'),
+            'date' => $request->query('date'),
+        ]);
         return $this->successResponse(
             OrderResource::collection($orders)->response()->getData(true),
             'Berhasil mengambil daftar pesanan'

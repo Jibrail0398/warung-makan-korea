@@ -12,9 +12,25 @@ use Illuminate\Support\Facades\Storage;
 
 class OrderService
 {
-    public function getAll(bool $paginate = false, int $perPage = 15)
+    public function getAll(bool $paginate = false, int $perPage = 15, array $filters = [])
     {
         $query = Order::with('items.product')->latest();
+
+        if (!empty($filters['payment_status'])) {
+            $query->where('payment_status', $filters['payment_status']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['date'])) {
+            $query->whereDate('created_at', $filters['date']);
+        } else {
+            // Default: hanya pesanan hari ini
+            $query->whereDate('created_at', today());
+        }
+
         return $paginate ? $query->paginate($perPage) : $query->get();
     }
 

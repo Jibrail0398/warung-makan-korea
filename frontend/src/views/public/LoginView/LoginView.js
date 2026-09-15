@@ -34,16 +34,26 @@ export default {
         const response = await authService.login({ phone_number: identifier.value.trim(), password: password.value });
         const authData = response?.data;
 
-        // Superadmin langsung mendapatkan token tanpa verifikasi OTP.
+        // Login tidak memerlukan OTP: token langsung diterbitkan untuk semua role.
         if (authData?.access_token) {
           const encodedAuthData = await authService.encode(authData);
           localStorage.setItem('warung-auth-data', encodedAuthData);
-          pendingRoute = '/admin/audit-logs';
-          showSuccess({ title: 'Login Berhasil', message: 'Anda berhasil masuk. Lanjutkan untuk membuka halaman Audit Log.', confirmText: 'Lanjut ke Audit Log' });
+          const role = (authData.user?.role || '').toLowerCase();
+
+          if (role === 'member') {
+            pendingRoute = '/';
+            showSuccess({ title: 'Login Berhasil', message: 'Selamat datang kembali! Lanjutkan untuk mulai berbelanja.', confirmText: 'Mulai Belanja' });
+          } else if (role === 'superadmin') {
+            pendingRoute = '/admin/audit-logs';
+            showSuccess({ title: 'Login Berhasil', message: 'Anda berhasil masuk. Lanjutkan untuk membuka halaman Audit Log.', confirmText: 'Lanjut ke Audit Log' });
+          } else {
+            pendingRoute = '/admin/dashboard';
+            showSuccess({ title: 'Login Berhasil', message: 'Anda berhasil masuk. Lanjutkan ke dashboard admin.', confirmText: 'Lanjut ke Dashboard' });
+          }
           return;
         }
 
-        router.replace({ path: '/verify-otp', state: { phone: identifier.value.trim() } });
+        showFailed({ title: 'Login Gagal', message: 'Terjadi kesalahan saat memproses login. Silakan coba lagi.', confirmText: 'Tutup' });
       } catch (err) {
         if (err.status === 401) {
           showFailed({ title: 'Login Gagal', message: 'Nomor handphone atau password salah.', confirmText: 'Coba Lagi' });

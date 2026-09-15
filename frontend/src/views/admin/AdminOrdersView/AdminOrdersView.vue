@@ -14,15 +14,37 @@
       </div>
     </header>
     <section class="filter-section">
-      <div class="status-tabs" role="tablist">
-        <button type="button" role="tab" class="tab-btn" :class="{ active: selectedTab === 'all' }" @click="selectedTab = 'all'">Semua ({{ orders.length }})</button>
-        <button type="button" role="tab" class="tab-btn" :class="{ active: selectedTab === 'unpaid' }" @click="selectedTab = 'unpaid'">Unpaid ({{ countByPaymentStatus('unpaid') }})</button>
-        <button type="button" role="tab" class="tab-btn" :class="{ active: selectedTab === 'awaiting_verification' }" @click="selectedTab = 'awaiting_verification'">Awaiting Verification ({{ countByPaymentStatus('awaiting_verification') }})</button>
-        <button type="button" role="tab" class="tab-btn" :class="{ active: selectedTab === 'paid' }" @click="selectedTab = 'paid'">Paid ({{ countByPaymentStatus('paid') }})</button>
-      </div>
-      <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" /><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-        <input type="text" v-model="searchQuery" placeholder="Cari ID pesanan / nama / no HP..." class="search-input" />
+      <div class="filter-controls">
+        <div class="date-filter">
+          <label class="filter-label" for="orderDateFilter">Tanggal</label>
+          <input
+            id="orderDateFilter"
+            type="date"
+            v-model="filterDate"
+            class="filter-input"
+          />
+        </div>
+
+        <select v-model="paymentStatusFilter" class="filter-input payment-filter" aria-label="Filter status pembayaran">
+          <option value="all">Semua Status Pembayaran</option>
+          <option value="unpaid">Unpaid</option>
+          <option value="awaiting_verification">Awaiting Verification</option>
+          <option value="paid">Paid</option>
+        </select>
+
+        <select v-model="orderStatusFilter" class="filter-input order-status-filter" aria-label="Filter status pesanan">
+          <option value="all">Semua Status Pesanan</option>
+          <option value="pending">Pending</option>
+          <option value="preparing">Preparing</option>
+          <option value="ready">Ready</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" /><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+          <input type="text" v-model="searchQuery" placeholder="Cari ID pesanan / nama / no HP..." class="search-input" />
+        </div>
       </div>
     </section>
     <div class="table-container">

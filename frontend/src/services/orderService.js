@@ -82,9 +82,15 @@ export const orderService = {
 		}
 	},
 
-	async getAllOrders() {
+	async getAllOrders(filters = {}) {
 		try {
+			const params = {};
+			if (filters.paymentStatus && filters.paymentStatus !== 'all') params.payment_status = filters.paymentStatus;
+			if (filters.orderStatus && filters.orderStatus !== 'all') params.status = filters.orderStatus;
+			if (filters.date) params.date = filters.date;
+
 			const response = await axios.get(`${apiBaseUrl}/orders`, {
+				params,
 				headers: await getAuthorizationHeaders()
 			});
 			return response.data?.data || response.data;

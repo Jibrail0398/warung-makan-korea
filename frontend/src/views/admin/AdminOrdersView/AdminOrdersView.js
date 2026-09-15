@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
@@ -9,26 +9,46 @@ export default {
   components: { StatusBadge },
   setup() {
     const orders = ref([]);
-    const selectedTab = ref('all');
     const searchQuery = ref('');
+
+    // Filter dari server (bukan client-side)
+    const paymentStatusFilter = ref('all');
+    const orderStatusFilter = ref('all');
+
+    // Default: pesanan hari ini
+    const getToday = () => {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    const filterDate = ref(getToday());
 
     const loadOrders = async () => {
       try {
-        const data = await orderService.getAllOrders();
+        const data = await orderService.getAllOrders({
+          paymentStatus: paymentStatusFilter.value,
+          orderStatus: orderStatusFilter.value,
+          date: filterDate.value
+        });
         orders.value = data.data || data;
       } catch (e) { console.error('Load orders error:', e); }
     };
 
     onMounted(() => { loadOrders(); });
 
-    const countByPaymentStatus = (paymentStatus) => orders.value.filter(order => order.payment_status === paymentStatus).length;
+    // Filter dikirim ke server; setiap perubahan reload ke data terbaru dari backend
+    watch([paymentStatusFilter, orderStatusFilter, filterDate], () => {
+      loadOrders();
+    });
 
     const filteredOrders = computed(() => {
+      // Hanya pencarian teks yang dilakukan client-side pada data halaman ini
+      const q = searchQuery.value.trim().toLowerCase();
+      if (!q) return orders.value;
       return orders.value.filter(order => {
-        const tabMatch = selectedTab.value === 'all' || order.payment_status === selectedTab.value;
-        const q = searchQuery.value.trim().toLowerCase();
-        const searchMatch = !q || (order.id + ' ' + (order.customer_name || '') + ' ' + (order.customer_phone || '')).toLowerCase().includes(q);
-        return tabMatch && searchMatch;
+        return (order.id + ' ' + (order.customer_name || '') + ' ' + (order.customer_phone || '')).toLowerCase().includes(q);
       });
     });
 
@@ -37,6 +57,6 @@ export default {
       await loadOrders();
     };
 
-    return { orders, selectedTab, searchQuery, countByPaymentStatus, filteredOrders, handleSimulateIncoming };
+    return { orders, paymentStatusFilter, orderStatusFilter, filterDate, searchQuery, filteredOrders, handleSimulateIncoming };
   }
 };

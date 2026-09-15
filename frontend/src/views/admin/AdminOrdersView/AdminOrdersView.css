@@ -5,10 +5,14 @@
 .page-description { margin: 6px 0 0; color: var(--muted); font-size: 0.86rem; }
 .btn-simulate { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: var(--r-sm); border: 1px solid rgba(165, 29, 45, 0.25); background: var(--red-soft); color: var(--red); font-size: 0.82rem; font-weight: 750; cursor: pointer; transition: all var(--ease); }
 .btn-simulate:hover { background: var(--red); color: #fff; }
-.filter-section { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.status-tabs { display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: var(--r-sm); background: var(--soft); border: 1px solid var(--line); overflow-x: auto; max-width: 100%; }
-.tab-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; color: var(--muted); white-space: nowrap; cursor: pointer; transition: all var(--ease); }
-.tab-btn.active { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
+.filter-section { margin-bottom: 20px; }
+.filter-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.filter-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-right: 2px; }
+.date-filter { display: inline-flex; align-items: center; gap: 8px; }
+.filter-input { height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; font-size: 0.8rem; color: var(--ink); outline: none; cursor: pointer; }
+.filter-input:focus { border-color: var(--red); }
+.payment-filter { min-width: 180px; }
+.order-status-filter { min-width: 170px; }
 .search-box { position: relative; display: flex; align-items: center; }
 .search-box svg { position: absolute; left: 12px; color: var(--muted); }
 .search-input { width: 260px; height: 38px; padding: 0 12px 0 36px; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; font-size: 0.82rem; outline: none; }
