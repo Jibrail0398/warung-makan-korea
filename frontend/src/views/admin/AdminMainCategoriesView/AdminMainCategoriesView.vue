@@ -75,7 +75,7 @@
       <div class="confirm-dialog">
         <h3 class="dialog-title">Hapus Kategori</h3>
         <p class="dialog-desc">
-          Peringatan Jika kategori ini dihapus semua data produk yang berkategori <strong>{{ categoryToDelete.name }}</strong> akan ikut terhapus
+          Apakah anda yakin akan menghapus kategori <strong>{{ categoryToDelete.name }}</strong> 
         </p>
         <div class="dialog-actions">
           <button type="button" class="btn-cancel" @click="categoryToDelete = null">Batal</button>

@@ -21,19 +21,6 @@
     <!-- Filter & Search Bar -->
     <section class="filter-section">
       <div class="filter-controls">
-        <select v-model="selectedSubcatFilter" class="filter-select subcat-filter">
-          <option value="all">Semua Kategori</option>
-          <option v-for="sc in availableSubcategories" :key="sc.id" :value="sc.id">
-            {{ sc.name }}
-          </option>
-        </select>
-
-        <select v-model="statusFilter" class="filter-select status-filter">
-          <option value="all">Semua Status</option>
-          <option value="Available">Tersedia</option>
-          <option value="Sold Out">Sold Out</option>
-        </select>
-
         <div class="search-box">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" />
@@ -45,6 +32,21 @@
             placeholder="Cari nama produk..."
             class="search-input"
           />
+        </div>
+
+        <div class="filter-dropdowns">
+          <select v-model="selectedSubcatFilter" class="filter-select subcat-filter">
+            <option value="all">Semua Kategori</option>
+            <option v-for="sc in availableSubcategories" :key="sc.id" :value="sc.id">
+              {{ sc.name }}
+            </option>
+          </select>
+
+          <select v-model="statusFilter" class="filter-select status-filter">
+            <option value="all">Semua Status</option>
+            <option value="Available">Aktif</option>
+            <option value="Sold Out">Tidak Aktif</option>
+          </select>
         </div>
       </div>
     </section>
@@ -77,8 +79,8 @@
               <small class="product-desc-snippet">{{ product.description }}</small>
             </td>
             <td>
-              <span class="type-pill" :class="`type-${product.category}`">
-                {{ product.category === 'restaurant' ? 'Restaurant Menu' : 'Raw Material' }}
+              <span class="type-pill" :class="`type-${product.categorySlug}`">
+                {{ product.category }}
               </span>
             </td>
             <td>
@@ -90,7 +92,7 @@
                 :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
               >
                 <span class="status-dot"></span>
-                <span>{{ product.status === 'Available' ? 'Tersedia' : 'Habis' }}</span>
+                <span>{{ product.status === 'Available' ? 'Aktif' : 'Tidak Aktif' }}</span>
               </span>
             </td>
             <td class="col-actions">
@@ -148,15 +150,15 @@
           </div>
           <div class="m-details">
             <div class="m-tags-row">
-              <span class="type-pill" :class="`type-${product.category}`">
-                {{ product.category === 'restaurant' ? 'Restaurant Menu' : 'Raw Material' }}
+              <span class="type-pill" :class="`type-${product.categorySlug}`">
+                {{ product.category }}
               </span>
               <span
                 class="status-toggle-btn"
                 :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
               >
                 <span class="status-dot"></span>
-                {{ product.status === 'Available' ? 'Tersedia' : 'Habis' }}
+                {{ product.status === 'Available' ? 'Aktif' : 'Tidak Aktif' }}
               </span>
             </div>
             <h3 class="m-name">{{ product.name }}</h3>

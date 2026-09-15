@@ -141,11 +141,11 @@
       <div class="confirm-dialog">
         <h3 class="dialog-title">Hapus Subkategori</h3>
         <p class="dialog-desc">
-          Apakah Anda yakin ingin menghapus subkategori <strong>"{{ categoryToDelete.name }}"</strong>?
+          Apakah Anda yakin ingin menghapus kategori <strong>"{{ categoryToDelete.name }}"</strong>?
           <template v-if="categoryToDelete.productCount > 0">
             <br /><br />
             <span class="warning-text">
-              Peringatan: Subkategori ini memiliki {{ categoryToDelete.productCount }} produk yang masih terhubung.
+              Peringatan: Kategori ini memiliki {{ categoryToDelete.productCount }} produk yang masih terhubung.
             </span>
           </template>
         </p>

@@ -76,7 +76,6 @@ export const productService = {
             return {
                 products: (payload.data || []).map((item) => {
                     const numericPrice = Number(item.price) || 0;
-                    const categorySlug = item.category?.slug || '';
 
                     return {
                         id: item.id,
@@ -85,11 +84,12 @@ export const productService = {
                         image: item.image_url || '',
                         numericPrice,
                         price: `₩${numericPrice.toLocaleString('ko-KR')}`,
-                        category: categorySlug,
+                        category: item.category?.name || '',
+                        categorySlug: item.category?.slug || '',
                         categoryId: item.category_id,
                         weightOrUnit: item.weight_or_unit || '',
                         isActive: item.is_active !== false,
-                        status: item.status || 'Available'
+                        status: item.is_active !== false ? 'Available' : 'Sold Out'
                     };
                 }),
                 pagination: {
