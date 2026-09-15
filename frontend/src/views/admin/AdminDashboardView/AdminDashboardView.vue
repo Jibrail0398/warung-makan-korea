@@ -33,8 +33,7 @@
       <StatCard
         label="Pesanan Hari Ini"
         :value="stats.todayOrders"
-        trend="+14.2%"
-        description="vs kemarin"
+        description="Semua status hari ini"
         tone="red"
         :icon="OrderIcon"
       />
@@ -42,8 +41,7 @@
       <StatCard
         label="Total Pemasukan"
         :value="stats.todayRevenue"
-        trend="+8.5%"
-        description="vs kemarin"
+        description="Pesanan lunas hari ini"
         tone="red"
         :icon="RevenueIcon"
       />
@@ -59,20 +57,18 @@
       <StatCard
         label="Pesanan Selesai"
         :value="stats.completedOrders"
-        trend="+18"
-        description="hari ini"
+        description="Selesai hari ini"
         tone="success"
         :icon="CompletedIcon"
       />
     </section>
 
     <!-- Visual Sales Overview Chart -->
-    <SalesOverview />
+    <SalesOverview :weekly-data="weeklyData" :hourly-data="hourlyData" :summary="reportSummary" :format-currency="formatCurrency" />
 
-    <!-- Bottom Two Column Grid -->
-    <section class="dashboard-bottom-grid" aria-label="Pesanan terbaru dan stok produk">
+    <!-- Recent Orders -->
+    <section class="dashboard-bottom-grid" aria-label="Pesanan terbaru">
       <RecentOrders />
-      <LowStockAlert />
     </section>
   </div>
 </template>

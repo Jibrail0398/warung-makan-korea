@@ -139,12 +139,37 @@ export const orderService = {
 			if (filters.paymentStatus && filters.paymentStatus !== 'all') params.payment_status = filters.paymentStatus;
 			if (filters.orderStatus && filters.orderStatus !== 'all') params.status = filters.orderStatus;
 			if (filters.date) params.date = filters.date;
+			if (filters.startDate) params.start_date = filters.startDate;
+			if (filters.endDate) params.end_date = filters.endDate;
+			if (filters.perPage) params.per_page = filters.perPage;
+			if (filters.page) params.page = filters.page;
 
 			const response = await axios.get(`${apiBaseUrl}/orders`, {
 				params,
 				headers: await getAuthorizationHeaders()
 			});
 			return response.data?.data || response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil daftar pesanan.'));
+		}
+	},
+
+	// Ambil seluruh pesanan (menelusuri semua halaman) sesuai filter.
+	async getAllOrdersComplete(filters = {}, perPage = 100) {
+		try {
+			let page = 1;
+			let lastPage = 1;
+			const all = [];
+
+			do {
+				const payload = await this.getAllOrders({ ...filters, perPage, page });
+				const rows = payload?.data || (Array.isArray(payload) ? payload : []);
+				all.push(...rows);
+				lastPage = payload?.meta?.last_page || 1;
+				page += 1;
+			} while (page <= lastPage && page <= 50);
+
+			return all;
 		} catch (error) {
 			throw new Error(getErrorMessage(error, 'Gagal mengambil daftar pesanan.'));
 		}

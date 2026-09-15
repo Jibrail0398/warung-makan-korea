@@ -23,10 +23,14 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $orders = $this->service->getAll(paginate: true, filters: [
+        $perPage = max(1, min((int) $request->query('per_page', 15), 200));
+
+        $orders = $this->service->getAll(paginate: true, perPage: $perPage, filters: [
             'payment_status' => $request->query('payment_status'),
             'status' => $request->query('status'),
             'date' => $request->query('date'),
+            'start_date' => $request->query('start_date'),
+            'end_date' => $request->query('end_date'),
         ]);
         return $this->successResponse(
             OrderResource::collection($orders)->response()->getData(true),

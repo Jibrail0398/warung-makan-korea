@@ -222,6 +222,16 @@
   border-color: var(--red);
 }
 
+.password-btn {
+  color: #2563eb;
+  border-color: color-mix(in srgb, #2563eb 35%, white);
+}
+
+.password-btn:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
 /* =========================================================
    PAGINATION
    ========================================================= */

@@ -20,6 +20,7 @@ class OrderResource extends JsonResource
             'payment_status' => $this->payment_status,
             'payment_receipt_url' => $this->payment_receipt ? url('storage/' . $this->payment_receipt) : null,
             'bank_account_id' => $this->bank_account_id,
+            'bank_account_name' => $this->whenLoaded('bankAccount', fn () => $this->bankAccount?->bank_name),
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

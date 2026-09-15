@@ -14,7 +14,7 @@ class OrderService
 {
     public function getAll(bool $paginate = false, int $perPage = 15, array $filters = [])
     {
-        $query = Order::with('items.product')->latest();
+        $query = Order::with(['items.product', 'bankAccount'])->latest();
 
         if (!empty($filters['payment_status'])) {
             $query->where('payment_status', $filters['payment_status']);
@@ -26,11 +26,31 @@ class OrderService
 
         // Filter tanggal berbasis zona waktu lokal pengguna (Asia/Seoul).
         // created_at tersimpan UTC, jadi bandingkan window UTC dari hari lokal tersebut.
-        // Tanpa parameter date: default hanya pesanan hari ini.
-        $targetDate = !empty($filters['date']) ? $filters['date'] : now()->toDateString();
-        $start = \Carbon\Carbon::parse($targetDate, 'Asia/Seoul')->startOfDay()->setTimezone('UTC');
-        $end = \Carbon\Carbon::parse($targetDate, 'Asia/Seoul')->endOfDay()->setTimezone('UTC');
-        $query->whereBetween('created_at', [$start, $end]);
+        $timezone = 'Asia/Seoul';
+
+        if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
+            // Rentang tanggal bebas (dipakai untuk rekap bulanan/periode).
+            $start = !empty($filters['start_date'])
+                ? \Carbon\Carbon::parse($filters['start_date'], $timezone)->startOfDay()->setTimezone('UTC')
+                : null;
+            $end = !empty($filters['end_date'])
+                ? \Carbon\Carbon::parse($filters['end_date'], $timezone)->endOfDay()->setTimezone('UTC')
+                : null;
+
+            if ($start && $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            } elseif ($start) {
+                $query->where('created_at', '>=', $start);
+            } elseif ($end) {
+                $query->where('created_at', '<=', $end);
+            }
+        } else {
+            // Tanpa parameter date: default hanya pesanan hari ini.
+            $targetDate = !empty($filters['date']) ? $filters['date'] : now($timezone)->toDateString();
+            $start = \Carbon\Carbon::parse($targetDate, $timezone)->startOfDay()->setTimezone('UTC');
+            $end = \Carbon\Carbon::parse($targetDate, $timezone)->endOfDay()->setTimezone('UTC');
+            $query->whereBetween('created_at', [$start, $end]);
+        }
 
         return $paginate ? $query->paginate($perPage) : $query->get();
     }

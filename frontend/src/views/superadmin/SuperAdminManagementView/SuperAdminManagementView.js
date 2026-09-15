@@ -1,6 +1,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
+import { useAuthStore } from '../../../stores/auth.js';
 import { usersService } from '../../../services/usersService.js';
 import './SuperAdminManagementView.css';
 
@@ -42,7 +43,22 @@ export default {
     const userToDelete = ref(null);
     const isDeleting = ref(false);
 
+    const authStore = useAuthStore();
+    const isSuperAdmin = ref(false);
+
     const { isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, showSuccess, showFailed, hideNotice } = useNoticeModal();
+
+    const isPasswordModalOpen = ref(false);
+    const isChangingPassword = ref(false);
+    const passwordTarget = ref(null);
+    const passwordForm = reactive({
+      password: '',
+      password_confirmation: '',
+    });
+    const passwordFormErrors = reactive({
+      password: '',
+      password_confirmation: '',
+    });
 
     const loadData = async (page = 1) => {
       isPageLoading.value = true;
@@ -74,7 +90,9 @@ export default {
       loadData(page);
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      await authStore.hydrate();
+      isSuperAdmin.value = authStore.user?.role?.toLowerCase() === 'superadmin';
       loadData();
     });
 
@@ -198,6 +216,79 @@ export default {
       userToDelete.value = user;
     };
 
+    const clearPasswordFormErrors = () => {
+      passwordFormErrors.password = '';
+      passwordFormErrors.password_confirmation = '';
+    };
+
+    const openPasswordModal = (user) => {
+      passwordTarget.value = user;
+      passwordForm.password = '';
+      passwordForm.password_confirmation = '';
+      clearPasswordFormErrors();
+      isPasswordModalOpen.value = true;
+    };
+
+    const closePasswordModal = () => {
+      if (isChangingPassword.value) return;
+      isPasswordModalOpen.value = false;
+      passwordTarget.value = null;
+      passwordForm.password = '';
+      passwordForm.password_confirmation = '';
+      clearPasswordFormErrors();
+    };
+
+    const validatePasswordForm = () => {
+      clearPasswordFormErrors();
+      let isValid = true;
+
+      if (!passwordForm.password) {
+        passwordFormErrors.password = 'Password baru wajib diisi.';
+        isValid = false;
+      } else if (passwordForm.password.length < 6) {
+        passwordFormErrors.password = 'Password baru minimal 6 karakter.';
+        isValid = false;
+      }
+
+      if (!passwordForm.password_confirmation) {
+        passwordFormErrors.password_confirmation = 'Konfirmasi password wajib diisi.';
+        isValid = false;
+      } else if (passwordForm.password !== passwordForm.password_confirmation) {
+        passwordFormErrors.password_confirmation = 'Konfirmasi password tidak cocok.';
+        isValid = false;
+      }
+
+      return isValid;
+    };
+
+    const handlePasswordSubmit = async () => {
+      if (!validatePasswordForm() || !passwordTarget.value) return;
+
+      isChangingPassword.value = true;
+
+      try {
+        const response = await usersService.changePassword(passwordTarget.value.id, {
+          password: passwordForm.password,
+          password_confirmation: passwordForm.password_confirmation,
+        });
+
+        closePasswordModal();
+        showSuccess({
+          title: 'Password Berhasil Diperbarui',
+          message: response?.message || `Password pengguna ${passwordTarget.value.name} berhasil diperbarui.`,
+          confirmText: 'Selesai',
+        });
+      } catch (error) {
+        showFailed({
+          title: 'Gagal Mengubah Password',
+          message: error.message || 'Terjadi kesalahan saat mengubah password.',
+          confirmText: 'Tutup',
+        });
+      } finally {
+        isChangingPassword.value = false;
+      }
+    };
+
     const cancelDelete = () => {
       if (isDeleting.value) return;
       userToDelete.value = null;
@@ -249,6 +340,12 @@ export default {
       formErrors,
       userToDelete,
       isDeleting,
+      isSuperAdmin,
+      isPasswordModalOpen,
+      isChangingPassword,
+      passwordTarget,
+      passwordForm,
+      passwordFormErrors,
       isNoticeVisible,
       noticeType,
       noticeTitle,
@@ -265,6 +362,9 @@ export default {
       confirmDelete,
       cancelDelete,
       executeDelete,
+      openPasswordModal,
+      closePasswordModal,
+      handlePasswordSubmit,
     };
   },
 };

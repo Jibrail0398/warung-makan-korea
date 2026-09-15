@@ -97,4 +97,14 @@ export const usersService = {
       throw buildError(error, 'Gagal menghapus pengguna.');
     }
   },
+
+  async changePassword(id, body) {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await axios.put(`${apiBaseUrl}/users/${id}/password`, body, { headers });
+      return response.data;
+    } catch (error) {
+      throw buildError(error, 'Gagal mengubah password pengguna.');
+    }
+  },
 };

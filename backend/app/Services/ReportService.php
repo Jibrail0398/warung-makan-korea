@@ -11,7 +11,8 @@ class ReportService
 {
     public function getSalesReport(string $period, array $params = []): array
     {
-        $timezone = config('app.timezone', 'Asia/Jakarta');
+        // Selaraskan dengan OrderService agar window tanggal konsisten (Asia/Seoul).
+        $timezone = 'Asia/Seoul';
 
         switch ($period) {
             case 'weekly':

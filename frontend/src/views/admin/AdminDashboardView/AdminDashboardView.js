@@ -1,9 +1,10 @@
-import { h, ref, computed } from 'vue';
+import { h, ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../../../stores/auth.js';
 import StatCard from '../../../components/admin/StatCard/StatCard.vue';
 import SalesOverview from '../../../components/admin/SalesOverview/SalesOverview.vue';
 import RecentOrders from '../../../components/admin/RecentOrders/RecentOrders.vue';
-import LowStockAlert from '../../../components/admin/LowStockAlert/LowStockAlert.vue';
+import { orderService } from '../../../services/orderService.js';
+import { reportService } from '../../../services/reportService.js';
 import './AdminDashboardView.css';
 
 const OrderIcon = {
@@ -42,28 +43,92 @@ const CompletedIcon = {
   }
 };
 
+const getLocalDateString = (date = new Date()) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+const formatCurrency = (value) => new Intl.NumberFormat('ko-KR', {
+  style: 'currency', currency: 'KRW', maximumFractionDigits: 0
+}).format(Number(value) || 0);
+
 export default {
   name: 'AdminDashboardView',
   components: {
     StatCard,
     SalesOverview,
-    RecentOrders,
-    LowStockAlert
+    RecentOrders
   },
   setup() {
     const authStore = useAuthStore();
     const adminName = computed(() => authStore.user?.name || 'Admin');
 
     const stats = ref({
-      todayOrders: '28',
-      todayRevenue: '₩1,240,000',
-      pendingOrders: '4',
-      completedOrders: '24'
+      todayOrders: '0',
+      todayRevenue: '₩0',
+      pendingOrders: '0',
+      completedOrders: '0'
+    });
+
+    const weeklyData = ref([]);
+    const hourlyData = ref([]);
+    const reportSummary = ref({});
+
+    const loadDashboard = async () => {
+      try {
+        const today = getLocalDateString();
+
+        // Statistik hari ini diambil dari data pesanan (GET /orders).
+        const list = await orderService.getAllOrdersComplete({ date: today });
+
+        const paidOrders = list.filter((order) => order.payment_status === 'paid');
+        const completedOrders = list.filter((order) => order.status === 'completed');
+        const pendingOrders = list.filter((order) => ['pending', 'preparing', 'ready'].includes(order.status));
+        const revenue = paidOrders.reduce((sum, order) => sum + (Number(order.total_price) || 0), 0);
+
+        stats.value = {
+          todayOrders: String(list.length),
+          todayRevenue: formatCurrency(revenue),
+          pendingOrders: String(pendingOrders.length),
+          completedOrders: String(completedOrders.length)
+        };
+
+        // Data chart dari laporan penjualan.
+        const [daily, weekly] = await Promise.all([
+          reportService.getSalesReport('daily'),
+          reportService.getSalesReport('weekly')
+        ]);
+
+        reportSummary.value = daily?.summary || {};
+
+        hourlyData.value = (daily?.breakdown || []).map((item) => ({
+          label: item.label,
+          amount: Number(item.revenue) || 0
+        }));
+
+        weeklyData.value = (weekly?.breakdown || []).map((item) => ({
+          label: item.label,
+          amount: Number(item.revenue) || 0,
+          isToday: item.date === today
+        }));
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    };
+
+    onMounted(() => {
+      loadDashboard();
     });
 
     return {
       adminName,
       stats,
+      weeklyData,
+      hourlyData,
+      reportSummary,
+      formatCurrency,
       OrderIcon,
       RevenueIcon,
       PendingIcon,
