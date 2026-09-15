@@ -26,15 +26,6 @@ Route::post('/orders', [OrderController::class, 'store']);
 Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
 Route::get('/orders/{order}', [OrderController::class, 'show']);
 
-// Development-only access for the Vue WhatsApp session page.
-if (app()->environment('local')) {
-    Route::prefix('whatsapp')->group(function () {
-        Route::get('/session', [WhatsAppSessionController::class, 'show']);
-        Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
-        Route::delete('/session', [WhatsAppSessionController::class, 'destroy']);
-    });
-}
-
 // Protected Endpoints
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -45,13 +36,11 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/admin/products', [ProductController::class, 'index']);
 
-    if (! app()->environment('local')) {
-        Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
-            Route::get('/session', [WhatsAppSessionController::class, 'show']);
-            Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
-            Route::delete('/session', [WhatsAppSessionController::class, 'destroy']);
-        });
-    }
+    Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
+        Route::get('/session', [WhatsAppSessionController::class, 'show']);
+        Route::post('/session/start', [WhatsAppSessionController::class, 'start']);
+        Route::delete('/session', [WhatsAppSessionController::class, 'destroy']);
+    });
 
     // Admin & Superadmin Only Routes
     Route::middleware('role:superadmin,admin')->group(function () {

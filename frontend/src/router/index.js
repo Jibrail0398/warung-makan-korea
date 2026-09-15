@@ -77,18 +77,16 @@ const routes = [
     component: () => import('../views/public/OrderHistoryDetailView/OrderHistoryDetailView.vue'),
     meta: { requiredRole: 'member' }
   },
-  {
-    path: '/whatsapp-sessions',
-    name: 'whatsapp-sessions',
-    component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView/SuperAdminWhatsAppSessionView.vue')
-  },
-
   // ==========================================
   // SINGLE LOGIN REDIRECTS (LEGACY PATHS)
   // ==========================================
   {
     path: '/admin/login',
     redirect: '/login'
+  },
+  {
+    path: '/whatsapp-sessions',
+    redirect: '/admin/whatsapp-sessions'
   },
   /*
   {
@@ -163,6 +161,12 @@ const routes = [
         path: 'reset-password',
         name: 'admin-reset-password',
         component: () => import('../views/admin/AdminResetPasswordView/AdminResetPasswordView.vue')
+      },
+      {
+        path: 'whatsapp-sessions',
+        name: 'admin-whatsapp-sessions',
+        component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView/SuperAdminWhatsAppSessionView.vue'),
+        meta: { requiredRole: 'superadmin' }
       }
     ]
   },
@@ -177,7 +181,7 @@ const routes = [
   //   children: [
   //     {
   //       path: '',
-  //       redirect: '/whatsapp-sessions'
+  //       redirect: '/admin/whatsapp-sessions'
   //     }
   //   ]
   // },
