@@ -1,6 +1,7 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
+import { newOrderListService } from '../../../services/newOrderListService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import './AdminOrdersView.css';
 
@@ -36,7 +37,23 @@ export default {
       } catch (e) { console.error('Load orders error:', e); }
     };
 
-    onMounted(() => { loadOrders(); });
+    onMounted(() => {
+      loadOrders();
+
+      // Realtime: pesanan baru langsung masuk ke daftar tanpa refresh
+      newOrderListService.start((order) => {
+        // Hanya reload jika pesanan baru sesuai filter tanggal yang sedang aktif
+        const orderDate = (order?.created_at || '').slice(0, 10);
+        const localDate = orderDate ? new Date(order.created_at).toLocaleDateString('sv-SE') : '';
+        if (!localDate || localDate === filterDate.value) {
+          loadOrders();
+        }
+      });
+    });
+
+    onUnmounted(() => {
+      newOrderListService.stop();
+    });
 
     // Filter dikirim ke server; setiap perubahan reload ke data terbaru dari backend
     watch([paymentStatusFilter, orderStatusFilter, filterDate], () => {
@@ -52,11 +69,21 @@ export default {
       });
     });
 
+    const paymentStatusLabel = (status) => ({
+      unpaid: 'Unpaid',
+      awaiting_verification: 'Menunggu konfirmasi',
+      paid: 'Paid'
+    }[status] || status);
+
+    const openProof = (url) => {
+      window.open(url, '_blank');
+    };
+
     const handleSimulateIncoming = async () => {
       audioService.playOrderChime();
       await loadOrders();
     };
 
-    return { orders, paymentStatusFilter, orderStatusFilter, filterDate, searchQuery, filteredOrders, handleSimulateIncoming };
+    return { orders, paymentStatusFilter, orderStatusFilter, filterDate, searchQuery, filteredOrders, paymentStatusLabel, openProof, handleSimulateIncoming };
   }
 };

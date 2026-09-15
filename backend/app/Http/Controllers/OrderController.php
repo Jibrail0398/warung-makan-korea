@@ -34,6 +34,21 @@ class OrderController extends Controller
         );
     }
 
+    /**
+     * Riwayat pesanan milik pengguna yang sedang login.
+     */
+    public function myOrders(Request $request)
+    {
+        $user = $request->user();
+
+        $orders = $this->service->getForUser($user->id, $user->phone_number, paginate: true);
+
+        return $this->successResponse(
+            OrderResource::collection($orders)->response()->getData(true),
+            'Berhasil mengambil riwayat pesanan'
+        );
+    }
+
     public function store(StoreOrderRequest $request)
     {
         $data = $request->validated();

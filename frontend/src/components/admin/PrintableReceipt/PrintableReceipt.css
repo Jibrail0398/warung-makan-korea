@@ -1,1 +1,50 @@
-.print-modal-backdrop{position:fixed;inset:0;z-index:9999;display:flex;justify-content:center;align-items:flex-start;padding:20px;box-sizing:border-box;background:rgba(25,21,18,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow-y:auto;overflow-x:hidden}.print-dialog{position:relative;width:100%;max-width:440px;max-height:calc(100dvh - 40px);background:#fff;border:1px solid var(--line,#dddddd);border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.18),0 8px 10px -6px rgba(0,0,0,0.12);overflow-y:auto;overflow-x:hidden;flex-shrink:0}.dialog-header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px 16px;box-sizing:border-box;background:var(--soft,#f7f7f7);border-bottom:1px solid var(--line,#dddddd)}.dialog-header h3{flex:1;min-width:0;margin:0;font-size:0.95rem;font-weight:750;line-height:1.3;color:var(--ink,#222222);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}.btn-print{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:8px 12px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-family:inherit;font-size:0.78rem;font-weight:750;line-height:1;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background-color 0.2s ease,transform 0.1s ease}.btn-print:hover{background:#b91c1c}.btn-print:active{transform:scale(0.97)}.btn-print svg{width:16px;height:16px;flex-shrink:0}.btn-close{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:none;border-radius:6px;background:transparent;color:var(--muted,#666666);font-family:inherit;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;transition:background-color 0.2s ease,color 0.2s ease}.btn-close:hover{background:rgba(0,0,0,0.06);color:#111}.thermal-receipt{width:100%;padding:24px;margin:0 auto;box-sizing:border-box;background:#fff;color:#000;font-family:"Courier New",Courier,monospace;font-size:12px;line-height:1.45}.receipt-header{text-align:center;margin-bottom:12px}.restaurant-name{margin:6px 0 2px;font-size:16px;font-weight:900;line-height:1.3;letter-spacing:0.05em}.restaurant-subtitle{margin:0 0 6px;font-size:10px;line-height:1.4}.receipt-stars,.receipt-divider{width:100%;margin:4px 0;text-align:center;color:#555;letter-spacing:-1px;overflow:hidden;white-space:nowrap}.receipt-meta,.receipt-customer,.receipt-payment{margin:8px 0}.meta-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:3px 0}.meta-row>span:first-child{flex-shrink:0}.meta-row>span:last-child,.meta-row>strong:last-child{min-width:0;text-align:right;word-break:break-word}.receipt-items{width:100%;margin:8px 0;border-collapse:collapse;border-spacing:0;table-layout:fixed;text-align:left}.receipt-items th{padding:4px 0;border-bottom:1px dashed #000;font-weight:800;line-height:1.3}.receipt-items td{padding:6px 0;vertical-align:top;line-height:1.4}.receipt-items th.col-item,.receipt-items td.col-item{width:55%;padding-right:6px}.receipt-items th.col-qty,.receipt-items td.col-qty{width:15%;text-align:center}.receipt-items th.col-total,.receipt-items td.col-total{width:30%;text-align:right}.item-title{display:block;font-weight:700;word-break:break-word}.item-unit-price{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#444}.receipt-totals{margin:8px 0}.total-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.grand-total{margin:6px 0;font-size:14px;font-weight:900}.total-amount{text-align:right;white-space:nowrap}.receipt-footer{margin-top:14px;text-align:center}.footer-msg{margin:6px 0 2px;font-weight:750}.footer-korean{margin:0 0 6px;font-size:10px;line-height:1.4}@media screen and (max-width:520px){.print-modal-backdrop{padding:10px}.print-dialog{max-height:calc(100dvh - 20px);border-radius:10px}.dialog-header{gap:8px;padding:12px}.dialog-header h3{font-size:0.85rem}.btn-print{padding:8px 10px;font-size:0.72rem}.thermal-receipt{padding:18px}}@media print{:global(body *){visibility:hidden !important}:global(html),:global(body){width:100%;height:auto;margin:0 !important;padding:0 !important;background:#fff !important;overflow:visible !important}.no-print{display:none !important}.print-modal-backdrop{position:static !important;display:block !important;width:auto !important;height:auto !important;padding:0 !important;margin:0 !important;background:transparent !important;backdrop-filter:none !important;overflow:visible !important}.print-dialog{position:static !important;width:auto !important;max-width:none !important;max-height:none !important;padding:0 !important;margin:0 !important;background:transparent !important;border:none !important;border-radius:0 !important;box-shadow:none !important;overflow:visible !important}#receipt-print-area,#receipt-print-area *{visibility:visible !important}#receipt-print-area{position:static !important;top:0 !important;left:0 !important;width:80mm !important;padding:4mm !important;margin:0 !important;box-sizing:border-box !important;background:#fff !important;color:#000 !important;box-shadow:none !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}.receipt-items tr,.receipt-meta,.receipt-customer,.receipt-payment,.receipt-totals,.receipt-footer{break-inside:avoid;page-break-inside:avoid}}@page{size:80mm auto;margin:0}
+.print-modal-backdrop{position:fixed;inset:0;z-index:9999;display:flex;justify-content:center;align-items:flex-start;padding:20px;box-sizing:border-box;background:rgba(25,21,18,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow-y:auto;overflow-x:hidden}
+.print-dialog{position:relative;width:100%;max-width:460px;max-height:calc(100dvh - 40px);background:#fff;border:1px solid var(--line,#dddddd);border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.18),0 8px 10px -6px rgba(0,0,0,0.12);overflow-y:auto;overflow-x:hidden;flex-shrink:0}
+.dialog-header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px 16px;box-sizing:border-box;background:var(--soft,#f7f7f7);border-bottom:1px solid var(--line,#dddddd)}
+.dialog-header h3{flex:1;min-width:0;margin:0;font-size:0.95rem;font-weight:750;line-height:1.3;color:var(--ink,#222222);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}
+.btn-print,.btn-download{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:8px 12px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-family:inherit;font-size:0.78rem;font-weight:750;line-height:1;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background-color 0.2s ease,transform 0.1s ease}
+.btn-download{background:#2563eb}
+.btn-download:hover{background:#1e40af}
+.btn-print:hover{background:#b91c1c}
+.btn-print:active,.btn-download:active{transform:scale(0.97)}
+.btn-print svg,.btn-download svg{width:16px;height:16px;flex-shrink:0}
+.btn-close{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:none;border-radius:6px;background:transparent;color:var(--muted,#666666);font-family:inherit;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;transition:background-color 0.2s ease,color 0.2s ease}
+.btn-close:hover{background:rgba(0,0,0,0.06);color:#111}
+
+/* Desain struk sama dengan sisi member */
+.receipt-preview{width:100%;padding:28px 26px;box-sizing:border-box;font-family:Georgia,"Times New Roman",serif;color:#241912}
+.receipt-header{text-align:center}
+.receipt-header .restaurant-name{margin:0;font-size:1.35rem;font-weight:600;letter-spacing:-0.02em;color:#241912}
+.receipt-header .restaurant-subtitle{margin:6px 0 0;font-size:0.8rem;color:#6d625b}
+.receipt-divider{height:1px;background:#ddd3ca;margin:14px 0}
+.receipt-divider-dark{background:#241912;height:1.5px}
+.receipt-meta .meta-row{display:flex;justify-content:space-between;gap:10px;font-size:0.78rem;line-height:1.7;color:#241912}
+.receipt-meta .meta-row span:first-child{color:#6d625b}
+.receipt-items-heading{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:6px;color:#241912}
+.receipt-items{width:100%;border-collapse:collapse}
+.receipt-items td{padding:4px 0;font-size:0.78rem;color:#241912}
+.receipt-items .col-item{text-align:left}
+.receipt-items .col-total{text-align:right;white-space:nowrap}
+.receipt-totals .total-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.receipt-totals .grand-total strong{font-size:1rem;color:#241912}
+.receipt-footer{text-align:center;margin-top:16px}
+.receipt-footer .footer-msg{margin:0;font-size:0.82rem;font-weight:700;color:#241912}
+.receipt-footer .footer-korean{margin:4px 0 0;font-size:0.74rem;color:#6d625b}
+
+/* Print: hanya struk, kertas A6 satu halaman */
+@media print {
+  @page { size: A6 portrait; margin: 6mm; }
+  body *{visibility:hidden !important}
+  #receipt-print-area,#receipt-print-area *{visibility:visible !important}
+  #receipt-print-area{position:absolute !important;left:0;top:0;width:100% !important;max-width:100% !important;padding:0 !important;box-sizing:border-box !important;font-size:10pt !important}
+  .receipt-preview{padding:0 !important}
+  .receipt-header .restaurant-name{font-size:16pt !important}
+  .receipt-header .restaurant-subtitle{font-size:8pt !important}
+  .receipt-meta .meta-row{font-size:8pt !important}
+  .receipt-items-heading{font-size:9pt !important}
+  .receipt-items td{font-size:8pt !important}
+  .print-modal-backdrop{position:static !important;display:block !important;background:#fff !important;backdrop-filter:none !important;padding:0 !important;overflow:visible !important}
+  .print-dialog{max-height:none !important;max-width:none !important;width:100% !important;border:none !important;box-shadow:none !important;border-radius:0 !important;overflow:visible !important}
+  .dialog-header{display:none !important}
+}

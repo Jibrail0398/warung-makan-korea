@@ -13,7 +13,6 @@ export default {
   setup() {
     const isSidebarOpen = ref(false);
     const isSidebarCollapsed = ref(false);
-    const latestOrder = ref(null);
     const authStore = useAuthStore();
     const isSuperAdmin = ref(false);
     const { isToastVisible, toastMessage, toastType, showToast } = useToast();
@@ -32,14 +31,10 @@ export default {
       }
     };
 
-    const handleNewOrderNotification = (order) => {
+    const handleNewOrderNotification = () => {
       showToast('Ada pesanan masuk');
-      latestOrder.value = order;
-      setTimeout(() => {
-        if (latestOrder.value?.id === order.id) latestOrder.value = null;
-      }, 15000);
     };
 
-    return { isSidebarOpen, isSidebarCollapsed, latestOrder, isSuperAdmin, isToastVisible, toastMessage, toastType, handleToggleSidebar, handleNewOrderNotification };
+    return { isSidebarOpen, isSidebarCollapsed, isSuperAdmin, isToastVisible, toastMessage, toastType, handleToggleSidebar, handleNewOrderNotification };
   }
 };

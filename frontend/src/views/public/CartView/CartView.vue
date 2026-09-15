@@ -3,7 +3,7 @@
     <AppHeader variant="cart" />
     <main class="cart-page">
       <div class="container">
-        <div class="page-heading">
+        <div v-if="cartStore.cartItems.length !== 0" class="page-heading">
           <span class="eyebrow">Your selection</span>
           <div class="heading-row">
             <h1>Your cart</h1>

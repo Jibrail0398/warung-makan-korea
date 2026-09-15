@@ -17,13 +17,13 @@
         <section class="card order-main-card">
           <div class="card-header">
             <div>
-              <span class="order-date-time">{{ order.date }} • {{ order.time || '12:30' }}</span>
-              <h1 class="order-title">Pesanan {{ order.orderNumber || order.id }}</h1>
+              <span class="order-date-time">{{ new Date(order.created_at).toLocaleString('id-ID') }}</span>
+              <h1 class="order-title">Pesanan {{ order.id }}</h1>
             </div>
             <StatusBadge :status="order.status" />
           </div>
           <div class="status-progress-box">
-            <h3 class="progress-title">Progres Status Pesanan</h3>
+            <h3 class="progress-title">Status Pesanan</h3>
             <div class="status-steps">
               <div v-for="(step, idx) in statusSteps" :key="step.key" class="step-item" :class="{ 'step-done': currentStepIndex > idx, 'step-current': currentStepIndex === idx, 'step-cancelled': isCancelled }">
                 <div class="step-circle">
@@ -35,33 +35,33 @@
               </div>
             </div>
           </div>
-          <div class="status-actions-panel">
-            <span class="action-label">Ubah Status Cepat:</span>
+          <div v-if="canAct && stageButton" class="status-actions-panel">
             <div class="action-btns-group">
-              <button v-if="order.status === 'Payment Verification'" type="button" class="btn-flow btn-process" @click="changeStatus('Processing')">Verifikasi Pembayaran & Masak</button>
-              <button v-if="order.status === 'Processing'" type="button" class="btn-flow btn-ready" @click="changeStatus('Ready')">Tandai Pesanan Siap</button>
-              <button v-if="order.status === 'Ready'" type="button" class="btn-flow btn-complete" @click="changeStatus('Completed')">Selesaikan Pesanan</button>
-              <button v-if="!['Completed', 'Cancelled'].includes(order.status)" type="button" class="btn-flow btn-cancel-order" @click="changeStatus('Cancelled')">Batalkan Pesanan</button>
+              <button
+                type="button"
+                class="btn-flow btn-process"
+                :disabled="isSubmitting"
+                @click="askStage"
+              >
+                {{ stageButton.label }}
+              </button>
             </div>
           </div>
         </section>
         <section class="card items-card">
           <h2 class="card-section-title">Daftar Item Pesanan ({{ order.items?.length || 0 }})</h2>
           <div class="items-list">
-            <div v-for="item in order.items" :key="item.id || item.name" class="order-item-row">
+            <div v-for="item in order.items" :key="item.id" class="order-item-row">
               <div class="item-meta">
-                <span class="item-name">{{ item.name }}</span>
-                <span class="item-type-tag">{{ item.category === 'raw' ? 'Raw Material' : 'Menu Restoran' }}</span>
+                <span class="item-name">{{ item.product?.name || 'Produk' }}</span>
                 <small class="item-price-unit">@ ₩{{ (item.price || 0).toLocaleString('ko-KR') }}</small>
               </div>
               <div class="item-qty"><span>{{ item.quantity }}x</span></div>
-              <div class="item-subtotal"><strong>₩{{ ((item.subtotal || (item.price * item.quantity)) || 0).toLocaleString('ko-KR') }}</strong></div>
+              <div class="item-subtotal"><strong>₩{{ ((item.sub_total || item.price * item.quantity) || 0).toLocaleString('ko-KR') }}</strong></div>
             </div>
           </div>
           <div class="order-pricing-summary">
-            <div class="pricing-row"><span>Subtotal Produk</span><span>₩{{ (order.subtotal || order.total || 0).toLocaleString('ko-KR') }}</span></div>
-            <div class="pricing-row"><span>Pajak & Layanan</span><span>₩0</span></div>
-            <div class="pricing-row grand-total-row"><strong>Total Pembayaran</strong><strong class="grand-total-val">₩{{ (order.total || 0).toLocaleString('ko-KR') }}</strong></div>
+            <div class="pricing-row grand-total-row"><strong>Total Pembayaran</strong><strong class="grand-total-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
           </div>
         </section>
       </div>
@@ -69,25 +69,23 @@
         <section class="card customer-card">
           <h2 class="card-section-title">Informasi Pelanggan</h2>
           <div class="customer-info-list">
-            <div class="info-item"><span class="info-label">Nama Pelanggan:</span><strong>{{ order.customer?.name || 'Customer' }}</strong></div>
-            <div class="info-item"><span class="info-label">Nomor HP (Korea):</span><a :href="`tel:${order.customer?.phone}`" class="phone-link">{{ order.customer?.phone }}</a></div>
-            <div class="info-item"><span class="info-label">Tipe Layanan:</span><span class="type-badge">{{ order.orderType || 'Dine In' }} {{ order.tableNumber ? `(${order.tableNumber})` : '' }}</span></div>
-            <div v-if="order.address" class="info-item"><span class="info-label">Alamat Pengiriman:</span><span>{{ order.address }}</span></div>
-            <div v-if="order.note" class="info-item note-item"><span class="info-label">Catatan Pesanan:</span><p class="customer-note">{{ order.note }}</p></div>
+            <div class="info-item"><span class="info-label">Nama Pelanggan:</span><strong>{{ order.customer_name || 'Customer' }}</strong></div>
+            <div class="info-item"><span class="info-label">Nomor HP (Korea):</span><a :href="`tel:${order.customer_phone}`" class="phone-link">{{ order.customer_phone || '-' }}</a></div>
+            <div class="info-item"><span class="info-label">Nomor Meja:</span><span class="type-badge">{{ order.table_number || 'Takeaway' }}</span></div>
           </div>
         </section>
         <section class="card payment-card">
           <div class="payment-header">
             <h2 class="card-section-title">Bukti Transfer</h2>
-            <span class="payment-tag" :class="`pay-${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`">{{ order.paymentStatus || 'Waiting Verification' }}</span>
+            <span class="payment-tag">{{ order.payment_status }}</span>
           </div>
           <div class="payment-meta-info">
-            <div class="meta-line"><span>Metode:</span><strong>{{ order.paymentMethod || 'Bank Transfer' }}</strong></div>
-            <div class="meta-line"><span>Total Tagihan:</span><strong>₩{{ (order.total || 0).toLocaleString('ko-KR') }}</strong></div>
+            <div class="meta-line"><span>Metode:</span><strong>Bank Transfer</strong></div>
+            <div class="meta-line"><span>Total Tagihan:</span><strong>₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
           </div>
           <div class="proof-container">
-            <div v-if="order.paymentProof" class="proof-wrapper">
-              <img :src="order.paymentProof" alt="Bukti Transfer" class="proof-thumbnail" />
+            <div v-if="order.payment_receipt_url" class="proof-wrapper">
+              <img :src="order.payment_receipt_url" alt="Bukti Transfer" class="proof-thumbnail" @error="handleImgError" />
               <button type="button" class="zoom-proof-btn" @click="isProofViewerOpen = true">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" /><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8" /><line x1="11" y1="8" x2="11" y2="14" stroke="currentColor" stroke-width="1.8" /><line x1="8" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1.8" /></svg>
                 <span>Lihat Ukuran Penuh</span>
@@ -95,15 +93,49 @@
             </div>
             <div v-else class="no-proof-box"><p>Customer belum mengunggah bukti pembayaran.</p></div>
           </div>
-          <div v-if="order.paymentProof && order.paymentStatus !== 'Verified'" class="proof-decision-btns">
-            <button type="button" class="btn-approve-proof" @click="handleVerifyProof(true)">Konfirmasi & Terima Bayar</button>
-            <button type="button" class="btn-reject-proof" @click="handleVerifyProof(false)">Tolak Bukti</button>
+          <div v-if="showPaymentActions" class="proof-decision-btns">
+            <button
+              type="button"
+              class="btn-approve-proof"
+              :disabled="isSubmitting"
+              @click="askApprove"
+            >
+              Konfirmasi Bayar
+            </button>
+            <button
+              type="button"
+              class="btn-reject-proof"
+              :disabled="isSubmitting"
+              @click="askReject"
+            >
+              Tolak Pesanan
+            </button>
           </div>
         </section>
       </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <div v-if="confirmModal" class="modal-backdrop" @click.self="confirmModal = null">
+      <div class="confirm-dialog">
+        <h3 class="dialog-title">{{ confirmModal.title }}</h3>
+        <p class="dialog-desc">{{ confirmModal.message }}</p>
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" @click="confirmModal = null">Tidak</button>
+          <button
+            type="button"
+            class="btn-primary"
+            :disabled="isSubmitting"
+            @click="executeConfirm"
+          >
+            Ya
+          </button>
+        </div>
+      </div>
+    </div>
+
     <PrintableReceipt :isOpen="isPrintOpen" :order="order" @close="isPrintOpen = false" />
-    <PaymentProofViewer :isOpen="isProofViewerOpen" :order="order" @close="isProofViewerOpen = false" @approve="handleVerifyProof(true)" @reject="handleVerifyProof(false)" />
+    <PaymentProofViewer :isOpen="isProofViewerOpen" :order="order" @close="isProofViewerOpen = false" />
   </div>
 </template>
 

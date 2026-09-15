@@ -6,12 +6,7 @@
         <h1 class="page-title">Monitoring Pesanan</h1>
         <p class="page-description">Pantau pesanan masuk, verifikasi bukti transfer pembayaran, dan update status pesanan secara real-time.</p>
       </div>
-      <div class="header-actions">
-        <button type="button" class="btn-simulate" title="Simulasikan order baru masuk" @click="handleSimulateIncoming">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span>Simulasi Order Baru</span>
-        </button>
-      </div>
+      
     </header>
     <section class="filter-section">
       <div class="filter-controls">
@@ -50,23 +45,31 @@
     <div class="table-container">
       <table class="orders-table">
         <thead>
-          <tr><th scope="col">ID Pesanan</th><th scope="col">Waktu</th><th scope="col">Customer</th><th scope="col">No. Meja</th><th scope="col">Item Pesanan</th><th scope="col">Total Harga</th><th scope="col">Status Pembayaran</th><th scope="col">Bukti Transfer</th><th scope="col">Status Pesanan</th><th scope="col" class="col-actions">Aksi</th></tr>
+          <tr>
+            <th scope="col">ID Pesanan</th>
+            <th scope="col">Waktu</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Item Pesanan</th>
+            <th scope="col">Total Harga</th>
+            <th scope="col">Status Pembayaran</th>
+            <th scope="col">Bukti Transfer</th>
+            <th scope="col">Status Pesanan</th>
+            <th scope="col" class="col-actions">Aksi</th></tr>
         </thead>
         <tbody v-if="filteredOrders.length > 0">
           <tr v-for="order in filteredOrders" :key="order.id">
             <td><router-link :to="`/admin/orders/${order.id}`" class="order-link-code">#{{ order.id }}</router-link></td>
             <td><div class="time-cell"><span>{{ new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</span><small>{{ new Date(order.created_at).toLocaleDateString() }}</small></div></td>
             <td><div class="customer-cell"><strong>{{ order.customer_name || 'Guest' }}</strong><small>{{ order.customer_phone || '-' }}</small></div></td>
-            <td><span class="order-type-tag">{{ order.table_number ? `Meja ${order.table_number}` : 'Takeaway' }}</span></td>
             <td><div class="items-cell"><span class="items-summary">{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span></div></td>
             <td><span class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</span></td>
-            <td><span class="payment-status-badge" :class="order.payment_status">{{ order.payment_status }}</span></td>
-            <td><a v-if="order.payment_receipt_url" :href="order.payment_receipt_url" target="_blank" class="proof-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" /><polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="1.8" /></svg><span>Lihat Bukti</span></a><span v-else class="no-proof-text">-</span></td>
+            <td><span class="payment-status-badge" :class="order.payment_status">{{ paymentStatusLabel(order.payment_status) }}</span></td>
+            <td><div class="proof-cell"><img v-if="order.payment_receipt_url" :src="order.payment_receipt_url" alt="Bukti Transfer" class="proof-thumb" @click="openProof(order.payment_receipt_url)" /><a v-if="order.payment_receipt_url" :href="order.payment_receipt_url" target="_blank" class="proof-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" /><polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="1.8" /></svg><span>Lihat Bukti</span></a><span v-else class="no-proof-text">-</span></div></td>
             <td><StatusBadge :status="order.status" /></td>
             <td class="col-actions"><div class="quick-actions"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn">Detail</router-link></div></td>
           </tr>
         </tbody>
-        <tbody v-else><tr><td colspan="10" class="empty-state-row"><div class="empty-box"><p>Tidak ada pesanan pada status ini.</p></div></td></tr></tbody>
+        <tbody v-else><tr><td colspan="9" class="empty-state-row"><div class="empty-box"><p>Tidak ada pesanan pada tanggal {{ filterDate }}. Coba pilih tanggal lain melalui filter Tanggal.</p></div></td></tr></tbody>
       </table>
     </div>
     <div class="mobile-orders-list">
@@ -86,5 +89,6 @@
 
 <script>
 import AdminOrdersScript from './AdminOrdersView.js';
+
 export default { ...AdminOrdersScript };
 </script>

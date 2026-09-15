@@ -36,6 +36,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/admin/products', [ProductController::class, 'adminIndex']);
 
+    // Riwayat pesanan milik pengguna yang sedang login.
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+
     Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
         Route::get('/session', [WhatsAppSessionController::class, 'show']);
         Route::post('/session/start', [WhatsAppSessionController::class, 'start']);

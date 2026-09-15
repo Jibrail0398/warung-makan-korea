@@ -153,8 +153,7 @@
   gap: 29px;
 }
 
-.desktop-nav > a,
-.language-selector summary {
+.desktop-nav > a {
   position: relative;
 
   color: #403b37;
@@ -193,8 +192,7 @@
 }
 
 .desktop-nav > a:hover,
-.desktop-nav > a.active,
-.language-selector summary:hover {
+.desktop-nav > a.active {
   color: var(--red);
 }
 
@@ -202,72 +200,6 @@
 .desktop-nav > a.active::after {
   opacity: 1;
   transform: scaleX(1);
-}
-
-
-/* =========================================================
-   LANGUAGE
-   ========================================================= */
-
-.language-selector {
-  position: relative;
-}
-
-.language-selector summary {
-  display: inline-flex;
-  align-items: center;
-
-  gap: 5px;
-
-  cursor: pointer;
-}
-
-.language-selector summary::-webkit-details-marker {
-  display: none;
-}
-
-.language-menu {
-  position: absolute;
-
-  top: calc(100% + 15px);
-  right: 0;
-
-  width: 180px;
-
-  padding: 8px;
-
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-
-  background: var(--paper);
-
-  box-shadow: var(--shadow);
-
-  z-index: 100;
-}
-
-.language-menu button {
-  width: 100%;
-
-  padding: 9px 10px;
-
-  border: 0;
-  border-radius: 7px;
-
-  background: transparent;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  font-family: inherit;
-  font-size: 0.86rem;
-}
-
-.language-menu button:hover,
-.language-menu button[aria-current="true"] {
-  background: var(--soft);
-  color: var(--red);
 }
 
 
@@ -736,8 +668,7 @@
     gap: 16px;
   }
 
-  .desktop-nav > a,
-  .language-selector summary {
+  .desktop-nav > a {
     font-size: 0.83rem;
   }
 
@@ -792,8 +723,7 @@
     gap: 12px;
   }
 
-  .desktop-nav > a,
-  .language-selector summary {
+  .desktop-nav > a {
     font-size: 0.78rem;
   }
 
@@ -1248,18 +1178,12 @@
 
 @media (hover: none) and (pointer: coarse) {
   .desktop-nav > a,
-  .language-selector summary,
   .login-link,
   .cart-link,
   .profile-trigger,
   .cart-nav a,
   .back-link {
     min-height: 44px;
-  }
-
-  .language-selector summary {
-    display: inline-flex;
-    align-items: center;
   }
 
   .profile-trigger {
@@ -1300,7 +1224,6 @@
 
   .mobile-menu-button,
   .mobile-header-action,
-  .desktop-nav .language-selector,
   .profile-dropdown,
   .login-link {
     display: none !important;

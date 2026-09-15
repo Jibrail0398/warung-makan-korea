@@ -7,9 +7,14 @@ use Illuminate\Support\Carbon;
 
 class UserService
 {
-    public function getAll(bool $paginate = false, int $perPage = 15)
+    public function getAll(bool $paginate = false, int $perPage = 15, ?string $role = null)
     {
         $query = User::latest();
+
+        if ($role !== null) {
+            $query->where('role', $role);
+        }
+
         return $paginate ? $query->paginate($perPage) : $query->get();
     }
 

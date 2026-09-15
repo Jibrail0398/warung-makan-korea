@@ -30,19 +30,6 @@
           <router-link to="/" :class="{ active: activeSection === 'home' }">Home</router-link>
           <router-link to="/#menu" :class="{ active: activeSection === 'menu' }">Menu</router-link>
           <router-link to="/#about" :class="{ active: activeSection === 'about' }">About</router-link>
-          <details class="language-selector">
-            <summary>
-              Language
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </summary>
-            <div class="language-menu">
-              <button type="button" aria-current="true">English</button>
-              <button type="button">한국어</button>
-              <button type="button">Bahasa Indonesia</button>
-            </div>
-          </details>
         </nav>
 
         <div class="header-actions">

@@ -19,14 +19,14 @@ export default {
     const filteredOrders = computed(() => {
       const query = searchQuery.value.trim().toLowerCase();
       return orders.value.filter((order) => {
-        const sl = (order.status || '').toLowerCase().replace(/\s+/g, '-');
-        let mf = activeFilter.value === 'all';
-        if (activeFilter.value === 'completed') mf = sl.includes('completed') || sl.includes('selesai');
-        else if (activeFilter.value === 'in-progress') mf = sl.includes('progress') || sl.includes('verification') || sl.includes('preparing') || sl.includes('ready') || sl.includes('waiting');
-        else if (activeFilter.value === 'cancelled') mf = sl.includes('cancelled') || sl.includes('batal');
-        const om = (order.id || order.orderId || '').toLowerCase().includes(query);
-        const im = (order.items || []).some((item) => (item.name || '').toLowerCase().includes(query));
-        return mf && (!query || om || im);
+        const status = (order.status || '').toLowerCase();
+        let matchesFilter = true;
+        if (activeFilter.value === 'completed') matchesFilter = status === 'completed';
+        else if (activeFilter.value === 'in-progress') matchesFilter = ['pending', 'preparing', 'ready'].includes(status);
+        else if (activeFilter.value === 'cancelled') matchesFilter = status === 'cancelled';
+        const matchesId = (order.id || '').toLowerCase().includes(query);
+        const matchesItem = (order.items || []).some((item) => (item.name || '').toLowerCase().includes(query));
+        return matchesFilter && (!query || matchesId || matchesItem);
       });
     });
     function setFilter(val) { activeFilter.value = val; }

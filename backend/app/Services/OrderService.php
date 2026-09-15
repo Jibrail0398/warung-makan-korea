@@ -24,12 +24,32 @@ class OrderService
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['date'])) {
-            $query->whereDate('created_at', $filters['date']);
-        } else {
-            // Default: hanya pesanan hari ini
-            $query->whereDate('created_at', today());
-        }
+        // Filter tanggal berbasis zona waktu lokal pengguna (Asia/Seoul).
+        // created_at tersimpan UTC, jadi bandingkan window UTC dari hari lokal tersebut.
+        // Tanpa parameter date: default hanya pesanan hari ini.
+        $targetDate = !empty($filters['date']) ? $filters['date'] : now()->toDateString();
+        $start = \Carbon\Carbon::parse($targetDate, 'Asia/Seoul')->startOfDay()->setTimezone('UTC');
+        $end = \Carbon\Carbon::parse($targetDate, 'Asia/Seoul')->endOfDay()->setTimezone('UTC');
+        $query->whereBetween('created_at', [$start, $end]);
+
+        return $paginate ? $query->paginate($perPage) : $query->get();
+    }
+
+    /**
+     * Riwayat pesanan milik satu pengguna (berdasarkan user_id, atau
+     * customer_phone sebagai fallback untuk pesanan lama tanpa user_id).
+     */
+    public function getForUser(string $userId, ?string $phone = null, bool $paginate = false, int $perPage = 15)
+    {
+        $query = Order::with('items.product')
+            ->where(function ($q) use ($userId, $phone) {
+                $q->where('user_id', $userId);
+
+                if (!empty($phone)) {
+                    $q->orWhere('customer_phone', $phone);
+                }
+            })
+            ->latest();
 
         return $paginate ? $query->paginate($perPage) : $query->get();
     }
@@ -83,7 +103,32 @@ class OrderService
 
     public function updateStatus(Order $order, array $data): Order
     {
+        $newStatus = $data['status'] ?? null;
+        $newPaymentStatus = $data['payment_status'] ?? null;
+
+        // Sinkronisasi status pesanan & status pembayaran
+        // Titik temu: preparing <=> paid
+        if ($newStatus === 'preparing') {
+            $data['payment_status'] = 'paid';
+        }
+
+        if ($newPaymentStatus === 'paid' && $newStatus === null) {
+            if (in_array($order->status, ['pending', null])) {
+                $data['status'] = 'preparing';
+            }
+        }
+
+        // Pesanan dibatalkan/ditolak: status pembayaran kembali menjadi unpaid
+        if ($newStatus === 'cancelled') {
+            $data['payment_status'] = 'unpaid';
+        }
+
         $order->update($data);
+        $order->refresh();
+
+        // Broadcast perubahan ke channel unik per nomor pesanan
+        broadcast(new \App\Events\OrderStatusUpdatedEvent($order));
+
         return $order;
     }
 
@@ -99,6 +144,9 @@ class OrderService
             'payment_receipt' => $path,
             'payment_status' => 'awaiting_verification'
         ]);
+        $order->refresh();
+        // Broadcast ke admin agar bukti bayar tampil realtime di halaman detail
+        broadcast(new \App\Events\OrderStatusUpdatedEvent($order));
         // Broadcast event ke channel 'new-order' via Pusher
         try {
             broadcast(new NewOrderEvent($order));

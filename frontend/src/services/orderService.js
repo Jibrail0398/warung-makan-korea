@@ -42,6 +42,57 @@ export const orderService = {
 		}
 	},
 
+	async getActiveOrder() {
+		const orderId = localStorage.getItem(orderStorageKey);
+		if (!orderId) return null;
+		try {
+			return await this.getOrderById(orderId);
+		} catch (error) {
+			return null;
+		}
+	},
+
+	async getOrderHistory() {
+		try {
+			// Endpoint khusus: hanya pesanan milik pengguna yang sedang login.
+			const response = await axios.get(`${apiBaseUrl}/my-orders`, {
+				headers: await getAuthorizationHeaders()
+			});
+			const orders = response.data?.data?.data || [];
+
+			return orders.map((order) => ({
+				id: order.id,
+				date: order.created_at,
+				status: order.status,
+				paymentStatus: order.payment_status,
+				total: order.total_price,
+				items: (order.items || []).map((item) => ({
+					id: item.id,
+					productId: item.product_id,
+					name: item.product?.name || 'Produk',
+					quantity: item.quantity,
+					price: item.price,
+					subTotal: item.sub_total
+				}))
+			}));
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal mengambil riwayat pesanan.'));
+		}
+	},
+
+	async updateOrderStatus(orderId, payload) {
+		try {
+			const response = await axios.put(
+				`${apiBaseUrl}/orders/${orderId}/status`,
+				payload,
+				{ headers: await getAuthorizationHeaders() }
+			);
+			return response.data;
+		} catch (error) {
+			throw new Error(getErrorMessage(error, 'Gagal memperbarui status pesanan.'));
+		}
+	},
+
 	async createOrder(orderData) {
 		try {
 			console.log('[OrderService] createOrder started', orderData);

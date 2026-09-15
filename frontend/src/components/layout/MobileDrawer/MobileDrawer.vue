@@ -8,10 +8,6 @@
         <router-link to="/#menu" @click="$emit('close')">Menu</router-link>
         <router-link to="/order-history" @click="$emit('close')">Order History</router-link>
         <router-link to="/#about" @click="$emit('close')">About</router-link>
-        <details>
-          <summary>Language <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></summary>
-          <div class="mobile-language-options"><button type="button">English</button><button type="button">한국어</button><button type="button">Bahasa Indonesia</button></div>
-        </details>
         <router-link to="/login" @click="$emit('close')">Login</router-link>
       </nav>
       <p class="mobile-drawer-footer">Authentic Indonesian food and ingredients in Korea.</p>
