@@ -113,11 +113,6 @@ const routes = [
         component: () => import('../views/admin/AdminDashboardView/AdminDashboardView.vue')
       },
       {
-        path: 'pos',
-        name: 'admin-pos',
-        component: () => import('../views/admin/AdminPosView/AdminPosView.vue')
-      },
-      {
         path: 'orders',
         name: 'admin-orders',
         component: () => import('../views/admin/AdminOrdersView/AdminOrdersView.vue')
@@ -138,12 +133,6 @@ const routes = [
         component: () => import('../views/admin/AdminMainCategoriesView/AdminMainCategoriesView.vue')
       },
       {
-        path: 'categories',
-        alias: 'subcategories',
-        name: 'admin-categories',
-        component: () => import('../views/admin/AdminCategoriesView/AdminCategoriesView.vue')
-      },
-      {
         path: 'reports',
         redirect: '/admin/reports/transactions'
       },
@@ -151,11 +140,6 @@ const routes = [
         path: 'reports/transactions',
         name: 'admin-reports-transactions',
         component: () => import('../views/admin/AdminTransactionReportView/AdminTransactionReportView.vue')
-      },
-      {
-        path: 'reports/financial',
-        name: 'admin-reports-financial',
-        component: () => import('../views/admin/AdminFinancialReportView/AdminFinancialReportView.vue')
       },
       {
         path: 'reset-password',
@@ -172,7 +156,7 @@ const routes = [
         path: 'admins',
         name: 'admin-management',
         component: () => import('../views/superadmin/SuperAdminManagementView/SuperAdminManagementView.vue'),
-        meta: { requiredRole: 'superadmin' }
+        meta: { requiredRole: ['admin', 'superadmin'] }
       },
       {
         path: 'whatsapp-sessions',
