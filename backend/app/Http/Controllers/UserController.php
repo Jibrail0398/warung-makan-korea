@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
@@ -45,6 +46,12 @@ class UserController extends Controller
     {
         $user = $this->service->update($user, $request->validated());
         return $this->successResponse(new UserResource($user), 'Pengguna berhasil diperbarui');
+    }
+
+    public function changePassword(ChangePasswordRequest $request, User $user)
+    {
+        $this->service->changePassword($user, $request->validated('password'));
+        return $this->successResponse(null, "Password pengguna {$user->name} berhasil diperbarui.");
     }
 
     public function destroy(User $user)

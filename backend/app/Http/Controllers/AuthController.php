@@ -85,7 +85,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Mencabut token JWT saat ini
+        $user = auth('api')->user();
+
+        // Catat log logout sebelum token dicabut
+        if ($user) {
+            $this->authService->logout($user);
+        }
+
         auth('api')->logout();
         return $this->successResponse(null, 'Berhasil logout');
     }

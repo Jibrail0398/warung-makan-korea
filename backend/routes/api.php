@@ -8,6 +8,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WhatsAppSessionController;
 
 // Auth Routes (Public)
@@ -70,6 +72,22 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/users/{user}', [UserController::class, 'show']);
         Route::put('/users/{user}', [UserController::class, 'update']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+        // Rekap Laporan Penjualan (Harian, Mingguan, Bulanan, Tahunan)
+        Route::get('/reports/sales', [ReportController::class, 'sales']);
+        Route::get('/reports/sales/daily', [ReportController::class, 'daily']);
+        Route::get('/reports/sales/weekly', [ReportController::class, 'weekly']);
+        Route::get('/reports/sales/monthly', [ReportController::class, 'monthly']);
+        Route::get('/reports/sales/yearly', [ReportController::class, 'yearly']);
     });
 
+    Route::middleware('role:superadmin')->group(function () {
+        Route::put('/users/{user}/password', [UserController::class, 'changePassword']);
+
+        Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+        Route::get('/activity-logs/{activity_log}', [ActivityLogController::class, 'show']);
+    });
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
 });
+
