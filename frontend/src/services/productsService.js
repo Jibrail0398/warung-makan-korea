@@ -64,11 +64,16 @@ export const productService = {
         }
     },
 
-    async getAdminProducts(page = 1) {
+    async getAdminProducts(page = 1, filters = {}) {
         try {
             const headers = await getAuthHeaders();
+            const params = { page };
+            if (filters.search) params.search = filters.search;
+            if (filters.categoryId && filters.categoryId !== 'all') params.category_id = filters.categoryId;
+            if (filters.status && filters.status !== 'all') params.status = filters.status;
+
             const response = await axios.get(`${apiBaseUrl}/admin/products`, {
-                params: { page },
+                params,
                 headers
             });
             const payload = response.data?.data || {};

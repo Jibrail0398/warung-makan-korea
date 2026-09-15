@@ -34,7 +34,7 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    Route::get('/admin/products', [ProductController::class, 'index']);
+    Route::get('/admin/products', [ProductController::class, 'adminIndex']);
 
     Route::middleware('role:superadmin')->prefix('whatsapp')->group(function () {
         Route::get('/session', [WhatsAppSessionController::class, 'show']);

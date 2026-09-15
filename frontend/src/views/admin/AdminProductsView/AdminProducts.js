@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, reactive } from 'vue';
+import { ref, computed, onMounted, reactive, watch } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
 import { productService } from '../../../services/productsService.js';
 import "./AdminProducts.css"
@@ -28,14 +28,48 @@ export default {
       message: ''
     });
 
-    const loadData = async () => {
+    const pagination = reactive({
+      currentPage: 1,
+      lastPage: 1,
+      total: 0,
+      perPage: 0
+    });
+
+    const isPageLoading = ref(false);
+
+    const loadData = async (page = 1) => {
+      isPageLoading.value = true;
       try {
-        const result = await productService.getAdminProducts();
+        const result = await productService.getAdminProducts(page, {
+          search: searchQuery.value,
+          categoryId: selectedSubcatFilter.value,
+          status: statusFilter.value
+        });
         products.value = result.products;
+        pagination.currentPage = result.pagination.currentPage;
+        pagination.lastPage = result.pagination.lastPage;
+        pagination.total = result.pagination.total;
+        pagination.perPage = result.pagination.perPage;
       } catch (err) {
         console.error('Failed to load products data:', err);
+      } finally {
+        isPageLoading.value = false;
       }
     };
+
+    const changePage = (page) => {
+      if (page < 1 || page > pagination.lastPage || page === pagination.currentPage || isPageLoading.value) return;
+      loadData(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const getPageNumbers = computed(() => {
+      const pages = [];
+      const start = Math.max(1, pagination.currentPage - 2);
+      const end = Math.min(pagination.lastPage, pagination.currentPage + 2);
+      for (let i = start; i <= end; i++) pages.push(i);
+      return pages;
+    });
 
     const loadCategories = async () => {
       try {
@@ -50,47 +84,19 @@ export default {
       loadCategories();
     });
 
-    const availableSubcategories = computed(() => {
-      if (selectedTab.value === 'all') return categories.value;
-      const targetMainId = selectedTab.value === 'restaurant' ? 1 : 2;
-      return categories.value.filter(sc => {
-        if (sc.mainCategoryId) return Number(sc.mainCategoryId) === targetMainId;
-        return selectedTab.value === 'restaurant' ? sc.type === 'restaurant' : sc.type === 'raw';
-      });
+    const availableSubcategories = computed(() => categories.value);
+
+    // Filter dikirim ke backend (server-side), bukan difilter di frontend
+    watch([selectedSubcatFilter, statusFilter], () => {
+      loadData(1);
     });
 
-    const getSubcatName = (subcatId) => {
-      const found = categories.value.find(c => Number(c.id) === Number(subcatId));
-      return found?.name || 'General';
-    };
-
-    const filteredProducts = computed(() => {
-      return products.value.filter(product => {
-        // Kategori Besar Tab Filter
-        let tabMatch = selectedTab.value === 'all';
-        if (!tabMatch) {
-          if (selectedTab.value === 'restaurant') {
-            tabMatch = product.category === 'restaurant' || product.mainCategoryId === 1;
-          } else if (selectedTab.value === 'raw') {
-            tabMatch = product.category === 'raw' || product.mainCategoryId === 2;
-          }
-        }
-
-        // Subkategori Dropdown Filter
-        let subcatMatch = selectedSubcatFilter.value === 'all';
-        if (!subcatMatch) {
-          subcatMatch = String(product.subcategoryId || product.categoryId) === String(selectedSubcatFilter.value);
-        }
-
-        // Search query
-        const q = searchQuery.value.trim().toLowerCase();
-        const searchMatch = !q || (product.name + ' ' + (product.description || '')).toLowerCase().includes(q);
-
-        // Status filter
-        const statusMatch = statusFilter.value === 'all' || product.status === statusFilter.value;
-
-        return tabMatch && subcatMatch && searchMatch && statusMatch;
-      });
+    let searchDebounceTimer = null;
+    watch(searchQuery, () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        loadData(1);
+      }, 400);
     });
 
     const openAddModal = () => {
@@ -171,9 +177,11 @@ export default {
       selectedProduct,
       productToDelete,
       notificationModal,
+      pagination,
+      isPageLoading,
+      getPageNumbers,
+      changePage,
       availableSubcategories,
-      getSubcatName,
-      filteredProducts,
       openAddModal,
       openEditModal,
       handleSaveProduct,

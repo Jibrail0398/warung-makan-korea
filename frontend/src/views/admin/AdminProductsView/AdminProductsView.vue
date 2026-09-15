@@ -65,8 +65,8 @@
             <th scope="col" class="col-actions">Aksi</th>
           </tr>
         </thead>
-        <tbody v-if="filteredProducts.length > 0">
-          <tr v-for="product in filteredProducts" :key="product.id">
+        <tbody v-if="products.length > 0">
+          <tr v-for="product in products" :key="product.id">
             <td class="col-thumb">
               <div class="product-img-box">
                 <img :src="product.image" :alt="product.name" @error="handleImgError($event)" />
@@ -137,10 +137,48 @@
       </table>
     </div>
 
+    <!-- Pagination -->
+    <nav v-if="pagination.lastPage > 1" class="pagination-nav" aria-label="Navigasi halaman produk">
+      <button
+        type="button"
+        class="page-btn"
+        :disabled="pagination.currentPage === 1 || isPageLoading"
+        @click="changePage(pagination.currentPage - 1)"
+      >
+        ← Prev
+      </button>
+
+      <span v-if="getPageNumbers[0] > 1" class="page-ellipsis">…</span>
+      <button
+        v-for="p in getPageNumbers"
+        :key="p"
+        type="button"
+        class="page-btn"
+        :class="{ active: p === pagination.currentPage }"
+        :disabled="isPageLoading"
+        @click="changePage(p)"
+      >
+        {{ p }}
+      </button>
+      <span v-if="getPageNumbers[getPageNumbers.length - 1] < pagination.lastPage" class="page-ellipsis">…</span>
+
+      <button
+        type="button"
+        class="page-btn"
+        :disabled="pagination.currentPage === pagination.lastPage || isPageLoading"
+        @click="changePage(pagination.currentPage + 1)"
+      >
+        Next →
+      </button>
+    </nav>
+    <p class="pagination-info" v-if="pagination.total > 0">
+      Menampilkan halaman {{ pagination.currentPage }} dari {{ pagination.lastPage }} ({{ pagination.total }} produk)
+    </p>
+
     <!-- Mobile Product Cards List -->
     <div class="mobile-product-cards">
       <article
-        v-for="product in filteredProducts"
+        v-for="product in products"
         :key="`m-${product.id}`"
         class="mobile-card"
       >
@@ -177,6 +215,27 @@
         </div>
       </article>
     </div>
+
+    <!-- Pagination (Mobile) -->
+    <nav v-if="pagination.lastPage > 1" class="pagination-nav pagination-nav-mobile" aria-label="Navigasi halaman produk">
+      <button
+        type="button"
+        class="page-btn"
+        :disabled="pagination.currentPage === 1 || isPageLoading"
+        @click="changePage(pagination.currentPage - 1)"
+      >
+        ← Prev
+      </button>
+      <span class="page-compact">Hal. {{ pagination.currentPage }} / {{ pagination.lastPage }}</span>
+      <button
+        type="button"
+        class="page-btn"
+        :disabled="pagination.currentPage === pagination.lastPage || isPageLoading"
+        @click="changePage(pagination.currentPage + 1)"
+      >
+        Next →
+      </button>
+    </nav>
 
     <!-- Product Modal (Add / Edit) -->
     <ProductModal

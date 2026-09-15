@@ -8,6 +8,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -22,7 +23,28 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->service->getAll(paginate: true);
+        $products = $this->service->getAll(paginate: true, activeOnly: true);
+        return $this->successResponse(
+            ProductResource::collection($products)->response()->getData(true),
+            'Berhasil mengambil daftar produk'
+        );
+    }
+
+    public function adminIndex(Request $request)
+    {
+        $status = $request->query('status');
+        $isActive = null;
+        if ($status === 'Available') {
+            $isActive = true;
+        } elseif ($status === 'Sold Out') {
+            $isActive = false;
+        }
+
+        $products = $this->service->getAll(paginate: true, filters: [
+            'search' => $request->query('search'),
+            'category_id' => $request->query('category_id'),
+            'is_active' => $isActive,
+        ]);
         return $this->successResponse(
             ProductResource::collection($products)->response()->getData(true),
             'Berhasil mengambil daftar produk'
