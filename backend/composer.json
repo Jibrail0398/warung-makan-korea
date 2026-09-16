@@ -6,7 +6,7 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "kstmostofa/laravel-whatsapp": "^1.0",
         "laravel/framework": "^11.48",
         "laravel/sanctum": "^4.0",
