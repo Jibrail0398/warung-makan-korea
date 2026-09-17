@@ -89,7 +89,5 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/bank-accounts/{bank_account}', [BankAccountController::class, 'update']);
         Route::delete('/bank-accounts/{bank_account}', [BankAccountController::class, 'destroy']);
     });
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::post('/orders/{order}/receipt', [OrderController::class, 'uploadReceipt']);
 });
 
