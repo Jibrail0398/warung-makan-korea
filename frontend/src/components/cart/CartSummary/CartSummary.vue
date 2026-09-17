@@ -33,12 +33,15 @@
 
 <script>
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
+import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
 import CartSummaryScript from './CartSummary.js';
 
 export default {
+  ...CartSummaryScript,
   components: {
-    LoadingSpinner
-  },
-  ...CartSummaryScript
+    LoadingSpinner,
+    NoticeModal,
+    ...CartSummaryScript.components
+  }
 };
 </script>

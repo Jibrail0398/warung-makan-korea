@@ -47,9 +47,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import SuperAdminWhatsAppSessionScript from './SuperAdminWhatsAppSessionView.js';
 
 export default {
+  ...SuperAdminWhatsAppSessionScript,
   components: {
-    LoadingSpinner
-  },
-  ...SuperAdminWhatsAppSessionScript
+    LoadingSpinner,
+    ...SuperAdminWhatsAppSessionScript.components
+  }
 };
 </script>

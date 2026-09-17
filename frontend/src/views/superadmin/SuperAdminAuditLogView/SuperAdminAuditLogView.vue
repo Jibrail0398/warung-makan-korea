@@ -141,12 +141,15 @@
 
 <script>
 import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
+import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
 import SuperAdminAuditLogScript from './SuperAdminAuditLogView.js';
 
 export default {
+  ...SuperAdminAuditLogScript,
   components: {
-    LoadingSpinner
-  },
-  ...SuperAdminAuditLogScript
+    LoadingSpinner,
+    NoticeModal,
+    ...SuperAdminAuditLogScript.components
+  }
 };
 </script>

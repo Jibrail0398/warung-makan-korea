@@ -1,16 +1,16 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import { activityLogService } from '../../../services/activityLogService.js';
 import './SuperAdminAuditLogView.css';
 
 const EVENT_OPTIONS = [
-  { value: 'register', label: 'Register' },
   { value: 'login', label: 'Login' },
-  { value: 'login_failed', label: 'Login Gagal' },
-  { value: 'otp_failed', label: 'OTP Gagal' },
   { value: 'logout', label: 'Logout' },
-  { value: 'password_changed', label: 'Password Diubah' },
+  { value: 'login_failed', label: 'Login Failed' },
+  { value: 'otp_failed', label: 'OTP Failed' },
+  { value: 'password_changed', label: 'Password Changed' },
 ];
 
 const LOG_NAME_OPTIONS = [
@@ -20,7 +20,7 @@ const LOG_NAME_OPTIONS = [
 
 export default {
   name: 'SuperAdminAuditLogView',
-  components: { NoticeModal },
+  components: { NoticeModal, LoadingSpinner },
   setup() {
     const logs = ref([]);
     const isPageLoading = ref(false);

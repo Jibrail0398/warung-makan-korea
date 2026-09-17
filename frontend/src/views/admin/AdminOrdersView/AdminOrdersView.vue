@@ -116,9 +116,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminOrdersScript from './AdminOrdersView.js';
 
 export default {
+  ...AdminOrdersScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminOrdersScript
+    LoadingSpinner,
+    ...AdminOrdersScript.components
+  }
 };
 </script>

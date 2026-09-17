@@ -142,9 +142,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminMainCategoriesScript from './AdminMainCategories.js';
 
 export default {
+  ...AdminMainCategoriesScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminMainCategoriesScript
+    LoadingSpinner,
+    ...AdminMainCategoriesScript.components
+  }
 };
 </script>

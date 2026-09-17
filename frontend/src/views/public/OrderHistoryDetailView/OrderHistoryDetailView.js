@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router';
 import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
 import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
 import { orderStatusRealtimeService } from '../../../services/orderStatusRealtimeService.js';
 import { generateReceiptPdf } from '../../../utils/receiptPdf.js';
@@ -11,7 +12,7 @@ import './OrderHistoryDetailView.css';
 
 export default {
   name: 'OrderHistoryDetailView',
-  components: { AppHeader, AppFooter, ToastNotification },
+  components: { AppHeader, AppFooter, ToastNotification, LoadingSpinner },
   setup() {
     const route = useRoute();
     const { isToastVisible, toastMessage, showToast } = useToast();

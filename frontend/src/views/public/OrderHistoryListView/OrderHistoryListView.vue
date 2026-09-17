@@ -24,9 +24,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import OrderHistoryListScript from './OrderHistoryListView.js';
 
 export default {
+  ...OrderHistoryListScript,
   components: {
-    LoadingSpinner
-  },
-  ...OrderHistoryListScript
+    LoadingSpinner,
+    ...OrderHistoryListScript.components
+  }
 };
 </script>

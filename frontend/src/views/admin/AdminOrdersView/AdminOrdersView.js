@@ -3,11 +3,12 @@ import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
 import { newOrderListService } from '../../../services/newOrderListService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import './AdminOrdersView.css';
 
 export default {
   name: 'AdminOrdersView',
-  components: { StatusBadge },
+  components: { StatusBadge, LoadingSpinner },
   setup() {
     const orders = ref([]);
     const searchQuery = ref('');

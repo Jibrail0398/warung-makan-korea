@@ -4,12 +4,13 @@ import { useCartStore } from '../../../stores/cart.js';
 import { useAuthStore } from '../../../stores/auth.js';
 import { orderService } from '../../../services/orderService.js';
 import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import './CartSummary.css';
 
 export default {
   name: 'CartSummary',
-  components: { NoticeModal },
+  components: { NoticeModal, LoadingSpinner },
   setup() {
     const cartStore = useCartStore();
     const authStore = useAuthStore();

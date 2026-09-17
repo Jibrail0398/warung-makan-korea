@@ -1,12 +1,13 @@
 import { ref, reactive, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import { bankAccountService } from '../../../services/bankAccountService.js';
 import './AdminBankAccountsView.css';
 
 export default {
   name: 'AdminBankAccountsView',
-  components: { NoticeModal },
+  components: { NoticeModal, LoadingSpinner },
   setup() {
     const account = ref(null);
     const isPageLoading = ref(false);

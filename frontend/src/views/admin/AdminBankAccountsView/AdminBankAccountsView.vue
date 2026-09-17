@@ -165,9 +165,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminBankAccountsScript from './AdminBankAccountsView.js';
 
 export default {
+  ...AdminBankAccountsScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminBankAccountsScript
+    LoadingSpinner,
+    ...AdminBankAccountsScript.components
+  }
 };
 </script>

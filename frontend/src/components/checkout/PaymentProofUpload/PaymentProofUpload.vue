@@ -23,12 +23,15 @@
 
 <script>
 import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
+import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
 import PaymentProofUploadScript from './PaymentProofUpload.js';
 
 export default {
+  ...PaymentProofUploadScript,
   components: {
-    LoadingSpinner
-  },
-  ...PaymentProofUploadScript
+    LoadingSpinner,
+    NoticeModal,
+    ...PaymentProofUploadScript.components
+  }
 };
 </script>

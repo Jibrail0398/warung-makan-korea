@@ -1,12 +1,14 @@
 import { ref, computed, onMounted, reactive, watch } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { productService } from '../../../services/productsService.js';
 import "./AdminProducts.css"
 
 export default {
   name: 'AdminProductsView',
   components: {
-    ProductModal
+    ProductModal,
+    LoadingSpinner
   },
   setup() {
     const products = ref([]);

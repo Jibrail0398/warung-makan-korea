@@ -304,9 +304,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminProductsScript from './AdminProducts.js';
 
 export default {
+  ...AdminProductsScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminProductsScript
+    LoadingSpinner,
+    ...AdminProductsScript.components
+  }
 };
 </script>

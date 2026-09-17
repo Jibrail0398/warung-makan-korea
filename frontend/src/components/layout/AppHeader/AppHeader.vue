@@ -15,8 +15,8 @@
         </svg>
       </button>
 
-      <!-- Brand (All variants except cart which has its own brand above) -->
-      <router-link v-if="variant !== 'cart'" class="brand" to="/" aria-label="Warung Nusantara homepage">
+      <!-- Brand (Rendered for all variants) -->
+      <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
         <span class="brand-mark" aria-hidden="true">WN</span>
         <span class="brand-copy">
           <strong>Warung Nusantara</strong>
@@ -88,30 +88,31 @@
 
       <!-- Cart variant nav -->
       <template v-else-if="variant === 'cart'">
-        <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
-          <span class="brand-mark" aria-hidden="true">WN</span>
-          <span class="brand-copy">
-            <strong>Warung Nusantara</strong>
-            <small>Indonesia in Korea</small>
-          </span>
-        </router-link>
         <nav class="cart-nav">
-          <router-link to="/menu" class="back-to-menu-link" aria-label="Back to menu">
+          <router-link to="/#menu" class="back-to-menu-link" aria-label="Back to menu">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
+            <span>Back to menu</span>
           </router-link>
         </nav>
       </template>
 
       <!-- Checkout variant header -->
       <template v-else-if="variant === 'checkout'">
-        <div class="checkout-header-title">
-          {{ title }}
+        <div class="checkout-header-center">
+          <span class="checkout-header-title">{{ title }}</span>
+          <span class="checkout-header-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 3 19 6v5c0 4.8-3 8.3-7 10-4-1.7-7-5.2-7-10V6l7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Secure Checkout
+          </span>
         </div>
 
-        <router-link class="back-link" to="/cart">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <router-link class="checkout-back-link" to="/cart" aria-label="Back to cart">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <span class="back-text">Back to cart</span>

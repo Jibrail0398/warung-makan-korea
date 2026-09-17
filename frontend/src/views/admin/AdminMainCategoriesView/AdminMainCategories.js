@@ -1,12 +1,14 @@
 import { ref, onMounted, reactive } from 'vue';
 import MainCategoryModal from '../../../components/admin/MainCategoryModal/MainCategoryModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { categoriesService } from '../../../services/categoriesService.js';
 import './AdminMainCategories.css';
 
 export default {
   name: 'AdminMainCategoriesView',
   components: {
-    MainCategoryModal
+    MainCategoryModal,
+    LoadingSpinner
   },
   setup() {
     const mainCategories = ref([]);

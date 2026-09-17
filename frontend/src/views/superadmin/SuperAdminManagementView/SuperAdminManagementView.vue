@@ -173,12 +173,15 @@
 
 <script>
 import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
+import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
 import SuperAdminManagementScript from './SuperAdminManagementView.js';
 
 export default {
+  ...SuperAdminManagementScript,
   components: {
-    LoadingSpinner
-  },
-  ...SuperAdminManagementScript
+    LoadingSpinner,
+    NoticeModal,
+    ...SuperAdminManagementScript.components
+  }
 };
 </script>

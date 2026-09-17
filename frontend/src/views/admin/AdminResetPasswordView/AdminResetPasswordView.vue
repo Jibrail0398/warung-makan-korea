@@ -70,9 +70,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminResetPasswordScript from './AdminResetPasswordView.js';
 
 export default {
+  ...AdminResetPasswordScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminResetPasswordScript
+    LoadingSpinner,
+    ...AdminResetPasswordScript.components
+  }
 };
 </script>

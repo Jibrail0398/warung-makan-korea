@@ -4,12 +4,13 @@ import { orderService } from '../../../services/orderService.js';
 import { useCartStore } from '../../../stores/cart.js';
 import { useOrderStore } from '../../../stores/order.js';
 import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import './PaymentProofUpload.css';
 
 export default {
   name: 'PaymentProofUpload',
-  components: { NoticeModal },
+  components: { NoticeModal, LoadingSpinner },
   setup() {
     const router = useRouter();
     const cartStore = useCartStore();

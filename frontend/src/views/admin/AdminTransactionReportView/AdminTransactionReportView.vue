@@ -60,9 +60,10 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpi
 import AdminTransactionReportScript from './AdminTransactionReportView.js';
 
 export default {
+  ...AdminTransactionReportScript,
   components: {
-    LoadingSpinner
-  },
-  ...AdminTransactionReportScript
+    LoadingSpinner,
+    ...AdminTransactionReportScript.components
+  }
 };
 </script>
