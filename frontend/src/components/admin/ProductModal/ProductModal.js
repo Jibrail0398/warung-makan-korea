@@ -38,15 +38,15 @@ export default {
       imagePreviewUrl.value = URL.createObjectURL(file);
     };
 
-    watch(() => props.initialData, (newVal) => {
-      if (newVal) {
-        formData.name = newVal.name || '';
-        formData.categoryId = Number(newVal.categoryId || newVal.category_id) || null;
-        formData.price = newVal.numericPrice !== undefined ? newVal.numericPrice : (Number(newVal.price) || 0);
-        formData.weightOrUnit = newVal.weightOrUnit || newVal.weight_or_unit || '';
-        formData.isActive = newVal.isActive !== undefined ? newVal.isActive : (newVal.is_active !== false);
-        formData.description = newVal.description || '';
-        imagePreviewUrl.value = newVal.image || '';
+    const resetForm = () => {
+      if (props.isOpen && props.isEdit && props.initialData) {
+        formData.name = props.initialData.name || '';
+        formData.categoryId = Number(props.initialData.categoryId || props.initialData.category_id) || null;
+        formData.price = props.initialData.numericPrice !== undefined ? props.initialData.numericPrice : (Number(props.initialData.price) || 0);
+        formData.weightOrUnit = props.initialData.weightOrUnit || props.initialData.weight_or_unit || '';
+        formData.isActive = props.initialData.isActive !== undefined ? props.initialData.isActive : (props.initialData.is_active !== false);
+        formData.description = props.initialData.description || '';
+        imagePreviewUrl.value = props.initialData.image || '';
         selectedFile.value = null;
       } else {
         formData.name = '';
@@ -60,7 +60,28 @@ export default {
         if (fileInputRef.value) fileInputRef.value.value = '';
       }
       errorMessage.value = '';
-    }, { immediate: true });
+    };
+
+    watch(
+      [() => props.isOpen, () => props.isEdit, () => props.initialData],
+      ([isOpen]) => {
+        if (isOpen) {
+          resetForm();
+        } else {
+          formData.name = '';
+          formData.categoryId = null;
+          formData.price = 0;
+          formData.weightOrUnit = '';
+          formData.isActive = true;
+          formData.description = '';
+          selectedFile.value = null;
+          imagePreviewUrl.value = '';
+          if (fileInputRef.value) fileInputRef.value.value = '';
+          errorMessage.value = '';
+        }
+      },
+      { immediate: true }
+    );
 
     const handleSubmit = async () => {
       errorMessage.value = '';

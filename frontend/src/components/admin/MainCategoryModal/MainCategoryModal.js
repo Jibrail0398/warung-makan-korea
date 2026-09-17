@@ -18,14 +18,27 @@ export default {
       name: ''
     });
 
-    watch(() => props.initialData, (newVal) => {
-      if (newVal) {
-        formData.name = newVal.name || '';
+    const resetForm = () => {
+      if (props.isOpen && props.isEdit && props.initialData) {
+        formData.name = props.initialData.name || '';
       } else {
         formData.name = '';
       }
       errorMessage.value = '';
-    }, { immediate: true });
+    };
+
+    watch(
+      [() => props.isOpen, () => props.isEdit, () => props.initialData],
+      ([isOpen]) => {
+        if (isOpen) {
+          resetForm();
+        } else {
+          formData.name = '';
+          errorMessage.value = '';
+        }
+      },
+      { immediate: true }
+    );
 
     const handleSubmit = () => {
       errorMessage.value = '';
