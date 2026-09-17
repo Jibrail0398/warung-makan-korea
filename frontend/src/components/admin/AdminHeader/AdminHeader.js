@@ -3,10 +3,14 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../../stores/auth.js';
 import { audioService } from '../../../services/audioService.js';
 import { newOrderNotificationService } from '../../../services/newOrderNotificationService.js';
+import ConfirmModal from '../../common/ConfirmModal/ConfirmModal.vue';
 import './AdminHeader.css';
 
 export default {
   name: 'AdminHeader',
+  components: {
+    ConfirmModal
+  },
   props: {
     isSuperAdmin: {
       type: Boolean,
@@ -19,6 +23,7 @@ export default {
     const authStore = useAuthStore();
 
     const isSoundOn = ref(true);
+    const showLogoutConfirm = ref(false);
 
     onMounted(async () => {
       isSoundOn.value = audioService.isSoundEnabled();
@@ -71,6 +76,16 @@ export default {
     });
 
     const handleLogout = () => {
+      // Close dropdown details if open
+      const details = document.querySelector('.user-dropdown');
+      if (details) {
+        details.removeAttribute('open');
+      }
+      showLogoutConfirm.value = true;
+    };
+
+    const confirmLogout = () => {
+      showLogoutConfirm.value = false;
       authStore.logout();
       router.push('/admin/login');
     };
@@ -84,7 +99,9 @@ export default {
       userEmail,
       userRole,
       userInitial,
-      handleLogout
+      showLogoutConfirm,
+      handleLogout,
+      confirmLogout
     };
   }
 };

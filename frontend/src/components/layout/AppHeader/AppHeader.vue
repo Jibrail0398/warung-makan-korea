@@ -125,6 +125,22 @@
     v-if="variant === 'default'"
     :isOpen="isDrawerOpen"
     @close="closeDrawer"
+    @logout="handleLogout"
+  />
+
+  <!-- Logout Confirmation Modal -->
+  <ConfirmModal
+    :visible="showLogoutConfirm"
+    type="danger"
+    icon="logout"
+    eyebrow="Konfirmasi Logout"
+    title="Keluar dari Akun?"
+    message="Apakah Anda yakin ingin keluar? Anda perlu login kembali untuk mengakses riwayat pesanan dan akun Anda."
+    confirm-text="Ya, Keluar"
+    cancel-text="Batal"
+    @close="showLogoutConfirm = false"
+    @cancel="showLogoutConfirm = false"
+    @confirm="confirmLogout"
   />
 </template>
 
