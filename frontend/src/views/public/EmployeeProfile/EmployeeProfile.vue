@@ -21,6 +21,7 @@
         <section class="profile-content" aria-label="Employee profile information"><ProfileForm type="employee" :profile="profile" @save="handleSave" /></section>
       </div>
     </div></main>
+    <AppFooter />
   </div>
 </template>
 

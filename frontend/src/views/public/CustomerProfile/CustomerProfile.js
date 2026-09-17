@@ -1,10 +1,11 @@
 import { computed, reactive, ref } from 'vue';
 import ProfileForm from '../../../components/Profile/ProfileForm/ProfileForm.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import './CustomerProfile.css';
 
 export default {
   name: 'CustomerProfile',
-  components: { ProfileForm },
+  components: { ProfileForm, AppFooter },
   setup() {
     const profile = reactive({ fullName: 'Customer Name', phone: '+82 10 1234 5678', email: 'customer@example.com', address: 'Seoul, South Korea' });
     const profileInput = ref(null);
