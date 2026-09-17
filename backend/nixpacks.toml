@@ -1,0 +1,19 @@
+[phases.setup]
+nixPkgs = [
+    "php84",
+    "php84Packages.composer",
+    "nodejs_24",
+    "chromium",
+    "nss",
+    "atk",
+    "cups",
+    "libdrm",
+    "libxkbcommon",
+    "pango",
+    "mesa",
+    "alsa-lib",
+    "libXcomposite",
+    "libXdamage",
+    "libXrandr",
+    "gbm"
+]
