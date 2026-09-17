@@ -26,7 +26,14 @@
             <th class="actions-col">Aksi</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="isPageLoading">
+          <tr>
+            <td colspan="2" class="empty-row">
+              <LoadingSpinner size="md" color="primary" text="Memuat data kategori..." center />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else-if="mainCategories.length > 0">
           <tr v-for="cat in mainCategories" :key="cat.id">
             <td><strong>{{ cat.name }}</strong></td>
             <td class="actions-col">
@@ -54,7 +61,9 @@
               </button>
             </td>
           </tr>
-          <tr v-if="mainCategories.length === 0">
+        </tbody>
+        <tbody v-else>
+          <tr>
             <td colspan="2" class="empty-row">Belum ada kategori.</td>
           </tr>
         </tbody>
@@ -65,35 +74,42 @@
     <MainCategoryModal
       :isOpen="isModalOpen"
       :isEdit="isEditMode"
+      :isSaving="isSaving"
       :initialData="selectedCategory"
       @close="isModalOpen = false"
       @save="handleSaveMainCategory"
     />
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="categoryToDelete" class="modal-backdrop" @click.self="categoryToDelete = null">
+    <div v-if="categoryToDelete" class="modal-backdrop" @click.self="!isDeleting && (categoryToDelete = null)">
       <div class="confirm-dialog">
         <h3 class="dialog-title">Hapus Kategori</h3>
         <p class="dialog-desc">
-          Apakah anda yakin akan menghapus kategori <strong>{{ categoryToDelete.name }}</strong> 
+          Apakah anda yakin akan menghapus kategori <strong>"{{ categoryToDelete.name }}"</strong>?
         </p>
         <div class="dialog-actions">
-          <button type="button" class="btn-cancel" @click="categoryToDelete = null">Batal</button>
-          <button type="button" class="btn-danger" @click="executeDelete">Hapus</button>
+          <button type="button" class="btn-cancel" :disabled="isDeleting" @click="categoryToDelete = null">Batal</button>
+          <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
+            <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+            <span v-else>Hapus</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Edit Confirmation Modal -->
-    <div v-if="categoryToUpdate" class="modal-backdrop" @click.self="categoryToUpdate = null">
+    <div v-if="categoryToUpdate" class="modal-backdrop" @click.self="!isUpdating && (categoryToUpdate = null)">
       <div class="confirm-dialog">
         <h3 class="dialog-title">Konfirmasi Perubahan</h3>
         <p class="dialog-desc">
           Apakah Anda yakin ingin memperbarui kategori menjadi <strong>"{{ categoryToUpdate.name }}"</strong>?
         </p>
         <div class="dialog-actions">
-          <button type="button" class="btn-cancel" @click="categoryToUpdate = null">Batal</button>
-          <button type="button" class="btn-primary" @click="executeUpdate">Simpan</button>
+          <button type="button" class="btn-cancel" :disabled="isUpdating" @click="categoryToUpdate = null">Batal</button>
+          <button type="button" class="btn-primary" :disabled="isUpdating" @click="executeUpdate">
+            <LoadingSpinner v-if="isUpdating" size="sm" color="white" text="Menyimpan..." inline />
+            <span v-else>Simpan</span>
+          </button>
         </div>
       </div>
     </div>
@@ -116,9 +132,13 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminMainCategoriesScript from './AdminMainCategories.js';
 
 export default {
+  components: {
+    LoadingSpinner
+  },
   ...AdminMainCategoriesScript
 };
 </script>

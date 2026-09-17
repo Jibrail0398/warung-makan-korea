@@ -6,6 +6,7 @@ export default {
   props: {
     isOpen: Boolean,
     isEdit: Boolean,
+    isSaving: { type: Boolean, default: false },
     initialData: Object
   },
   emits: ['close', 'save'],

@@ -6,8 +6,8 @@
         <h1 class="page-title">Monitoring Pesanan</h1>
         <p class="page-description">Pantau pesanan masuk, verifikasi bukti transfer pembayaran, dan update status pesanan secara real-time.</p>
       </div>
-      
     </header>
+
     <section class="filter-section">
       <div class="filter-controls">
         <div class="date-filter">
@@ -42,6 +42,7 @@
         </div>
       </div>
     </section>
+
     <div class="table-container">
       <table class="orders-table">
         <thead>
@@ -54,9 +55,17 @@
             <th scope="col">Status Pembayaran</th>
             <th scope="col">Bukti Transfer</th>
             <th scope="col">Status Pesanan</th>
-            <th scope="col" class="col-actions">Aksi</th></tr>
+            <th scope="col" class="col-actions">Aksi</th>
+          </tr>
         </thead>
-        <tbody v-if="filteredOrders.length > 0">
+        <tbody v-if="isPageLoading">
+          <tr>
+            <td colspan="9" class="empty-state-row">
+              <LoadingSpinner size="md" color="primary" text="Memuat daftar pesanan..." center />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else-if="filteredOrders.length > 0">
           <tr v-for="order in filteredOrders" :key="order.id">
             <td><router-link :to="`/admin/orders/${order.id}`" class="order-link-code">#{{ order.id }}</router-link></td>
             <td><div class="time-cell"><span>{{ new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</span><small>{{ new Date(order.created_at).toLocaleDateString() }}</small></div></td>
@@ -69,26 +78,47 @@
             <td class="col-actions"><div class="quick-actions"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn">Detail</router-link></div></td>
           </tr>
         </tbody>
-        <tbody v-else><tr><td colspan="9" class="empty-state-row"><div class="empty-box"><p>Tidak ada pesanan pada tanggal {{ filterDate }}. Coba pilih tanggal lain melalui filter Tanggal.</p></div></td></tr></tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="9" class="empty-state-row">
+              <div class="empty-box"><p>Tidak ada pesanan pada tanggal {{ filterDate }}. Coba pilih tanggal lain melalui filter Tanggal.</p></div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
+
     <div class="mobile-orders-list">
-      <article v-for="order in filteredOrders" :key="`m-${order.id}`" class="mobile-order-card">
-        <div class="m-card-header"><div><router-link :to="`/admin/orders/${order.id}`" class="order-link-code">#{{ order.id }}</router-link><span class="m-time">{{ new Date(order.created_at).toLocaleString() }}</span></div><StatusBadge :status="order.status" /></div>
-        <div class="m-card-body">
-          <div class="m-row"><span class="m-label">Customer:</span><strong>{{ order.customer_name }} ({{ order.customer_phone }})</strong></div>
-          <div class="m-row"><span class="m-label">Item:</span><span>{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span></div>
-          <div class="m-row"><span class="m-label">Total:</span><strong class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
-          <div v-if="order.payment_receipt_url" class="m-row"><span class="m-label">Bukti Bayar:</span><a :href="order.payment_receipt_url" target="_blank" class="proof-btn">Lihat Bukti</a></div>
-        </div>
-        <div class="m-card-footer"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn full-btn">Buka Detail</router-link></div>
-      </article>
+      <div v-if="isPageLoading" class="mobile-loading">
+        <LoadingSpinner size="md" color="primary" text="Memuat daftar pesanan..." center />
+      </div>
+      <template v-else-if="filteredOrders.length > 0">
+        <article v-for="order in filteredOrders" :key="`m-${order.id}`" class="mobile-order-card">
+          <div class="m-card-header"><div><router-link :to="`/admin/orders/${order.id}`" class="order-link-code">#{{ order.id }}</router-link><span class="m-time">{{ new Date(order.created_at).toLocaleString() }}</span></div><StatusBadge :status="order.status" /></div>
+          <div class="m-card-body">
+            <div class="m-row"><span class="m-label">Customer:</span><strong>{{ order.customer_name }} ({{ order.customer_phone }})</strong></div>
+            <div class="m-row"><span class="m-label">Item:</span><span>{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span></div>
+            <div class="m-row"><span class="m-label">Total:</span><strong class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
+            <div v-if="order.payment_receipt_url" class="m-row"><span class="m-label">Bukti Bayar:</span><a :href="order.payment_receipt_url" target="_blank" class="proof-btn">Lihat Bukti</a></div>
+          </div>
+          <div class="m-card-footer"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn full-btn">Buka Detail</router-link></div>
+        </article>
+      </template>
+      <div v-else class="empty-box">
+        <p>Tidak ada pesanan yang sesuai filter.</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminOrdersScript from './AdminOrdersView.js';
 
-export default { ...AdminOrdersScript };
+export default {
+  components: {
+    LoadingSpinner
+  },
+  ...AdminOrdersScript
+};
 </script>

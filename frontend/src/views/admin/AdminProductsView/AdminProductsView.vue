@@ -65,7 +65,14 @@
             <th scope="col" class="col-actions">Aksi</th>
           </tr>
         </thead>
-        <tbody v-if="products.length > 0">
+        <tbody v-if="isPageLoading">
+          <tr>
+            <td colspan="7" class="empty-state-row">
+              <LoadingSpinner size="md" color="primary" text="Memuat data produk..." center />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else-if="products.length > 0">
           <tr v-for="product in products" :key="product.id">
             <td class="col-thumb">
               <div class="product-img-box">
@@ -177,43 +184,51 @@
 
     <!-- Mobile Product Cards List -->
     <div class="mobile-product-cards">
-      <article
-        v-for="product in products"
-        :key="`m-${product.id}`"
-        class="mobile-card"
-      >
-        <div class="m-card-top">
-          <div class="m-thumb">
-            <img :src="product.image" :alt="product.name" @error="handleImgError($event)" />
-          </div>
-          <div class="m-details">
-            <div class="m-tags-row">
-              <span class="type-pill" :class="`type-${product.categorySlug}`">
-                {{ product.category }}
-              </span>
-              <span
-                class="status-toggle-btn"
-                :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
-              >
-                <span class="status-dot"></span>
-                {{ product.status === 'Available' ? 'Aktif' : 'Tidak Aktif' }}
-              </span>
+      <div v-if="isPageLoading" class="mobile-loading">
+        <LoadingSpinner size="md" color="primary" text="Memuat data produk..." center />
+      </div>
+      <template v-else-if="products.length > 0">
+        <article
+          v-for="product in products"
+          :key="`m-${product.id}`"
+          class="mobile-card"
+        >
+          <div class="m-card-top">
+            <div class="m-thumb">
+              <img :src="product.image" :alt="product.name" @error="handleImgError($event)" />
             </div>
-            <h3 class="m-name">{{ product.name }}</h3>
-            <small class="product-desc-snippet">{{ product.description }}</small>
-            <span class="product-price">{{ product.price }}</span>
+            <div class="m-details">
+              <div class="m-tags-row">
+                <span class="type-pill" :class="`type-${product.categorySlug}`">
+                  {{ product.category }}
+                </span>
+                <span
+                  class="status-toggle-btn"
+                  :class="product.status === 'Available' ? 'status-avail' : 'status-sold'"
+                >
+                  <span class="status-dot"></span>
+                  {{ product.status === 'Available' ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
+              </div>
+              <h3 class="m-name">{{ product.name }}</h3>
+              <small class="product-desc-snippet">{{ product.description }}</small>
+              <span class="product-price">{{ product.price }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="m-card-actions">
-          <button type="button" class="action-btn edit-btn" @click="openEditModal(product)">
-            Edit
-          </button>
-          <button type="button" class="action-btn delete-btn" @click="confirmDelete(product)">
-            Hapus
-          </button>
-        </div>
-      </article>
+          <div class="m-card-actions">
+            <button type="button" class="action-btn edit-btn" @click="openEditModal(product)">
+              Edit
+            </button>
+            <button type="button" class="action-btn delete-btn" @click="confirmDelete(product)">
+              Hapus
+            </button>
+          </div>
+        </article>
+      </template>
+      <div v-else class="empty-box">
+        <p>Tidak ada produk yang sesuai dengan kriteria pencarian.</p>
+      </div>
     </div>
 
     <!-- Pagination (Mobile) -->
@@ -241,6 +256,7 @@
     <ProductModal
       :isOpen="isModalOpen"
       :isEdit="isEditMode"
+      :isSaving="isSaving"
       :initialData="selectedProduct"
       :categories="categories"
       @close="isModalOpen = false"
@@ -248,15 +264,18 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="productToDelete" class="modal-backdrop" @click.self="productToDelete = null">
+    <div v-if="productToDelete" class="modal-backdrop" @click.self="!isDeleting && (productToDelete = null)">
       <div class="confirm-dialog">
         <h3 class="dialog-title">Konfirmasi Hapus Produk</h3>
         <p class="dialog-desc">
           Apakah anda yakin akan menghapus data ini <strong>"{{ productToDelete.name }}"</strong>?
         </p>
         <div class="dialog-actions">
-          <button type="button" class="btn-cancel" @click="productToDelete = null">Tidak</button>
-          <button type="button" class="btn-danger" @click="executeDelete">Ya</button>
+          <button type="button" class="btn-cancel" :disabled="isDeleting" @click="productToDelete = null">Tidak</button>
+          <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
+            <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+            <span v-else>Ya</span>
+          </button>
         </div>
       </div>
     </div>
@@ -277,10 +296,13 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminProductsScript from './AdminProducts.js';
 
 export default {
+  components: {
+    LoadingSpinner
+  },
   ...AdminProductsScript
 };
 </script>
-

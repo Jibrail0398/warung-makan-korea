@@ -53,7 +53,11 @@
           </tr>
         </thead>
         <tbody v-if="isPageLoading">
-          <tr><td colspan="8" class="empty-cell">Memuat data log aktivitas...</td></tr>
+          <tr>
+            <td colspan="8" class="empty-cell">
+              <LoadingSpinner size="md" color="primary" text="Memuat data log aktivitas..." center />
+            </td>
+          </tr>
         </tbody>
         <tbody v-else-if="logs.length">
           <tr v-for="log in logs" :key="log.id">
@@ -100,7 +104,9 @@
           <button type="button" class="close-btn" aria-label="Tutup" @click="closeDetailModal">✕</button>
         </div>
         <div class="modal-body">
-          <p v-if="isDetailLoading" class="detail-loading">Memuat detail log...</p>
+          <div v-if="isDetailLoading" class="detail-loading">
+            <LoadingSpinner size="md" color="primary" text="Memuat detail log..." center />
+          </div>
           <template v-else>
             <div class="log-meta-grid">
               <div><strong>Waktu:</strong> {{ formatTimestamp(selectedLog.created_at) }}</div>
@@ -132,6 +138,13 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import SuperAdminAuditLogScript from './SuperAdminAuditLogView.js';
-export default { ...SuperAdminAuditLogScript };
+
+export default {
+  components: {
+    LoadingSpinner
+  },
+  ...SuperAdminAuditLogScript
+};
 </script>

@@ -3,7 +3,9 @@
     <AppHeader variant="default" />
     <main class="order-detail-page"><div class="container">
       <router-link :to="'/'" class="back-link"><span aria-hidden="true">←</span> Belanja Kembali</router-link>
-      <section v-if="isLoading" class="state-panel">Memuat detail pesanan...</section>
+      <section v-if="isLoading" class="state-panel">
+        <LoadingSpinner size="md" color="primary" text="Memuat detail pesanan..." center />
+      </section>
       <section v-else-if="loadError" class="state-panel state-error" role="alert">{{ loadError }}</section>
       <template v-else>
         <header class="page-heading"><div><p class="eyebrow">Detail pesanan</p><h1>Pesanan #{{ order.id }}</h1><p class="created-at">{{ formatDateTime(order.created_at) }}</p></div><span class="status-badge" :class="`status-${paymentStatus}`">{{ paymentStatusLabel }}</span></header>
@@ -21,6 +23,13 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import OrderHistoryDetailScript from './OrderHistoryDetailView.js';
-export default { ...OrderHistoryDetailScript };
+
+export default {
+  components: {
+    LoadingSpinner
+  },
+  ...OrderHistoryDetailScript
+};
 </script>

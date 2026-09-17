@@ -11,7 +11,7 @@
     </header>
 
     <div v-if="isPageLoading" class="empty-state-card">
-      <p>Memuat data rekening bank...</p>
+      <LoadingSpinner size="md" color="primary" text="Memuat data rekening bank..." center />
     </div>
 
     <div v-else-if="account" class="account-card">
@@ -86,50 +86,56 @@
       <div class="modal-card">
         <div class="modal-header">
           <h3 class="modal-title">{{ isEditMode ? 'Edit Rekening Bank' : 'Tambah Rekening Bank' }}</h3>
-          <button type="button" class="close-btn" aria-label="Tutup" @click="closeFormModal">✕</button>
+          <button type="button" class="close-btn" aria-label="Tutup" :disabled="isSaving" @click="closeFormModal">✕</button>
         </div>
         <form class="modal-body" novalidate @submit.prevent="handleSubmit">
           <div class="form-group">
             <label class="form-label required" for="bank-name">Nama Bank</label>
-            <input id="bank-name" v-model="formData.bank_name" type="text" class="form-input" :class="{ 'input-error': formErrors.bank_name }" placeholder="Contoh: Hana Bank" />
+            <input id="bank-name" v-model="formData.bank_name" type="text" class="form-input" :class="{ 'input-error': formErrors.bank_name }" placeholder="Contoh: Hana Bank" :disabled="isSaving" />
             <small v-if="formErrors.bank_name" class="field-error">{{ formErrors.bank_name }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="account-number">Nomor Rekening</label>
-            <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123-456-789" />
+            <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123-456-789" :disabled="isSaving" />
             <small v-if="formErrors.account_number" class="field-error">{{ formErrors.account_number }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="account-name">Atas Nama</label>
-            <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" />
+            <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" :disabled="isSaving" />
             <small v-if="formErrors.account_name" class="field-error">{{ formErrors.account_name }}</small>
           </div>
           <div class="form-group form-group-check">
             <label class="checkbox-label" for="bank-active">
-              <input id="bank-active" v-model="formData.is_active" type="checkbox" />
+              <input id="bank-active" v-model="formData.is_active" type="checkbox" :disabled="isSaving" />
               <span>Tampilkan rekening ini di halaman checkout (aktif)</span>
             </label>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-cancel" :disabled="isSaving" @click="closeFormModal">Batal</button>
-            <button type="submit" class="btn-submit" :disabled="isSaving">{{ isSaving ? 'Menyimpan...' : 'Simpan Rekening' }}</button>
+            <button type="submit" class="btn-submit" :disabled="isSaving">
+              <LoadingSpinner v-if="isSaving" size="sm" color="white" text="Menyimpan..." inline />
+              <span v-else>{{ isEditMode ? 'Simpan Perubahan' : 'Simpan Rekening' }}</span>
+            </button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- Konfirmasi hapus -->
-    <div v-if="accountToDelete" class="modal-backdrop confirm-backdrop" @click.self="cancelDelete">
+    <div v-if="accountToDelete" class="modal-backdrop confirm-backdrop" @click.self="!isDeleting && cancelDelete">
       <div class="modal-card confirm-card">
         <div class="modal-header">
           <h3 class="modal-title">Hapus Rekening Bank</h3>
-          <button type="button" class="close-btn" aria-label="Tutup" @click="cancelDelete">✕</button>
+          <button type="button" class="close-btn" aria-label="Tutup" :disabled="isDeleting" @click="cancelDelete">✕</button>
         </div>
         <div class="modal-body">
           <p class="confirm-text">Apakah anda yakin akan menghapus rekening <strong>{{ accountToDelete.bankName }} ({{ accountToDelete.accountNumber }})</strong>? Customer tidak akan melihat rekening tujuan transfer pada checkout.</p>
           <div class="modal-footer">
             <button type="button" class="btn-cancel" :disabled="isDeleting" @click="cancelDelete">Tidak</button>
-            <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">{{ isDeleting ? 'Menghapus...' : 'Ya' }}</button>
+            <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
+              <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+              <span v-else>Ya</span>
+            </button>
           </div>
         </div>
       </div>
@@ -149,6 +155,13 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminBankAccountsScript from './AdminBankAccountsView.js';
-export default { ...AdminBankAccountsScript };
+
+export default {
+  components: {
+    LoadingSpinner
+  },
+  ...AdminBankAccountsScript
+};
 </script>
