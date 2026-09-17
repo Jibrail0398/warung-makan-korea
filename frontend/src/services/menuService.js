@@ -1,5 +1,4 @@
 import api from './api.js';
-import { products as fallbackProducts } from '../data/products.js';
 
 const CATEGORY_TYPE_MAP = {
   'makanan-utama': 'restaurant',
@@ -43,8 +42,8 @@ export const menuService = {
       const items = data?.data?.data || data?.data || [];
       return items.map(mapProduct);
     } catch (e) {
-      console.warn('Backend unavailable, falling back to local products:', e);
-      return [...fallbackProducts];
+      console.warn('Backend unavailable, no products to display:', e);
+      return [];
     }
   },
 

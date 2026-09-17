@@ -1,26 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { products } from '../data/products.js';
 
 export const useCartStore = defineStore('cart', () => {
-  // Initial cart state from localStorage or default initial items
-  const initialCart = JSON.parse(localStorage.getItem('warung-cart') || null) || {
-    1: 2,
-    3: 1,
-    5: 3,
-    2: 1,
-    4: 5
-  };
+  // Initial cart state from localStorage only (empty for first-time visitors)
+  const initialCart = JSON.parse(localStorage.getItem('warung-cart') || '{}');
 
   const cart = ref(initialCart);
   const storedProducts = JSON.parse(localStorage.getItem('warung-cart-products') || '{}');
-  const productCatalog = ref({
-    ...products.reduce((catalog, product) => {
-      catalog[product.id] = product;
-      return catalog;
-    }, {}),
-    ...storedProducts
-  });
+  const productCatalog = ref({ ...storedProducts });
 
   function saveCart() {
     localStorage.setItem('warung-cart', JSON.stringify(cart.value));
