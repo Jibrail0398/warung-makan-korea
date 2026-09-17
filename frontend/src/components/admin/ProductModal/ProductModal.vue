@@ -57,10 +57,13 @@
               type="text"
               v-model="formData.name"
               class="form-input"
+              :class="{ 'input-error': formErrors.name }"
               placeholder="Contoh: Nasi Goreng Kimchi, Tteokbokki"
               :disabled="isSaving || isSubmitting"
+              @input="formErrors.name = ''"
               required
             />
+            <small v-if="formErrors.name" class="field-error">{{ formErrors.name }}</small>
           </div>
 
           <div class="form-group full-width">
@@ -68,12 +71,15 @@
             <select
               v-model="formData.categoryId"
               class="form-select"
+              :class="{ 'input-error': formErrors.categoryId }"
               :disabled="isSaving || isSubmitting"
+              @change="formErrors.categoryId = ''"
               required
             >
               <option :value="null" disabled>Pilih kategori...</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
+            <small v-if="formErrors.categoryId" class="field-error">{{ formErrors.categoryId }}</small>
           </div>
 
           <div class="form-group">
@@ -84,13 +90,16 @@
                 type="number"
                 v-model.number="formData.price"
                 class="form-input with-prefix"
+                :class="{ 'input-error': formErrors.price }"
                 placeholder="15000"
                 min="0"
                 step="500"
                 :disabled="isSaving || isSubmitting"
+                @input="formErrors.price = ''"
                 required
               />
             </div>
+            <small v-if="formErrors.price" class="field-error">{{ formErrors.price }}</small>
           </div>
 
           <div class="form-group">

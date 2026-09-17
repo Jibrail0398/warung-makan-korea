@@ -112,6 +112,19 @@
   border-color: var(--red);
 }
 
+.form-input.input-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.74rem;
+  font-weight: 600;
+  margin-top: 3px;
+  display: block;
+}
+
 .form-hint {
   font-size: 0.72rem;
   color: var(--muted);

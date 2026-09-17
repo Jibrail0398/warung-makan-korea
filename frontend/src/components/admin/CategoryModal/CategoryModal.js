@@ -6,6 +6,7 @@ export default {
   props: {
     isOpen: Boolean,
     isEdit: Boolean,
+    isSaving: { type: Boolean, default: false },
     initialData: Object,
     mainCategories: { type: Array, default: () => [] }
   },
@@ -19,6 +20,16 @@ export default {
       type: 'restaurant',
       description: ''
     });
+
+    const formErrors = reactive({
+      name: '',
+      mainCategoryId: ''
+    });
+
+    const clearFormErrors = () => {
+      formErrors.name = '';
+      formErrors.mainCategoryId = '';
+    };
 
     const customMainCategories = computed(() =>
       props.mainCategories.filter(mc => mc.id !== 1 && mc.id !== 2)
@@ -36,6 +47,7 @@ export default {
         formData.type = 'restaurant';
         formData.description = '';
       }
+      clearFormErrors();
       errorMessage.value = '';
     };
 
@@ -49,6 +61,7 @@ export default {
           formData.name = '';
           formData.type = 'restaurant';
           formData.description = '';
+          clearFormErrors();
           errorMessage.value = '';
         }
       },
@@ -56,13 +69,27 @@ export default {
     );
 
     const handleMainCatChange = () => {
+      formErrors.mainCategoryId = '';
       formData.type = formData.mainCategoryId === 2 ? 'raw' : 'restaurant';
+    };
+
+    const validateForm = () => {
+      clearFormErrors();
+      let isValid = true;
+      if (!formData.name.trim()) {
+        formErrors.name = 'Nama subkategori wajib diisi.';
+        isValid = false;
+      }
+      if (!formData.mainCategoryId) {
+        formErrors.mainCategoryId = 'Kategori utama wajib dipilih.';
+        isValid = false;
+      }
+      return isValid;
     };
 
     const handleSubmit = () => {
       errorMessage.value = '';
-      if (!formData.name.trim()) {
-        errorMessage.value = 'Nama subkategori wajib diisi';
+      if (!validateForm()) {
         return;
       }
       isSubmitting.value = true;
@@ -84,6 +111,8 @@ export default {
       isSubmitting,
       errorMessage,
       formData,
+      formErrors,
+      clearFormErrors,
       customMainCategories,
       handleMainCatChange,
       handleSubmit

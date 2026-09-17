@@ -83,12 +83,12 @@
         <form class="modal-body" novalidate @submit.prevent="handleSubmit">
           <div class="form-group">
             <label class="form-label required" for="user-name">Nama Lengkap</label>
-            <input id="user-name" v-model="formData.name" type="text" class="form-input" :class="{ 'input-error': formErrors.name }" placeholder="Contoh: Siti Rahmawati" :disabled="isSaving" />
+            <input id="user-name" v-model="formData.name" type="text" class="form-input" :class="{ 'input-error': formErrors.name }" placeholder="Contoh: Siti Rahmawati" :disabled="isSaving" @input="formErrors.name = ''" />
             <small v-if="formErrors.name" class="field-error">{{ formErrors.name }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="user-phone">Nomor Telepon</label>
-            <input id="user-phone" v-model="formData.phone_number" type="text" class="form-input" :class="{ 'input-error': formErrors.phone_number }" placeholder="Contoh: 081234567890" :disabled="isSaving" />
+            <input id="user-phone" v-model="formData.phone_number" type="text" class="form-input" :class="{ 'input-error': formErrors.phone_number }" placeholder="Contoh: 081234567890" :disabled="isSaving" @input="formErrors.phone_number = ''" />
             <small v-if="formErrors.phone_number" class="field-error">{{ formErrors.phone_number }}</small>
           </div>
           <div class="modal-footer">
@@ -113,12 +113,12 @@
           <p class="confirm-text">Ganti password untuk akun <strong>{{ passwordTarget?.name }} ({{ passwordTarget?.phone_number }})</strong>. Pastikan password baru tersimpan dengan aman.</p>
           <div class="form-group">
             <label class="form-label required" for="user-password">Password Baru</label>
-            <input id="user-password" v-model="passwordForm.password" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password }" placeholder="Minimal 6 karakter" autocomplete="new-password" :disabled="isChangingPassword" />
+            <input id="user-password" v-model="passwordForm.password" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password }" placeholder="Minimal 6 karakter" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password = ''" />
             <small v-if="passwordFormErrors.password" class="field-error">{{ passwordFormErrors.password }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="user-password-confirmation">Konfirmasi Password Baru</label>
-            <input id="user-password-confirmation" v-model="passwordForm.password_confirmation" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password_confirmation }" placeholder="Ulangi password baru" autocomplete="new-password" :disabled="isChangingPassword" />
+            <input id="user-password-confirmation" v-model="passwordForm.password_confirmation" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password_confirmation }" placeholder="Ulangi password baru" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password_confirmation = ''" />
             <small v-if="passwordFormErrors.password_confirmation" class="field-error">{{ passwordFormErrors.password_confirmation }}</small>
           </div>
           <div class="modal-footer">

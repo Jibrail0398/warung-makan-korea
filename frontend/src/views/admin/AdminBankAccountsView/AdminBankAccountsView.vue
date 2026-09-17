@@ -91,17 +91,17 @@
         <form class="modal-body" novalidate @submit.prevent="handleSubmit">
           <div class="form-group">
             <label class="form-label required" for="bank-name">Nama Bank</label>
-            <input id="bank-name" v-model="formData.bank_name" type="text" class="form-input" :class="{ 'input-error': formErrors.bank_name }" placeholder="Contoh: Hana Bank" :disabled="isSaving" />
+            <input id="bank-name" v-model="formData.bank_name" type="text" class="form-input" :class="{ 'input-error': formErrors.bank_name }" placeholder="Contoh: Hana Bank" :disabled="isSaving" @input="formErrors.bank_name = ''" />
             <small v-if="formErrors.bank_name" class="field-error">{{ formErrors.bank_name }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="account-number">Nomor Rekening</label>
-            <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123-456-789" :disabled="isSaving" />
+            <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123-456-789" :disabled="isSaving" @input="formErrors.account_number = ''" />
             <small v-if="formErrors.account_number" class="field-error">{{ formErrors.account_number }}</small>
           </div>
           <div class="form-group">
             <label class="form-label required" for="account-name">Atas Nama</label>
-            <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" :disabled="isSaving" />
+            <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" :disabled="isSaving" @input="formErrors.account_name = ''" />
             <small v-if="formErrors.account_name" class="field-error">{{ formErrors.account_name }}</small>
           </div>
           <div class="form-group form-group-check">

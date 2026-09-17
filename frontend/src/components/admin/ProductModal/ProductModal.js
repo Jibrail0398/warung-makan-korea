@@ -26,6 +26,18 @@ export default {
       description: ''
     });
 
+    const formErrors = reactive({
+      name: '',
+      categoryId: '',
+      price: ''
+    });
+
+    const clearFormErrors = () => {
+      formErrors.name = '';
+      formErrors.categoryId = '';
+      formErrors.price = '';
+    };
+
     const handleFileChange = (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -59,6 +71,7 @@ export default {
         imagePreviewUrl.value = '';
         if (fileInputRef.value) fileInputRef.value.value = '';
       }
+      clearFormErrors();
       errorMessage.value = '';
     };
 
@@ -77,26 +90,37 @@ export default {
           selectedFile.value = null;
           imagePreviewUrl.value = '';
           if (fileInputRef.value) fileInputRef.value.value = '';
+          clearFormErrors();
           errorMessage.value = '';
         }
       },
       { immediate: true }
     );
 
-    const handleSubmit = async () => {
-      errorMessage.value = '';
+    const validateForm = () => {
+      clearFormErrors();
+      let isValid = true;
       if (!formData.name.trim()) {
-        errorMessage.value = 'Nama produk wajib diisi';
-        return;
+        formErrors.name = 'Nama produk wajib diisi.';
+        isValid = false;
       }
       if (!formData.categoryId) {
-        errorMessage.value = 'Kategori wajib dipilih';
+        formErrors.categoryId = 'Kategori wajib dipilih.';
+        isValid = false;
+      }
+      if (formData.price === null || formData.price === undefined || formData.price === '' || formData.price < 0) {
+        formErrors.price = 'Harga produk harus diisi dan valid (>= 0).';
+        isValid = false;
+      }
+      return isValid;
+    };
+
+    const handleSubmit = async () => {
+      errorMessage.value = '';
+      if (!validateForm()) {
         return;
       }
-      if (!formData.price || formData.price < 0) {
-        errorMessage.value = 'Harga produk harus valid';
-        return;
-      }
+
       isSubmitting.value = true;
       try {
         const fd = new FormData();
@@ -121,6 +145,8 @@ export default {
       fileInputRef,
       imagePreviewUrl,
       formData,
+      formErrors,
+      clearFormErrors,
       handleFileChange,
       handleSubmit
     };

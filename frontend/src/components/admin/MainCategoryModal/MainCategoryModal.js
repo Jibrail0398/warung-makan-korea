@@ -18,12 +18,21 @@ export default {
       name: ''
     });
 
+    const formErrors = reactive({
+      name: ''
+    });
+
+    const clearFormErrors = () => {
+      formErrors.name = '';
+    };
+
     const resetForm = () => {
       if (props.isOpen && props.isEdit && props.initialData) {
         formData.name = props.initialData.name || '';
       } else {
         formData.name = '';
       }
+      clearFormErrors();
       errorMessage.value = '';
     };
 
@@ -34,16 +43,26 @@ export default {
           resetForm();
         } else {
           formData.name = '';
+          clearFormErrors();
           errorMessage.value = '';
         }
       },
       { immediate: true }
     );
 
+    const validateForm = () => {
+      clearFormErrors();
+      let isValid = true;
+      if (!formData.name.trim()) {
+        formErrors.name = 'Nama kategori wajib diisi.';
+        isValid = false;
+      }
+      return isValid;
+    };
+
     const handleSubmit = () => {
       errorMessage.value = '';
-      if (!formData.name.trim()) {
-        errorMessage.value = 'Nama kategori wajib diisi';
+      if (!validateForm()) {
         return;
       }
 
@@ -63,6 +82,8 @@ export default {
       isSubmitting,
       errorMessage,
       formData,
+      formErrors,
+      clearFormErrors,
       handleSubmit
     };
   }

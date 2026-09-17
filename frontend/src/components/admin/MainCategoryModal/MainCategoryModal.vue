@@ -33,10 +33,13 @@
               type="text"
               v-model="formData.name"
               class="form-input"
+              :class="{ 'input-error': formErrors.name }"
               placeholder="Contoh: makanan jawa"
               :disabled="isSaving || isSubmitting"
+              @input="formErrors.name = ''"
               required
             />
+            <small v-if="formErrors.name" class="field-error">{{ formErrors.name }}</small>
           </div>
         </div>
 
