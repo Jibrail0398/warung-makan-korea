@@ -37,6 +37,7 @@
       </section>
     </main>
     <ToastNotification :visible="isToastVisible" :message="toastMessage" />
+    <AppFooter :simple="true" />
   </div>
 </template>
 

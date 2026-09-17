@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import './AdminResetPasswordView.css';
 
 export default {
@@ -11,12 +11,47 @@ export default {
     const successMessage = ref('');
     const errorMessage = ref('');
 
+    const formErrors = reactive({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+
+    const clearFormErrors = () => {
+      formErrors.currentPassword = '';
+      formErrors.newPassword = '';
+      formErrors.confirmPassword = '';
+    };
+
+    const validateForm = () => {
+      clearFormErrors();
+      let isValid = true;
+      if (!currentPassword.value) {
+        formErrors.currentPassword = 'Kata sandi saat ini wajib diisi.';
+        isValid = false;
+      }
+      if (!newPassword.value) {
+        formErrors.newPassword = 'Kata sandi baru wajib diisi.';
+        isValid = false;
+      } else if (newPassword.value.length < 6) {
+        formErrors.newPassword = 'Kata sandi baru minimal 6 karakter.';
+        isValid = false;
+      }
+      if (!confirmPassword.value) {
+        formErrors.confirmPassword = 'Konfirmasi kata sandi baru wajib diisi.';
+        isValid = false;
+      } else if (newPassword.value !== confirmPassword.value) {
+        formErrors.confirmPassword = 'Konfirmasi kata sandi baru tidak cocok.';
+        isValid = false;
+      }
+      return isValid;
+    };
+
     const handleResetPassword = async () => {
       successMessage.value = '';
       errorMessage.value = '';
-      if (!currentPassword.value || !newPassword.value || !confirmPassword.value) { errorMessage.value = 'Semua field kata sandi wajib diisi.'; return; }
-      if (newPassword.value.length < 6) { errorMessage.value = 'Kata sandi baru minimal 6 karakter.'; return; }
-      if (newPassword.value !== confirmPassword.value) { errorMessage.value = 'Konfirmasi kata sandi baru tidak cocok.'; return; }
+      if (!validateForm()) return;
+
       isSubmitting.value = true;
       try {
         await new Promise(r => setTimeout(r, 500));
@@ -24,9 +59,21 @@ export default {
         currentPassword.value = '';
         newPassword.value = '';
         confirmPassword.value = '';
-      } finally { isSubmitting.value = false; }
+      } finally {
+        isSubmitting.value = false;
+      }
     };
 
-    return { currentPassword, newPassword, confirmPassword, isSubmitting, successMessage, errorMessage, handleResetPassword };
+    return {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+      formErrors,
+      clearFormErrors,
+      isSubmitting,
+      successMessage,
+      errorMessage,
+      handleResetPassword
+    };
   }
 };

@@ -3,10 +3,10 @@
     <div class="form-section">
       <div class="section-heading"><h2>Personal Information</h2><p>Update your personal information and contact details.</p></div>
       <div class="form-grid">
-        <AuthField id="fullName" v-model="form.fullName" label="Full Name" placeholder="Enter your full name" autocomplete="name" :required="true" :error="errors.fullName" />
-        <AuthSelect id="gender" v-model="form.gender" label="Gender" placeholder="Select your gender" :options="genderOptions" :required="true" :error="errors.gender" />
-        <AuthField id="email" v-model="form.email" label="Email Address" type="email" placeholder="Enter your email address" autocomplete="email" :required="true" :error="errors.email" />
-        <AuthField id="address" v-model="form.address" label="Address" placeholder="Enter your address" autocomplete="street-address" :required="true" :error="errors.address" />
+        <AuthField id="fullName" v-model="form.fullName" label="Full Name" placeholder="Enter your full name" autocomplete="name" :required="true" :error="errors.fullName" :disabled="isSaving" />
+        <AuthSelect id="gender" v-model="form.gender" label="Gender" placeholder="Select your gender" :options="genderOptions" :required="true" :error="errors.gender" :disabled="isSaving" />
+        <AuthField id="email" v-model="form.email" label="Email Address" type="email" placeholder="Enter your email address" autocomplete="email" :required="true" :error="errors.email" :disabled="isSaving" />
+        <AuthField id="address" v-model="form.address" label="Address" placeholder="Enter your address" autocomplete="street-address" :required="true" :error="errors.address" :disabled="isSaving" />
       </div>
     </div>
     <template v-if="type === 'employee'">
@@ -30,13 +30,23 @@
     </div>
     <div class="form-actions">
       <button type="button" class="btn btn-secondary" :disabled="isSaving" @click="resetForm">Cancel</button>
-      <button type="submit" class="btn btn-primary" :disabled="isSaving"><span v-if="isSaving">Saving...</span><span v-else>Save Changes</span></button>
+      <button type="submit" class="btn btn-primary" :disabled="isSaving">
+        <LoadingSpinner v-if="isSaving" size="sm" color="white" text="Saving..." inline />
+        <span v-else>Save Changes</span>
+      </button>
     </div>
     <p v-if="successMessage" class="success-message" role="status">{{ successMessage }}</p>
   </form>
 </template>
 
 <script>
+import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
 import ProfileFormScript from './ProfileForm.js';
-export default { ...ProfileFormScript };
+
+export default {
+  components: {
+    LoadingSpinner
+  },
+  ...ProfileFormScript
+};
 </script>

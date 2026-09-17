@@ -13,7 +13,12 @@
       <div class="session-card-body">
         <div class="status-copy"><p class="body-label">Connection status</p><h3>{{ statusTitle }}</h3><p>{{ statusDescription }}</p></div>
         <div v-if="isQrState" class="qr-panel">
-          <div class="qr-frame"><img v-if="session.qr" :src="session.qr" alt="QR code WhatsApp untuk dipindai" /><div v-else class="qr-placeholder" aria-live="polite"><span class="spinner"></span><span>Menunggu QR code...</span></div></div>
+          <div class="qr-frame">
+            <img v-if="session.qr" :src="session.qr" alt="QR code WhatsApp untuk dipindai" />
+            <div v-else class="qr-placeholder" aria-live="polite">
+              <LoadingSpinner size="sm" color="primary" text="Menunggu QR code..." center />
+            </div>
+          </div>
           <div class="qr-instructions"><strong>Scan QR code dari WhatsApp</strong><span>Buka WhatsApp di ponsel, pilih Linked devices, lalu tautkan perangkat.</span></div>
         </div>
         <div v-else class="status-illustration" :class="statusClass" aria-hidden="true">
@@ -23,8 +28,14 @@
       </div>
       <div class="session-card-footer">
         <span class="footer-note">Session ID: <strong>{{ session.id }}</strong></span>
-        <button v-if="!isReady && !isQrState" class="primary-button" type="button" :disabled="isStarting || isDeleting" @click="startSession"><span v-if="isStarting" class="button-spinner"></span><span>{{ isStarting ? 'Mengaktifkan...' : 'Aktifkan kembali' }}</span></button>
-        <button class="danger-button" type="button" :disabled="isDeleting || isStarting" @click="destroySession"><span v-if="isDeleting" class="button-spinner"></span><span>{{ isDeleting ? 'Menghapus...' : 'Hapus sesi & scan ulang' }}</span></button>
+        <button v-if="!isReady && !isQrState" class="primary-button" type="button" :disabled="isStarting || isDeleting" @click="startSession">
+          <LoadingSpinner v-if="isStarting" size="sm" color="white" text="Mengaktifkan..." inline />
+          <span v-else>Aktifkan kembali</span>
+        </button>
+        <button class="danger-button" type="button" :disabled="isDeleting || isStarting" @click="destroySession">
+          <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+          <span v-else>Hapus sesi & scan ulang</span>
+        </button>
       </div>
     </section>
     <p class="page-note">Nama session dikunci dari konfigurasi backend dan tidak dapat dibuat dari halaman ini.</p>
@@ -32,6 +43,14 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import SuperAdminWhatsAppSessionScript from './SuperAdminWhatsAppSessionView.js';
-export default { ...SuperAdminWhatsAppSessionScript };
+
+export default {
+  ...SuperAdminWhatsAppSessionScript,
+  components: {
+    LoadingSpinner,
+    ...SuperAdminWhatsAppSessionScript.components
+  }
+};
 </script>

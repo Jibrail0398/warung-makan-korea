@@ -33,7 +33,7 @@
       <table class="report-table">
         <thead><tr><th scope="col">Tanggal &amp; Jam</th><th scope="col">No. Pesanan</th><th scope="col">Customer</th><th scope="col">Item Dipesan</th><th scope="col">Metode Bayar</th><th scope="col">Total</th><th scope="col">Status Pesanan</th></tr></thead>
         <tbody v-if="isLoading">
-          <tr><td colspan="7" class="empty-row">Memuat data transaksi...</td></tr>
+          <tr><td colspan="7" class="empty-row"><LoadingSpinner size="md" color="primary" text="Memuat data transaksi..." center /></td></tr>
         </tbody>
         <tbody v-else-if="errorMessage">
           <tr><td colspan="7" class="empty-row">{{ errorMessage }}</td></tr>
@@ -56,6 +56,14 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminTransactionReportScript from './AdminTransactionReportView.js';
-export default { ...AdminTransactionReportScript };
+
+export default {
+  ...AdminTransactionReportScript,
+  components: {
+    LoadingSpinner,
+    ...AdminTransactionReportScript.components
+  }
+};
 </script>

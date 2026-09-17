@@ -1,12 +1,14 @@
 import { ref, computed, onMounted, reactive, watch } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { productService } from '../../../services/productsService.js';
 import "./AdminProducts.css"
 
 export default {
   name: 'AdminProductsView',
   components: {
-    ProductModal
+    ProductModal,
+    LoadingSpinner
   },
   setup() {
     const products = ref([]);
@@ -99,6 +101,9 @@ export default {
       }, 400);
     });
 
+    const isSaving = ref(false);
+    const isDeleting = ref(false);
+
     const openAddModal = () => {
       isEditMode.value = false;
       selectedProduct.value = null;
@@ -112,6 +117,7 @@ export default {
     };
 
     const handleSaveProduct = async (formData) => {
+      isSaving.value = true;
       try {
         let res;
         if (isEditMode.value && selectedProduct.value) {
@@ -128,7 +134,8 @@ export default {
         notificationModal.isSuccess = false;
         notificationModal.message = err.message || 'Gagal menyimpan produk';
         notificationModal.isOpen = true;
-        isModalOpen.value = false;
+      } finally {
+        isSaving.value = false;
       }
     };
 
@@ -146,19 +153,22 @@ export default {
     };
 
     const executeDelete = async () => {
-      if (!productToDelete.value) return;
+      if (!productToDelete.value || isDeleting.value) return;
+      isDeleting.value = true;
       try {
         const res = await productService.deleteProduct(productToDelete.value.id);
         notificationModal.isSuccess = true;
         notificationModal.message = res?.message || 'Produk berhasil dihapus';
         notificationModal.isOpen = true;
+        productToDelete.value = null;
+        await loadData();
       } catch (err) {
         notificationModal.isSuccess = false;
         notificationModal.message = err.message || 'Gagal menghapus produk';
         notificationModal.isOpen = true;
+      } finally {
+        isDeleting.value = false;
       }
-      productToDelete.value = null;
-      await loadData();
     };
 
     const handleImgError = (event) => {
@@ -174,6 +184,8 @@ export default {
       statusFilter,
       isModalOpen,
       isEditMode,
+      isSaving,
+      isDeleting,
       selectedProduct,
       productToDelete,
       notificationModal,

@@ -1,10 +1,11 @@
 import { computed, reactive, ref, onBeforeUnmount } from 'vue';
 import ProfileForm from '../../../components/Profile/ProfileForm/ProfileForm.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import './EmployeeProfile.css';
 
 export default {
   name: 'EmployeeProfile',
-  components: { ProfileForm },
+  components: { ProfileForm, AppFooter },
   setup() {
     const profile = reactive({ fullName: 'Employee Name', gender: 'male', email: 'employee@example.com', address: 'Seoul, South Korea', employeeId: 'EMP-001', position: 'Cashier', joinDate: '2026-08-01' });
     const profileInput = ref(null);

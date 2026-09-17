@@ -1,4 +1,5 @@
 import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
+import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import PaymentInfoCard from '../../../components/checkout/PaymentInfoCard/PaymentInfoCard.vue';
 import PaymentProofUpload from '../../../components/checkout/PaymentProofUpload/PaymentProofUpload.vue';
 import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
@@ -9,7 +10,7 @@ import './CheckoutView.css';
 
 export default {
   name: 'CheckoutView',
-  components: { AppHeader, PaymentInfoCard, PaymentProofUpload, ToastNotification },
+  components: { AppHeader, AppFooter, PaymentInfoCard, PaymentProofUpload, ToastNotification },
   setup() {
     const cartStore = useCartStore();
     const { isToastVisible, toastMessage, showToast } = useToast();

@@ -22,6 +22,7 @@
         <section class="profile-content" aria-label="Profile information"><ProfileForm :profile="profile" @save="handleSave" /></section>
       </div>
     </div></main>
+    <AppFooter />
   </div>
 </template>
 

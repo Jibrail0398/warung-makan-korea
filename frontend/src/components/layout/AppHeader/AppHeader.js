@@ -6,12 +6,14 @@ import { useAuthStore } from '../../../stores/auth.js';
 import { useHeaderScroll } from '../../../composables/useHeaderScroll.js';
 
 import MobileDrawer from '../MobileDrawer/MobileDrawer.vue';
+import ConfirmModal from '../../common/ConfirmModal/ConfirmModal.vue';
 import './AppHeader.css';
 
 export default {
   name: 'AppHeader',
   components: {
-    MobileDrawer
+    MobileDrawer,
+    ConfirmModal
   },
   props: {
     variant: {
@@ -29,6 +31,7 @@ export default {
     const cartStore = useCartStore();
     const authStore = useAuthStore();
     const isDrawerOpen = ref(false);
+    const showLogoutConfirm = ref(false);
 
     const isLoggedIn = computed(() => {
       return (
@@ -94,6 +97,16 @@ export default {
     }
 
     function handleLogout() {
+      // Close profile details if open
+      const details = document.querySelector('.profile-dropdown');
+      if (details) {
+        details.removeAttribute('open');
+      }
+      showLogoutConfirm.value = true;
+    }
+
+    function confirmLogout() {
+      showLogoutConfirm.value = false;
       authStore.logout();
     }
 
@@ -108,9 +121,11 @@ export default {
       isSuperAdmin,
       activeSection,
       isHeaderVisible,
+      showLogoutConfirm,
       toggleDrawer,
       closeDrawer,
-      handleLogout
+      handleLogout,
+      confirmLogout
     };
   }
 };

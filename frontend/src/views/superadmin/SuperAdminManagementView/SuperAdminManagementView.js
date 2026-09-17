@@ -1,5 +1,6 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import { useAuthStore } from '../../../stores/auth.js';
 import { usersService } from '../../../services/usersService.js';
@@ -13,7 +14,7 @@ const ROLE_LABELS = {
 
 export default {
   name: 'SuperAdminManagementView',
-  components: { NoticeModal },
+  components: { NoticeModal, LoadingSpinner },
   setup() {
     const users = ref([]);
     const isPageLoading = ref(false);

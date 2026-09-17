@@ -80,6 +80,21 @@
         </div>
       </details>
     </div>
+
+    <!-- Admin Logout Confirmation Modal -->
+    <ConfirmModal
+      :visible="showLogoutConfirm"
+      type="danger"
+      icon="logout"
+      eyebrow="Konfirmasi Logout"
+      title="Keluar dari Panel Admin?"
+      message="Apakah Anda yakin ingin keluar dari panel admin? Sesi Anda akan diakhiri dan dialihkan ke halaman login."
+      confirm-text="Ya, Keluar"
+      cancel-text="Batal"
+      @close="showLogoutConfirm = false"
+      @cancel="showLogoutConfirm = false"
+      @confirm="confirmLogout"
+    />
   </header>
 </template>
 

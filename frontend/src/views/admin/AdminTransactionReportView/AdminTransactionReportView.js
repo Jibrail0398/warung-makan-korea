@@ -1,5 +1,6 @@
 import { ref, onMounted } from 'vue';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
 import './AdminTransactionReportView.css';
 
@@ -46,7 +47,7 @@ const monthRange = (monthValue) => {
 
 export default {
   name: 'AdminTransactionReportView',
-  components: { StatusBadge },
+  components: { StatusBadge, LoadingSpinner },
   setup() {
     const periodType = ref('today');
     const todayStr = getLocalDateString();

@@ -1,0 +1,115 @@
+.loading-spinner-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.loading-spinner-wrapper.spinner-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 16px;
+  width: 100%;
+  gap: 12px;
+}
+
+.loading-spinner-wrapper.spinner-inline {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.loading-spinner-wrapper.spinner-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(2px);
+  border-radius: inherit;
+  gap: 12px;
+}
+
+/* Spinner SVG animation */
+.loading-svg {
+  animation: loading-spin 750ms linear infinite;
+  transform-origin: center;
+  flex-shrink: 0;
+}
+
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Sizes */
+.spinner-size-xs .loading-svg {
+  width: 13px;
+  height: 13px;
+}
+.spinner-size-xs {
+  font-size: 0.75rem;
+  gap: 6px;
+}
+
+.spinner-size-sm .loading-svg {
+  width: 16px;
+  height: 16px;
+}
+.spinner-size-sm {
+  font-size: 0.8125rem;
+  gap: 7px;
+}
+
+.spinner-size-md .loading-svg {
+  width: 24px;
+  height: 24px;
+}
+.spinner-size-md {
+  font-size: 0.9375rem;
+  gap: 10px;
+}
+
+.spinner-size-lg .loading-svg {
+  width: 36px;
+  height: 36px;
+}
+.spinner-size-lg {
+  font-size: 1.0625rem;
+  gap: 14px;
+}
+
+/* Colors */
+.spinner-color-white {
+  color: #ffffff;
+}
+
+.spinner-color-primary {
+  color: var(--red, #a51d2d);
+}
+
+.spinner-color-danger {
+  color: var(--color-danger, #dc2626);
+}
+
+.spinner-color-muted {
+  color: var(--muted, #625b55);
+}
+
+.spinner-color-current {
+  color: currentColor;
+}
+
+.loading-text {
+  letter-spacing: -0.01em;
+}

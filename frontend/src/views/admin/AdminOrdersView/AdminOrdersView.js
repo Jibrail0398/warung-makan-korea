@@ -3,14 +3,16 @@ import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
 import { newOrderListService } from '../../../services/newOrderListService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import './AdminOrdersView.css';
 
 export default {
   name: 'AdminOrdersView',
-  components: { StatusBadge },
+  components: { StatusBadge, LoadingSpinner },
   setup() {
     const orders = ref([]);
     const searchQuery = ref('');
+    const isPageLoading = ref(false);
 
     // Filter dari server (bukan client-side)
     const paymentStatusFilter = ref('all');
@@ -27,6 +29,7 @@ export default {
     const filterDate = ref(getToday());
 
     const loadOrders = async () => {
+      isPageLoading.value = true;
       try {
         const data = await orderService.getAllOrders({
           paymentStatus: paymentStatusFilter.value,
@@ -34,7 +37,11 @@ export default {
           date: filterDate.value
         });
         orders.value = data.data || data;
-      } catch (e) { console.error('Load orders error:', e); }
+      } catch (e) {
+        console.error('Load orders error:', e);
+      } finally {
+        isPageLoading.value = false;
+      }
     };
 
     onMounted(() => {
@@ -84,6 +91,17 @@ export default {
       await loadOrders();
     };
 
-    return { orders, paymentStatusFilter, orderStatusFilter, filterDate, searchQuery, filteredOrders, paymentStatusLabel, openProof, handleSimulateIncoming };
+    return {
+      orders,
+      isPageLoading,
+      paymentStatusFilter,
+      orderStatusFilter,
+      filterDate,
+      searchQuery,
+      filteredOrders,
+      paymentStatusLabel,
+      openProof,
+      handleSimulateIncoming
+    };
   }
 };

@@ -20,7 +20,11 @@
   --r-md: 12px;
   --r-lg: 16px;
   --shadow: 0 18px 50px rgba(36, 25, 18, .10);
+  --shadow-sm: 0 4px 14px rgba(36, 25, 18, .06);
+  --shadow-md: 0 10px 30px rgba(36, 25, 18, .08);
   --ease: 180ms ease;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,4 +49,69 @@ img { max-width: 100%; }
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 .container { width: min(calc(100% - 48px), var(--container)); margin-inline: auto; }
+
+/* ---------------------------------------------------------
+   Global Transitions for Vue <Transition>
+   --------------------------------------------------------- */
+/* Modal smooth fade & scale */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-fade-enter-active .modal-card,
+.modal-fade-enter-active .confirm-card,
+.modal-fade-enter-active .confirm-dialog,
+.modal-fade-enter-active .proof-modal,
+.modal-fade-enter-active .print-modal-card,
+.modal-fade-leave-active .modal-card,
+.modal-fade-leave-active .confirm-card,
+.modal-fade-leave-active .confirm-dialog,
+.modal-fade-leave-active .proof-modal,
+.modal-fade-leave-active .print-modal-card {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-from .modal-card,
+.modal-fade-enter-from .confirm-card,
+.modal-fade-enter-from .confirm-dialog,
+.modal-fade-enter-from .proof-modal,
+.modal-fade-enter-from .print-modal-card,
+.modal-fade-leave-to .modal-card,
+.modal-fade-leave-to .confirm-card,
+.modal-fade-leave-to .confirm-dialog,
+.modal-fade-leave-to .proof-modal,
+.modal-fade-leave-to .print-modal-card {
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+}
+
+/* Simple fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 200ms ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Micro-interaction tap/click feedback */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 80ms ease;
+}
+
+/* Smooth input focus transition */
+input, select, textarea {
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(165, 29, 45, 0.12);
+}
 </style>

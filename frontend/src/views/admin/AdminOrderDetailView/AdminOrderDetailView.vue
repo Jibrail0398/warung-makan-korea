@@ -43,7 +43,8 @@
                 :disabled="isSubmitting"
                 @click="askStage"
               >
-                {{ stageButton.label }}
+                <LoadingSpinner v-if="isSubmitting" size="sm" color="white" text="Memproses..." inline />
+                <span v-else>{{ stageButton.label }}</span>
               </button>
             </div>
           </div>
@@ -100,7 +101,8 @@
               :disabled="isSubmitting"
               @click="askApprove"
             >
-              Konfirmasi Bayar
+              <LoadingSpinner v-if="isSubmitting" size="sm" color="white" text="Memproses..." inline />
+              <span v-else>Konfirmasi Bayar</span>
             </button>
             <button
               type="button"
@@ -108,7 +110,8 @@
               :disabled="isSubmitting"
               @click="askReject"
             >
-              Tolak Pesanan
+              <LoadingSpinner v-if="isSubmitting" size="sm" color="white" text="Memproses..." inline />
+              <span v-else>Tolak Pesanan</span>
             </button>
           </div>
         </section>
@@ -116,23 +119,26 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <div v-if="confirmModal" class="modal-backdrop" @click.self="confirmModal = null">
-      <div class="confirm-dialog">
-        <h3 class="dialog-title">{{ confirmModal.title }}</h3>
-        <p class="dialog-desc">{{ confirmModal.message }}</p>
-        <div class="dialog-actions">
-          <button type="button" class="btn-cancel" @click="confirmModal = null">Tidak</button>
-          <button
-            type="button"
-            class="btn-primary"
-            :disabled="isSubmitting"
-            @click="executeConfirm"
-          >
-            Ya
-          </button>
+    <Transition name="modal-fade">
+      <div v-if="confirmModal" class="modal-backdrop" @click.self="!isSubmitting && (confirmModal = null)">
+        <div class="confirm-dialog">
+          <h3 class="dialog-title">{{ confirmModal.title }}</h3>
+          <p class="dialog-desc">{{ confirmModal.message }}</p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-cancel" :disabled="isSubmitting" @click="confirmModal = null">Tidak</button>
+            <button
+              type="button"
+              class="btn-primary"
+              :disabled="isSubmitting"
+              @click="executeConfirm"
+            >
+              <LoadingSpinner v-if="isSubmitting" size="sm" color="white" text="Memproses..." inline />
+              <span v-else>Ya</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
 
     <PrintableReceipt :isOpen="isPrintOpen" :order="order" @close="isPrintOpen = false" />
     <PaymentProofViewer :isOpen="isProofViewerOpen" :order="order" @close="isProofViewerOpen = false" />
@@ -140,6 +146,14 @@
 </template>
 
 <script>
+import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import AdminOrderDetailScript from './AdminOrderDetailView.js';
-export default { ...AdminOrderDetailScript };
+
+export default {
+  ...AdminOrderDetailScript,
+  components: {
+    LoadingSpinner,
+    ...AdminOrderDetailScript.components
+  }
+};
 </script>

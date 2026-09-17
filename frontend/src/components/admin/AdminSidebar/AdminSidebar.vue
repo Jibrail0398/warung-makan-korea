@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div v-if="isOpen" class="sidebar-backdrop" aria-hidden="true" @click="$emit('close')"></div>
+    <Transition name="fade">
+      <div v-if="isOpen" class="sidebar-backdrop" aria-hidden="true" @click="$emit('close')"></div>
+    </Transition>
     <aside class="admin-sidebar" :class="{ 'sidebar-open': isOpen, 'sidebar-collapsed': isCollapsed }" aria-label="Admin navigation">
       <div class="sidebar-brand-wrapper">
         <router-link :to="isSuperAdmin ? '/admin/audit-logs' : '/admin/dashboard'" class="brand-link" :title="isSuperAdmin ? 'Super Admin Console' : 'Admin / Kasir'" @click="$emit('close')">
@@ -34,6 +36,21 @@
         <button type="button" class="logout-sidebar-btn" :title="isCollapsed ? 'Keluar' : ''" @click="handleLogout"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span v-if="!isCollapsed">Keluar</span></button>
       </div>
     </aside>
+
+    <!-- Logout Confirmation Modal -->
+    <ConfirmModal
+      :visible="showLogoutConfirm"
+      type="danger"
+      icon="logout"
+      eyebrow="Konfirmasi Logout"
+      title="Keluar dari Panel Admin?"
+      message="Apakah Anda yakin ingin keluar dari panel admin? Sesi Anda akan diakhiri dan dialihkan ke halaman login."
+      confirm-text="Ya, Keluar"
+      cancel-text="Batal"
+      @close="showLogoutConfirm = false"
+      @cancel="showLogoutConfirm = false"
+      @confirm="confirmLogout"
+    />
   </div>
 </template>
 
