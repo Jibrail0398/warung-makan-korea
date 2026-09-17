@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div v-if="isOpen" class="sidebar-backdrop" aria-hidden="true" @click="$emit('close')"></div>
+    <Transition name="fade">
+      <div v-if="isOpen" class="sidebar-backdrop" aria-hidden="true" @click="$emit('close')"></div>
+    </Transition>
     <aside class="admin-sidebar" :class="{ 'sidebar-open': isOpen, 'sidebar-collapsed': isCollapsed }" aria-label="Admin navigation">
       <div class="sidebar-brand-wrapper">
         <router-link :to="isSuperAdmin ? '/admin/audit-logs' : '/admin/dashboard'" class="brand-link" :title="isSuperAdmin ? 'Super Admin Console' : 'Admin / Kasir'" @click="$emit('close')">

@@ -264,34 +264,38 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="productToDelete" class="modal-backdrop" @click.self="!isDeleting && (productToDelete = null)">
-      <div class="confirm-dialog">
-        <h3 class="dialog-title">Konfirmasi Hapus Produk</h3>
-        <p class="dialog-desc">
-          Apakah anda yakin akan menghapus data ini <strong>"{{ productToDelete.name }}"</strong>?
-        </p>
-        <div class="dialog-actions">
-          <button type="button" class="btn-cancel" :disabled="isDeleting" @click="productToDelete = null">Tidak</button>
-          <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
-            <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
-            <span v-else>Ya</span>
-          </button>
+    <Transition name="modal-fade">
+      <div v-if="productToDelete" class="modal-backdrop" @click.self="!isDeleting && (productToDelete = null)">
+        <div class="confirm-dialog confirm-card">
+          <h3 class="dialog-title">Konfirmasi Hapus Produk</h3>
+          <p class="dialog-desc">
+            Apakah anda yakin akan menghapus data ini <strong>"{{ productToDelete.name }}"</strong>?
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-cancel" :disabled="isDeleting" @click="productToDelete = null">Tidak</button>
+            <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
+              <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+              <span v-else>Ya</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
 
     <!-- Status Notification Modal -->
-    <div v-if="notificationModal.isOpen" class="modal-backdrop" @click.self="closeNotification">
-      <div class="confirm-dialog">
-        <h3 class="dialog-title" :class="notificationModal.isSuccess ? 'text-success' : 'text-danger'">
-          {{ notificationModal.isSuccess ? 'Berhasil' : 'Gagal' }}
-        </h3>
-        <p class="dialog-desc">{{ notificationModal.message }}</p>
-        <div class="dialog-actions">
-          <button type="button" class="btn-primary" @click="closeNotification">Tutup</button>
+    <Transition name="modal-fade">
+      <div v-if="notificationModal.isOpen" class="modal-backdrop" @click.self="closeNotification">
+        <div class="confirm-dialog confirm-card">
+          <h3 class="dialog-title" :class="notificationModal.isSuccess ? 'text-success' : 'text-danger'">
+            {{ notificationModal.isSuccess ? 'Berhasil' : 'Gagal' }}
+          </h3>
+          <p class="dialog-desc">{{ notificationModal.message }}</p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-primary" @click="closeNotification">Tutup</button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 

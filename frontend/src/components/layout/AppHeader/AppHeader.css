@@ -260,11 +260,19 @@
   white-space: nowrap;
 }
 
+.profile-trigger svg {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .profile-trigger:hover,
 .profile-dropdown[open] .profile-trigger {
   border-color: var(--red);
   background: var(--red-soft);
   color: var(--red);
+}
+
+.profile-dropdown[open] .profile-trigger svg {
+  transform: rotate(180deg);
 }
 
 .profile-avatar {
@@ -311,6 +319,22 @@
   box-shadow: var(--shadow);
 
   z-index: 100;
+}
+
+.profile-dropdown[open] .profile-menu {
+  animation: dropdownPop 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+@keyframes dropdownPop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .profile-menu a,

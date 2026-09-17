@@ -94,35 +94,37 @@
     </div>
 
     <!-- Detail log -->
-    <div v-if="selectedLog" class="modal-backdrop" @click.self="closeDetailModal">
-      <div class="modal-card">
-        <div class="modal-header">
-          <div>
-            <span class="modal-eyebrow">PAYLOAD INSPECTOR</span>
-            <h3 class="modal-title">Log Detail: {{ selectedLog.id }}</h3>
-          </div>
-          <button type="button" class="close-btn" aria-label="Tutup" @click="closeDetailModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div v-if="isDetailLoading" class="detail-loading">
-            <LoadingSpinner size="md" color="primary" text="Memuat detail log..." center />
-          </div>
-          <template v-else>
-            <div class="log-meta-grid">
-              <div><strong>Waktu:</strong> {{ formatTimestamp(selectedLog.created_at) }}</div>
-              <div><strong>Pelaku:</strong> {{ selectedLog.causer ? `${selectedLog.causer.name} (${selectedLog.causer.role})` : getActorName(selectedLog) }}</div>
-              <div><strong>Aksi:</strong> {{ eventLabel(selectedLog.event) }}</div>
-              <div><strong>Log:</strong> {{ logNameLabel(selectedLog.log_name) }}</div>
-              <div><strong>IP:</strong> {{ getIpAddress(selectedLog) }}</div>
+    <Transition name="modal-fade">
+      <div v-if="selectedLog" class="modal-backdrop" @click.self="closeDetailModal">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <span class="modal-eyebrow">PAYLOAD INSPECTOR</span>
+              <h3 class="modal-title">Log Detail: {{ selectedLog.id }}</h3>
             </div>
-            <p class="log-description">{{ selectedLog.description }}</p>
-            <div class="json-box">
-              <pre>{{ JSON.stringify({ properties: selectedLog.properties, attribute_changes: selectedLog.attribute_changes }, null, 2) }}</pre>
+            <button type="button" class="close-btn" aria-label="Tutup" @click="closeDetailModal">✕</button>
+          </div>
+          <div class="modal-body">
+            <div v-if="isDetailLoading" class="detail-loading">
+              <LoadingSpinner size="md" color="primary" text="Memuat detail log..." center />
             </div>
-          </template>
+            <template v-else>
+              <div class="log-meta-grid">
+                <div><strong>Waktu:</strong> {{ formatTimestamp(selectedLog.created_at) }}</div>
+                <div><strong>Pelaku:</strong> {{ selectedLog.causer ? `${selectedLog.causer.name} (${selectedLog.causer.role})` : getActorName(selectedLog) }}</div>
+                <div><strong>Aksi:</strong> {{ eventLabel(selectedLog.event) }}</div>
+                <div><strong>Log:</strong> {{ logNameLabel(selectedLog.log_name) }}</div>
+                <div><strong>IP:</strong> {{ getIpAddress(selectedLog) }}</div>
+              </div>
+              <p class="log-description">{{ selectedLog.description }}</p>
+              <div class="json-box">
+                <pre>{{ JSON.stringify({ properties: selectedLog.properties, attribute_changes: selectedLog.attribute_changes }, null, 2) }}</pre>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
 
     <NoticeModal
       :visible="isNoticeVisible"

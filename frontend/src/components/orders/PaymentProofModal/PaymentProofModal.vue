@@ -17,13 +17,15 @@
         </div>
       </article>
     </section>
-    <div v-if="showModal" class="modal-backdrop" @click.self="showModal = false">
-      <div class="proof-modal">
-        <div class="modal-header"><div><span class="eyebrow">Payment proof</span><h2>Transfer Receipt</h2></div><button type="button" class="close-button" aria-label="Close" @click="showModal = false">&times;</button></div>
-        <div class="proof-image"><img :src="proofImage" alt="Payment proof" /></div>
-        <p class="proof-caption">Uploaded payment proof for transaction {{ order.transactionId || order.id || 'TRX-001' }}.</p>
+    <Transition name="modal-fade">
+      <div v-if="showModal" class="modal-backdrop" @click.self="showModal = false">
+        <div class="proof-modal">
+          <div class="modal-header"><div><span class="eyebrow">Payment proof</span><h2>Transfer Receipt</h2></div><button type="button" class="close-button" aria-label="Close" @click="showModal = false">&times;</button></div>
+          <div class="proof-image"><img :src="proofImage" alt="Payment proof" /></div>
+          <p class="proof-caption">Uploaded payment proof for transaction {{ order.transactionId || order.id || 'TRX-001' }}.</p>
+        </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 

@@ -74,83 +74,89 @@
     </div>
 
     <!-- Form tambah / edit akun -->
-    <div v-if="isModalOpen" class="modal-backdrop" @click.self="!isSaving && closeFormModal()">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title">{{ isEditMode ? 'Edit Akun Admin' : 'Tambah Akun Admin Baru' }}</h3>
-          <button type="button" class="close-btn" aria-label="Tutup" :disabled="isSaving" @click="closeFormModal">✕</button>
+    <Transition name="modal-fade">
+      <div v-if="isModalOpen" class="modal-backdrop" @click.self="!isSaving && closeFormModal()">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 class="modal-title">{{ isEditMode ? 'Edit Akun Admin' : 'Tambah Akun Admin Baru' }}</h3>
+            <button type="button" class="close-btn" aria-label="Tutup" :disabled="isSaving" @click="closeFormModal">✕</button>
+          </div>
+          <form class="modal-body" novalidate @submit.prevent="handleSubmit">
+            <div class="form-group">
+              <label class="form-label required" for="user-name">Nama Lengkap</label>
+              <input id="user-name" v-model="formData.name" type="text" class="form-input" :class="{ 'input-error': formErrors.name }" placeholder="Contoh: Siti Rahmawati" :disabled="isSaving" @input="formErrors.name = ''" />
+              <small v-if="formErrors.name" class="field-error">{{ formErrors.name }}</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="user-phone">Nomor Telepon</label>
+              <input id="user-phone" v-model="formData.phone_number" type="text" class="form-input" :class="{ 'input-error': formErrors.phone_number }" placeholder="Contoh: 081234567890" :disabled="isSaving" @input="formErrors.phone_number = ''" />
+              <small v-if="formErrors.phone_number" class="field-error">{{ formErrors.phone_number }}</small>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" :disabled="isSaving" @click="closeFormModal">Batal</button>
+              <button type="submit" class="btn-submit" :disabled="isSaving">
+                <LoadingSpinner v-if="isSaving" size="sm" color="white" text="Menyimpan..." inline />
+                <span v-else>{{ isEditMode ? 'Simpan Perubahan' : 'Simpan Akun' }}</span>
+              </button>
+            </div>
+          </form>
         </div>
-        <form class="modal-body" novalidate @submit.prevent="handleSubmit">
-          <div class="form-group">
-            <label class="form-label required" for="user-name">Nama Lengkap</label>
-            <input id="user-name" v-model="formData.name" type="text" class="form-input" :class="{ 'input-error': formErrors.name }" placeholder="Contoh: Siti Rahmawati" :disabled="isSaving" @input="formErrors.name = ''" />
-            <small v-if="formErrors.name" class="field-error">{{ formErrors.name }}</small>
-          </div>
-          <div class="form-group">
-            <label class="form-label required" for="user-phone">Nomor Telepon</label>
-            <input id="user-phone" v-model="formData.phone_number" type="text" class="form-input" :class="{ 'input-error': formErrors.phone_number }" placeholder="Contoh: 081234567890" :disabled="isSaving" @input="formErrors.phone_number = ''" />
-            <small v-if="formErrors.phone_number" class="field-error">{{ formErrors.phone_number }}</small>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-cancel" :disabled="isSaving" @click="closeFormModal">Batal</button>
-            <button type="submit" class="btn-submit" :disabled="isSaving">
-              <LoadingSpinner v-if="isSaving" size="sm" color="white" text="Menyimpan..." inline />
-              <span v-else>{{ isEditMode ? 'Simpan Perubahan' : 'Simpan Akun' }}</span>
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </Transition>
 
     <!-- Ganti password -->
-    <div v-if="isPasswordModalOpen" class="modal-backdrop" @click.self="!isChangingPassword && closePasswordModal()">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title">Ganti Password: {{ passwordTarget?.name }}</h3>
-          <button type="button" class="close-btn" aria-label="Tutup" :disabled="isChangingPassword" @click="closePasswordModal">✕</button>
+    <Transition name="modal-fade">
+      <div v-if="isPasswordModalOpen" class="modal-backdrop" @click.self="!isChangingPassword && closePasswordModal()">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 class="modal-title">Ganti Password: {{ passwordTarget?.name }}</h3>
+            <button type="button" class="close-btn" aria-label="Tutup" :disabled="isChangingPassword" @click="closePasswordModal">✕</button>
+          </div>
+          <form class="modal-body" novalidate @submit.prevent="handlePasswordSubmit">
+            <p class="confirm-text">Ganti password untuk akun <strong>{{ passwordTarget?.name }} ({{ passwordTarget?.phone_number }})</strong>. Pastikan password baru tersimpan dengan aman.</p>
+            <div class="form-group">
+              <label class="form-label required" for="user-password">Password Baru</label>
+              <input id="user-password" v-model="passwordForm.password" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password }" placeholder="Minimal 6 karakter" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password = ''" />
+              <small v-if="passwordFormErrors.password" class="field-error">{{ passwordFormErrors.password }}</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="user-password-confirmation">Konfirmasi Password Baru</label>
+              <input id="user-password-confirmation" v-model="passwordForm.password_confirmation" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password_confirmation }" placeholder="Ulangi password baru" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password_confirmation = ''" />
+              <small v-if="passwordFormErrors.password_confirmation" class="field-error">{{ passwordFormErrors.password_confirmation }}</small>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" :disabled="isChangingPassword" @click="closePasswordModal">Batal</button>
+              <button type="submit" class="btn-submit" :disabled="isChangingPassword">
+                <LoadingSpinner v-if="isChangingPassword" size="sm" color="white" text="Menyimpan..." inline />
+                <span v-else>Simpan Password</span>
+              </button>
+            </div>
+          </form>
         </div>
-        <form class="modal-body" novalidate @submit.prevent="handlePasswordSubmit">
-          <p class="confirm-text">Ganti password untuk akun <strong>{{ passwordTarget?.name }} ({{ passwordTarget?.phone_number }})</strong>. Pastikan password baru tersimpan dengan aman.</p>
-          <div class="form-group">
-            <label class="form-label required" for="user-password">Password Baru</label>
-            <input id="user-password" v-model="passwordForm.password" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password }" placeholder="Minimal 6 karakter" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password = ''" />
-            <small v-if="passwordFormErrors.password" class="field-error">{{ passwordFormErrors.password }}</small>
-          </div>
-          <div class="form-group">
-            <label class="form-label required" for="user-password-confirmation">Konfirmasi Password Baru</label>
-            <input id="user-password-confirmation" v-model="passwordForm.password_confirmation" type="password" class="form-input" :class="{ 'input-error': passwordFormErrors.password_confirmation }" placeholder="Ulangi password baru" autocomplete="new-password" :disabled="isChangingPassword" @input="passwordFormErrors.password_confirmation = ''" />
-            <small v-if="passwordFormErrors.password_confirmation" class="field-error">{{ passwordFormErrors.password_confirmation }}</small>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-cancel" :disabled="isChangingPassword" @click="closePasswordModal">Batal</button>
-            <button type="submit" class="btn-submit" :disabled="isChangingPassword">
-              <LoadingSpinner v-if="isChangingPassword" size="sm" color="white" text="Menyimpan..." inline />
-              <span v-else>Simpan Password</span>
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </Transition>
 
     <!-- Konfirmasi hapus -->
-    <div v-if="userToDelete" class="modal-backdrop confirm-backdrop" @click.self="!isDeleting && cancelDelete()">
-      <div class="modal-card confirm-card">
-        <div class="modal-header">
-          <h3 class="modal-title">Hapus Akun Staf</h3>
-          <button type="button" class="close-btn" aria-label="Tutup" :disabled="isDeleting" @click="cancelDelete">✕</button>
-        </div>
-        <div class="modal-body">
-          <p class="confirm-text">Apakah anda yakin akan menghapus data ini <strong>{{ userToDelete.name }} ({{ userToDelete.phone_number }})</strong>?</p>
-          <div class="modal-footer">
-            <button type="button" class="btn-cancel" :disabled="isDeleting" @click="cancelDelete">Tidak</button>
-            <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
-              <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
-              <span v-else>Ya</span>
-            </button>
+    <Transition name="modal-fade">
+      <div v-if="userToDelete" class="modal-backdrop confirm-backdrop" @click.self="!isDeleting && cancelDelete()">
+        <div class="modal-card confirm-card">
+          <div class="modal-header">
+            <h3 class="modal-title">Hapus Akun Staf</h3>
+            <button type="button" class="close-btn" aria-label="Tutup" :disabled="isDeleting" @click="cancelDelete">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="confirm-text">Apakah anda yakin akan menghapus data ini <strong>{{ userToDelete.name }} ({{ userToDelete.phone_number }})</strong>?</p>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" :disabled="isDeleting" @click="cancelDelete">Tidak</button>
+              <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">
+                <LoadingSpinner v-if="isDeleting" size="sm" color="white" text="Menghapus..." inline />
+                <span v-else>Ya</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
 
     <NoticeModal
       :visible="isNoticeVisible"
