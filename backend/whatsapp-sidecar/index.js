@@ -202,8 +202,17 @@ async function normalizeWaId(input, session) {
   else if (!digits.startsWith(cc) && digits.length <= 13) digits = cc + digits;
   if (session?.client?.getNumberId) {
     try {
-      const wid = await session.client.getNumberId(digits);
-      if (wid?._serialized) return wid._serialized;
+      console.log(`[laravel-wa-sidecar] resolving number id for ${digits}...`);
+      const wid = await withTimeoutOrThrow(
+        session.client.getNumberId(digits),
+        5000,
+        `getNumberId timed out after 5000ms for ${digits}`,
+      );
+      if (wid?._serialized) {
+        console.log(`[laravel-wa-sidecar] resolved ${digits} -> ${wid._serialized}`);
+        return wid._serialized;
+      }
+      console.log(`[laravel-wa-sidecar] getNumberId returned null for ${digits}, falling back`);
     } catch (e) {
       console.error(`[laravel-wa-sidecar] getNumberId failed for ${digits}:`, e.message);
     }
@@ -292,11 +301,23 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
     let result;
     switch (b.type) {
       case 'text':
-        result = await s.client.sendMessage(to, b.body ?? '', b.quotedMessageId ? { quotedMessageId: b.quotedMessageId } : {});
+        console.log(`[laravel-wa-sidecar] sending text message to ${to}...`);
+        result = await withTimeoutOrThrow(
+          s.client.sendMessage(to, b.body ?? '', b.quotedMessageId ? { quotedMessageId: b.quotedMessageId } : {}),
+          15000,
+          `sendMessage timed out after 15000ms for ${to}`,
+        );
+        console.log(`[laravel-wa-sidecar] text message sent: ${result.id?._serialized ?? 'no-id'}`);
         break;
 
       case 'reply':
-        result = await s.client.sendMessage(to, b.body ?? '', { quotedMessageId: b.quotedMessageId });
+        console.log(`[laravel-wa-sidecar] sending reply message to ${to}...`);
+        result = await withTimeoutOrThrow(
+          s.client.sendMessage(to, b.body ?? '', { quotedMessageId: b.quotedMessageId }),
+          15000,
+          `sendMessage timed out after 15000ms for ${to}`,
+        );
+        console.log(`[laravel-wa-sidecar] reply message sent: ${result.id?._serialized ?? 'no-id'}`);
         break;
 
       case 'image':
@@ -311,7 +332,13 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
           sendMediaAsDocument: b.type === 'document',
           sendAudioAsVoice: b.sendAudioAsVoice === true && b.type === 'audio',
         };
-        result = await s.client.sendMessage(to, media, options);
+        console.log(`[laravel-wa-sidecar] sending media message (${b.type}) to ${to}...`);
+        result = await withTimeoutOrThrow(
+          s.client.sendMessage(to, media, options),
+          60000,
+          `sendMessage (media) timed out after 60000ms for ${to}`,
+        );
+        console.log(`[laravel-wa-sidecar] media message sent: ${result.id?._serialized ?? 'no-id'}`);
         break;
       }
 
@@ -496,6 +523,17 @@ function withTimeout(promise, ms) {
     promise.catch(() => null),
     new Promise(resolve => setTimeout(() => resolve(null), ms)),
   ]);
+}
+
+// Helper: race a promise against a timeout — rejects if the inner promise
+// doesn't resolve within `ms`. The inner promise's own rejection is also
+// propagated. Used for operations (like sending a message) where we must
+// never leave the HTTP request hanging.
+function withTimeoutOrThrow(promise, ms, message) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(message || `operation timed out after ${ms}ms`)), ms),
+  );
+  return Promise.race([promise, timeout]);
 }
 
 // Stream a contact's WhatsApp profile picture. Returns 404 if the contact
