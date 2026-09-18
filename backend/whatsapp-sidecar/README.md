@@ -46,6 +46,7 @@ Status: `initializing` → `qr` → `ready`; `disconnected` saat terputus
 | `SESSION_DIR` | `./sessions` | Lokasi kredensial. Di Railway: `/data/sessions` (Volume). |
 | `AUTO_START_SESSIONS` | `true` | Boot session tersimpan saat proses hidup. |
 | `DEFAULT_COUNTRY_CODE` | `62` | Normalisasi `0812…` → `62812…` |
+| `SEND_SETTLE_DELAY_MS` | `8000` | Delay sebelum kirim pertama setelah session `open`, agar kunci enkripsi selesai sync (mencegah OTP muncul "menunggu pesan ini" di HP penerima). |
 | `ROLE_CACHE_TTL` | `60` | Detik cache hasil introspection. |
 
 ### Laravel
@@ -115,3 +116,17 @@ Atau tanpa Docker: `npm ci && pm2 start index.js --name wa-sidecar`.
   service yang diterbitkan Laravel sendiri (klaim `role: superadmin`).
 - Risiko: akun WhatsApp pribadi yang mengirim OTP otomatis tetap berpotensi
   dibanned WhatsApp (risiko arsitektur, bukan spesifik Baileys).
+
+## Troubleshooting
+
+**OTP muncul "menunggu pesan ini" di HP penerima** — kunci enkripsi belum
+selesai sync. Sidecar sudah men-delay kirim pertama setelah `open`
+(`SEND_SETTLE_DELAY_MS`, default 8 detik). Jika masih terjadi: hapus session
+(`DELETE /sessions/:id` dari halaman superadmin) lalu scan ulang — session
+lama dari masa transaksi ganda/deploys berturut-turut bisa punya key state
+yang tidak konsisten. Scan ulang sekali + delay = pesan langsung terbaca.
+
+**Frontend gagal navigasi: "Failed to fetch dynamically imported module"** —
+browser memegang bundle lama setelah redeploy (chunk hash berubah).
+Solusi user: hard refresh (Ctrl+Shift+R) / clear site data. Pencegahan
+jangka panjang: pastikan `index.html` di-serve dengan `Cache-Control: no-cache`.

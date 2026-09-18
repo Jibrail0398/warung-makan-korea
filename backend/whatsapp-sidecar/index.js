@@ -205,6 +205,7 @@ async function startSocket(sessionId, session) {
         clearTimeout(session.reconnectTimer);
         session.reconnectAttempts = 0;
         session.qrDataUri = null;
+        session.readyAt = Date.now();
         setStatus(session, 'ready');
         console.log(`${LOG} [${sessionId}] connected`);
       }
@@ -358,6 +359,26 @@ function requireReady(session) {
   }
 }
 
+/**
+ * Tunggu sampai kunci enkripsi selesai sync ke HP penerima.
+ *
+ * Pesan pertama yang dikirim langsung setelah session `open` (fresh scan /
+ * reconnect) bisa muncul sebagai "menunggu pesan ini" di HP penerima karena
+ * WhatsApp belum selesai mendistribusikan sender key ke perangkat baru.
+ * Delay singkat setelah `open` menyelesaikannya; kirim-kirim berikutnya
+ * tidak terdampak (readyAt sudah lewat).
+ */
+const SEND_SETTLE_DELAY_MS = parseInt(process.env.SEND_SETTLE_DELAY_MS || '8000', 10);
+
+async function waitForKeysToSettle(session) {
+  if (!session.readyAt) return;
+  const elapsed = Date.now() - session.readyAt;
+  if (elapsed >= SEND_SETTLE_DELAY_MS) return;
+  const waitMs = SEND_SETTLE_DELAY_MS - elapsed;
+  console.log(`${LOG} waiting ${waitMs}ms for key sync after connection open`);
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
+}
+
 function serializeSendResult(result, jid, body) {
   return {
     id: result?.key?.id ?? null,
@@ -456,6 +477,8 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
 
     const jid = toJid(body.to);
     if (!jid) return res.status(400).json({ error: 'field `to` bukan nomor yang valid' });
+
+    await waitForKeysToSettle(session);
 
     const result = await withTimeoutOrThrow(
       session.sock.sendMessage(jid, { text: body.body ?? '' }),
