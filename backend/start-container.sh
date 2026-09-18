@@ -42,9 +42,14 @@ mkdir -p "$SESSION_DIR" storage/logs
 touch "$SIDECAR_LOG"
 
 if [ ! -d "$SIDECAR_DIR/node_modules/express" ]; then
-    echo "[start] sidecar deps missing, running npm ci ..."
-    PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-        npm ci --prefix "$SIDECAR_DIR" || true
+    echo "[start] sidecar deps missing, installing ..."
+    if [ -f "$SIDECAR_DIR/package-lock.json" ]; then
+        PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+            npm ci --omit=dev --prefix "$SIDECAR_DIR" || true
+    else
+        PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+            npm install --omit=dev --prefix "$SIDECAR_DIR" || true
+    fi
 fi
 
 export WHATSAPP_WEB_HOST="${WHATSAPP_WEB_HOST:-127.0.0.1}"

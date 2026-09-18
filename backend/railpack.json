@@ -5,7 +5,7 @@
     "install": {
       "commands": [
         "...",
-        "PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci --prefix vendor/kstmostofa/laravel-whatsapp/sidecar"
+        "if [ -f vendor/kstmostofa/laravel-whatsapp/sidecar/package-lock.json ]; then PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci --omit=dev --prefix vendor/kstmostofa/laravel-whatsapp/sidecar; else PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install --omit=dev --prefix vendor/kstmostofa/laravel-whatsapp/sidecar; fi"
       ]
     }
   },
