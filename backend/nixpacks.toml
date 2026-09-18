@@ -1,19 +1,7 @@
 [phases.setup]
-nixPkgs = [
+aptPkgs = [
     "...",
-    "chromium",
-    "nss",
-    "atk",
-    "cups",
-    "libdrm",
-    "libxkbcommon",
-    "pango",
-    "mesa",
-    "alsa-lib",
-    "libXcomposite",
-    "libXdamage",
-    "libXrandr",
-    "gbm"
+    "chromium"
 ]
 
 [phases.install]
