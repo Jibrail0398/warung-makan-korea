@@ -1,7 +1,10 @@
 [phases.setup]
 aptPkgs = [
-    "...",
-    "chromium"
+    "ca-certificates",
+    "chromium",
+    "git",
+    "unzip",
+    "zip"
 ]
 
 [phases.install]
