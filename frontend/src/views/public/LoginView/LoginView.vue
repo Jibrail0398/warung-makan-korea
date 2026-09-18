@@ -1,5 +1,5 @@
 <template>
-  <AuthLayout title="Masuk ke Akun" subtitle="Warung Nusantara — Indonesia in Korea" description="Satu portal untuk Pelanggan, Kasir, Admin, dan Super Admin.">
+  <AuthLayout title="Masuk ke Akun" subtitle="Aneka Rasa Restoran — Indonesia in Korea" description="Satu portal untuk Pelanggan, Kasir, Admin, dan Super Admin.">
     <form @submit.prevent="handleLogin" class="auth-form" novalidate>
       <div v-if="errorMessage" class="global-error-box" role="alert"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg><span>{{ errorMessage }}</span></div>
       <AuthInput id="login-identifier" label="Handphone" type="text" placeholder="example: +821022334455" v-model="identifier" :error="identifierError" required autocomplete="username" />

@@ -9,6 +9,7 @@ import ToastNotification from '../../../components/common/ToastNotification/Toas
 import { useOrderStore } from '../../../stores/order.js';
 import { orderStatusRealtimeService } from '../../../services/orderStatusRealtimeService.js';
 import { useToast } from '../../../composables/useToast.js';
+import { generateReceiptPdf } from '../../../utils/receiptPdf.js';
 import './OrdersView.css';
 
 export default {
@@ -18,7 +19,13 @@ export default {
     const orderStore = useOrderStore();
     const { isToastVisible, toastMessage, showToast } = useToast();
     const order = ref({});
-    function handleDownloadReceipt() { showToast('Receipt download started'); }
+    function handleDownloadReceipt() {
+      if (order.value?.id) {
+        generateReceiptPdf(order.value).save(`struk-${order.value.id}.pdf`);
+      } else {
+        showToast('Data pesanan belum tersedia.');
+      }
+    }
     function handlePrintReceipt() { window.print(); }
 
     // Realtime: update status & pembayaran otomatis saat pekerja mengubahnya

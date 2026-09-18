@@ -73,7 +73,19 @@
             <td><div class="items-cell"><span class="items-summary">{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span></div></td>
             <td><span class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</span></td>
             <td><span class="payment-status-badge" :class="order.payment_status">{{ paymentStatusLabel(order.payment_status) }}</span></td>
-            <td><div class="proof-cell"><img v-if="order.payment_receipt_url" :src="order.payment_receipt_url" alt="Bukti Transfer" class="proof-thumb" @click="openProof(order.payment_receipt_url)" /><a v-if="order.payment_receipt_url" :href="order.payment_receipt_url" target="_blank" class="proof-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" /><polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="1.8" /></svg><span>Lihat Bukti</span></a><span v-else class="no-proof-text">-</span></div></td>
+            <td>
+              <div class="proof-cell">
+                <img
+                  v-if="order.payment_receipt_url"
+                  :src="order.payment_receipt_url"
+                  alt="Bukti Transfer"
+                  class="proof-thumb"
+                  title="Klik untuk memperbesar bukti transfer"
+                  @click="openProof(order)"
+                />
+                <span v-else class="no-proof-text">-</span>
+              </div>
+            </td>
             <td><StatusBadge :status="order.status" /></td>
             <td class="col-actions"><div class="quick-actions"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn">Detail</router-link></div></td>
           </tr>
@@ -99,7 +111,16 @@
             <div class="m-row"><span class="m-label">Customer:</span><strong>{{ order.customer_name }} ({{ order.customer_phone }})</strong></div>
             <div class="m-row"><span class="m-label">Item:</span><span>{{ order.items?.map(i => `${i.quantity}x ${i.product?.name || 'Item'}`).join(', ') }}</span></div>
             <div class="m-row"><span class="m-label">Total:</span><strong class="price-val">₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
-            <div v-if="order.payment_receipt_url" class="m-row"><span class="m-label">Bukti Bayar:</span><a :href="order.payment_receipt_url" target="_blank" class="proof-btn">Lihat Bukti</a></div>
+            <div v-if="order.payment_receipt_url" class="m-row">
+              <span class="m-label">Bukti Bayar:</span>
+              <img
+                :src="order.payment_receipt_url"
+                alt="Bukti Transfer"
+                class="proof-thumb"
+                title="Klik untuk memperbesar bukti transfer"
+                @click="openProof(order)"
+              />
+            </div>
           </div>
           <div class="m-card-footer"><router-link :to="`/admin/orders/${order.id}`" class="action-btn detail-btn full-btn">Buka Detail</router-link></div>
         </article>
@@ -108,6 +129,13 @@
         <p>Tidak ada pesanan yang sesuai filter.</p>
       </div>
     </div>
+
+    <!-- Modal Bukti Transfer -->
+    <PaymentProofViewer
+      :isOpen="isProofViewerOpen"
+      :order="selectedOrderForProof"
+      @close="isProofViewerOpen = false"
+    />
   </div>
 </template>
 

@@ -22,9 +22,7 @@ class BankAccountController extends Controller
 
     public function index()
     {
-        $isActiveOnly = request()->query('active') === 'true';
-        
-        $accounts = $this->service->getAll(onlyActive: $isActiveOnly);
+        $accounts = $this->service->getAll();
         return $this->successResponse(
             BankAccountResource::collection($accounts),
             'Berhasil mengambil daftar rekening bank'

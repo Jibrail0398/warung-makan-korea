@@ -17,7 +17,7 @@ class StoreBankAccountRequest extends FormRequest
             'bank_name' => 'required|string|max:100',
             'account_number' => 'required|string|max:50|unique:bank_accounts,account_number',
             'account_name' => 'required|string|max:100',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 }

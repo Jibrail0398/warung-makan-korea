@@ -3,9 +3,9 @@
     <div class="drawer-backdrop" :class="{ open: isOpen }" :aria-hidden="!isOpen" @click="$emit('close')"></div>
     <aside class="mobile-drawer" :class="{ open: isOpen }" aria-label="Mobile navigation" :aria-hidden="!isOpen">
       <router-link class="mobile-drawer-brand" to="/" @click="$emit('close')">
-        <span class="mobile-drawer-brand-mark" aria-hidden="true">WN</span>
+        <span class="mobile-drawer-brand-mark" aria-hidden="true">AR</span>
         <span class="mobile-drawer-brand-copy">
-          <strong>Warung Nusantara</strong>
+          <strong>Aneka Rasa Restoran</strong>
           <small>Indonesia in Korea</small>
         </span>
       </router-link>

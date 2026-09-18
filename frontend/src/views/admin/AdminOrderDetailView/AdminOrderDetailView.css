@@ -60,9 +60,11 @@
 .payment-meta-info { display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 0.82rem; }
 .meta-line { display: flex; justify-content: space-between; }
 .proof-container { width: 100%; border-radius: var(--r-sm); border: 1px solid var(--line); overflow: hidden; background: var(--soft); }
-.proof-wrapper { position: relative; width: 100%; height: 180px; }
-.proof-thumbnail { width: 100%; height: 100%; object-fit: cover; }
-.zoom-proof-btn { position: absolute; bottom: 10px; right: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 4px; background: rgba(25, 21, 18, 0.85); color: #fff; font-size: 0.72rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(2px); }
+.proof-wrapper { position: relative; width: 100%; height: 180px; cursor: zoom-in; }
+.proof-thumbnail { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform var(--ease); }
+.proof-wrapper:hover .proof-thumbnail { transform: scale(1.02); }
+.zoom-proof-btn { position: absolute; bottom: 10px; right: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 4px; background: rgba(25, 21, 18, 0.85); color: #fff; font-size: 0.72rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(2px); border: none; transition: background-color var(--ease); }
+.zoom-proof-btn:hover { background: var(--red); }
 .no-proof-box { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 0.8rem; }
 .proof-decision-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 .btn-approve-proof { padding: 9px 14px; border-radius: var(--r-sm); background: var(--red, #c0392b); color: #fff; font-size: 0.8rem; font-weight: 750; cursor: pointer; }
