@@ -23,7 +23,6 @@ export default {
       bank_name: '',
       account_number: '',
       account_name: '',
-      is_active: true,
     });
 
     const formErrors = reactive({
@@ -51,7 +50,6 @@ export default {
       formData.bank_name = data?.bankName || '';
       formData.account_number = data?.accountNumber || '';
       formData.account_name = data?.accountName || '';
-      formData.is_active = data?.isActive ?? true;
     };
 
     const clearFormErrors = () => {
@@ -136,7 +134,7 @@ export default {
         bank_name: formData.bank_name.trim(),
         account_number: formData.account_number.trim(),
         account_name: formData.account_name.trim(),
-        is_active: formData.is_active,
+        is_active: true,
       };
 
       try {

@@ -19,8 +19,8 @@ export default {
 
     async function loadBankAccount() {
       try {
-        const accounts = await bankAccountService.getBankAccounts({ onlyActive: true });
-        const active = accounts.find((account) => account.isActive) || accounts[0];
+        const accounts = await bankAccountService.getBankAccounts();
+        const active = accounts[0];
         if (active) {
           bankInfo.value = {
             bankName: active.bankName,

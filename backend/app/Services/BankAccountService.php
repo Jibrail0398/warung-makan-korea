@@ -9,13 +9,7 @@ class BankAccountService
 {
     public function getAll(bool $onlyActive = false)
     {
-        $query = BankAccount::latest();
-        
-        if ($onlyActive) {
-            $query->where('is_active', true);
-        }
-
-        return $query->get(); // Bank account biasanya tidak terlalu banyak, tidak perlu pagination
+        return BankAccount::latest()->get(); // Bank account biasanya tidak terlalu banyak, tidak perlu pagination
     }
 
     public function create(array $data): BankAccount
@@ -27,11 +21,14 @@ class BankAccountService
             ]);
         }
 
+        $data['is_active'] = true;
+
         return BankAccount::create($data);
     }
 
     public function update(BankAccount $bankAccount, array $data): BankAccount
     {
+        $data['is_active'] = true;
         $bankAccount->update($data);
         return $bankAccount;
     }

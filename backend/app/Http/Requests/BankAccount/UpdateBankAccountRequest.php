@@ -17,7 +17,7 @@ class UpdateBankAccountRequest extends FormRequest
             'bank_name' => 'sometimes|required|string|max:100',
             'account_number' => 'sometimes|required|string|max:50|unique:bank_accounts,account_number,' . $this->route('bank_account')->id,
             'account_name' => 'sometimes|required|string|max:100',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 }

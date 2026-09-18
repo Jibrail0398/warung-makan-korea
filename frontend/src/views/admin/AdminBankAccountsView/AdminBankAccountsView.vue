@@ -25,8 +25,8 @@
             <small class="bank-sub">Rekening tujuan transfer manual</small>
           </div>
         </div>
-        <span class="status-badge" :class="account.isActive ? 'status-active' : 'status-inactive'">
-          {{ account.isActive ? 'Aktif' : 'Nonaktif' }}
+        <span class="status-badge status-active">
+          Aktif
         </span>
       </div>
       <div class="account-card-body">
@@ -107,12 +107,7 @@
               <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" :disabled="isSaving" @input="formErrors.account_name = ''" />
               <small v-if="formErrors.account_name" class="field-error">{{ formErrors.account_name }}</small>
             </div>
-            <div class="form-group form-group-check">
-              <label class="checkbox-label" for="bank-active">
-                <input id="bank-active" v-model="formData.is_active" type="checkbox" :disabled="isSaving" />
-                <span>Tampilkan rekening ini di halaman checkout (aktif)</span>
-              </label>
-            </div>
+
             <div class="modal-footer">
               <button type="button" class="btn-cancel" :disabled="isSaving" @click="closeFormModal">Batal</button>
               <button type="submit" class="btn-submit" :disabled="isSaving">
