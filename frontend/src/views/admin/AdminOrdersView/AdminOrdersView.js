@@ -4,15 +4,18 @@ import { orderService } from '../../../services/orderService.js';
 import { newOrderListService } from '../../../services/newOrderListService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
+import PaymentProofViewer from '../../../components/admin/PaymentProofViewer/PaymentProofViewer.vue';
 import './AdminOrdersView.css';
 
 export default {
   name: 'AdminOrdersView',
-  components: { StatusBadge, LoadingSpinner },
+  components: { StatusBadge, LoadingSpinner, PaymentProofViewer },
   setup() {
     const orders = ref([]);
     const searchQuery = ref('');
     const isPageLoading = ref(false);
+    const isProofViewerOpen = ref(false);
+    const selectedOrderForProof = ref(null);
 
     // Filter dari server (bukan client-side)
     const paymentStatusFilter = ref('all');
@@ -82,8 +85,9 @@ export default {
       paid: 'Paid'
     }[status] || status);
 
-    const openProof = (url) => {
-      window.open(url, '_blank');
+    const openProof = (order) => {
+      selectedOrderForProof.value = order;
+      isProofViewerOpen.value = true;
     };
 
     const handleSimulateIncoming = async () => {
@@ -100,6 +104,8 @@ export default {
       searchQuery,
       filteredOrders,
       paymentStatusLabel,
+      isProofViewerOpen,
+      selectedOrderForProof,
       openProof,
       handleSimulateIncoming
     };

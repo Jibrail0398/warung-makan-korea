@@ -85,9 +85,15 @@
             <div class="meta-line"><span>Total Tagihan:</span><strong>₩{{ (order.total_price || 0).toLocaleString('ko-KR') }}</strong></div>
           </div>
           <div class="proof-container">
-            <div v-if="order.payment_receipt_url" class="proof-wrapper">
-              <img :src="order.payment_receipt_url" alt="Bukti Transfer" class="proof-thumbnail" @error="handleImgError" />
-              <button type="button" class="zoom-proof-btn" @click="isProofViewerOpen = true">
+            <div v-if="order.payment_receipt_url" class="proof-wrapper" @click="isProofViewerOpen = true">
+              <img
+                :src="order.payment_receipt_url"
+                alt="Bukti Transfer"
+                class="proof-thumbnail"
+                title="Klik untuk memperbesar bukti transfer"
+                @error="handleImgError"
+              />
+              <button type="button" class="zoom-proof-btn" @click.stop="isProofViewerOpen = true">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8" /><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8" /><line x1="11" y1="8" x2="11" y2="14" stroke="currentColor" stroke-width="1.8" /><line x1="8" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1.8" /></svg>
                 <span>Lihat Ukuran Penuh</span>
               </button>
