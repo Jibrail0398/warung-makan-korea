@@ -10,14 +10,15 @@
       </div>
 
       <div class="menu-controls">
-        <label class="search-box" for="searchInput">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <label class="menu-search-box" for="searchInput">
+          <svg class="menu-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7" />
             <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
           </svg>
           <span class="sr-only">Search products</span>
           <input
             id="searchInput"
+            class="menu-search-input"
             type="search"
             :value="searchQuery"
             @input="$emit('update:searchQuery', $event.target.value)"
@@ -25,7 +26,6 @@
             autocomplete="off"
           />
         </label>
-
       </div>
        <div v-if="categoryList.length > 0" class="subcategories-filter-row">
           <button

@@ -36,7 +36,6 @@
             <div class="meta-row"><span>Waktu:</span><span>{{ formatDateTime(order?.created_at) }}</span></div>
             <div class="meta-row"><span>Pelanggan:</span><span>{{ order?.customer_name || '-' }}</span></div>
             <div class="meta-row"><span>Telepon:</span><span>{{ order?.customer_phone || '-' }}</span></div>
-            <div v-if="order?.table_number" class="meta-row"><span>Meja:</span><span>Meja {{ order.table_number }}</span></div>
           </div>
 
           <div class="receipt-divider receipt-divider-dashed"></div>

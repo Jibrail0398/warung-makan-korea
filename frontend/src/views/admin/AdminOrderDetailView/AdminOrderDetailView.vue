@@ -72,7 +72,6 @@
           <div class="customer-info-list">
             <div class="info-item"><span class="info-label">Nama Pelanggan:</span><strong>{{ order.customer_name || 'Customer' }}</strong></div>
             <div class="info-item"><span class="info-label">Nomor HP (Korea):</span><a :href="`tel:${order.customer_phone}`" class="phone-link">{{ order.customer_phone || '-' }}</a></div>
-            <div class="info-item"><span class="info-label">Nomor Meja:</span><span class="type-badge">{{ order.table_number || 'Takeaway' }}</span></div>
           </div>
         </section>
         <section class="card payment-card">

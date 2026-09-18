@@ -27,6 +27,7 @@ export const productService = {
                 products: (payload.data || []).map((item) => {
                     const numericPrice = Number(item.price) || 0;
                     const categorySlug = item.category?.slug || '';
+                    const categoryName = item.category?.name || '';
 
                     return {
                         id: item.id,
@@ -35,7 +36,9 @@ export const productService = {
                         image: item.image_url || '',
                         numericPrice,
                         price: `₩${numericPrice.toLocaleString('ko-KR')}`,
-                        category: categorySlug,
+                        category: categoryName || categorySlug || '',
+                        categoryName: categoryName || categorySlug || '',
+                        categorySlug,
                         categoryId: item.category_id,
                         weightOrUnit: item.weight_or_unit || '',
                         isActive: item.is_active !== false

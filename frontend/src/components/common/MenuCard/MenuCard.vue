@@ -2,7 +2,7 @@
   <article class="product-card" tabindex="0" :aria-label="`View ${product.name} details`" @keydown.enter="$emit('select', product.id)">
     <div class="product-image">
       <img :src="ResolveImageUrl(product.image)" :alt="`${product.name} Indonesian product`" width="600" height="600" loading="lazy" />
-      <span class="product-type">{{ product.category === 'restaurant' ? 'Restaurant' : 'Ingredient' }}</span>
+      <span v-if="categoryDisplayName" class="product-type">{{ categoryDisplayName }}</span>
     </div>
     <div class="product-info">
       <h3>{{ product.name }}</h3>
