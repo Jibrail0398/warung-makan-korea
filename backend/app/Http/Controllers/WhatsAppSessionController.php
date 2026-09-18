@@ -54,7 +54,10 @@ class WhatsAppSessionController extends Controller
             $this->session()->destroy();
             Cache::forget($this->qrCacheKey());
 
-            return $this->successResponse($this->sessionSnapshot(), 'WhatsApp session berhasil dihapus.');
+                return $this->successResponse(
+                ['id' => $this->sessionId(), 'status' => 'disconnected', 'qr' => null, 'error' => null],
+                'WhatsApp session berhasil dihapus.'
+            );
         } catch (Throwable $exception) {
             return $this->errorResponse(
                 'Gagal menghapus WhatsApp session.',
@@ -71,7 +74,18 @@ class WhatsAppSessionController extends Controller
 
     private function sessionSnapshot(): array
     {
-        $state = $this->session()->state();
+        try {
+            $state = $this->session()->state();
+        } catch (SidecarException $e) {
+            if ($e->getCode() === 404) {
+                Cache::forget($this->qrCacheKey());
+
+                return ['id' => $this->sessionId(), 'status' => 'disconnected', 'qr' => null, 'error' => null];
+            }
+
+            throw $e;
+        }
+
         $status = $state['status'] ?? 'disconnected';
         $qr = Cache::get($this->qrCacheKey());
 
@@ -94,6 +108,7 @@ class WhatsAppSessionController extends Controller
             'id' => $this->sessionId(),
             'status' => $status,
             'qr' => $qr,
+            'error' => $state['error'] ?? null,
         ];
     }
 

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "steps": {
+    "install": {
+      "variables": {
+        "PUPPETEER_SKIP_DOWNLOAD": "true",
+        "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true"
+      }
+    }
+  },
+  "deploy": {
+    "aptPackages": ["ca-certificates", "chromium", "git", "unzip", "zip"],
+    "variables": {
+      "HOST": "0.0.0.0",
+      "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/chromium",
+      "AUTO_START_SESSIONS": "true"
+    }
+  }
+}
