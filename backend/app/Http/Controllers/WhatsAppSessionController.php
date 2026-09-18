@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Kstmostofa\LaravelWhatsApp\Exceptions\SidecarException;
-use Kstmostofa\LaravelWhatsApp\Web\WebClient;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Throwable;
 
 class WhatsAppSessionController extends Controller
@@ -14,14 +15,10 @@ class WhatsAppSessionController extends Controller
 
     private const QR_CACHE_TTL = 120;
 
-    public function __construct(private WebClient $client)
-    {
-    }
-
-    public function show()
+    public function show(Request $request)
     {
         try {
-            return $this->successResponse($this->sessionSnapshot());
+            return $this->successResponse($this->sessionSnapshot($request));
         } catch (Throwable $exception) {
             return $this->errorResponse(
                 'WhatsApp sidecar tidak dapat dihubungi.',
@@ -31,14 +28,16 @@ class WhatsAppSessionController extends Controller
         }
     }
 
-    public function start()
+    public function start(Request $request)
     {
         try {
-            $session = $this->session();
-            $response = $session->start();
-            $this->cacheQr($response['qr'] ?? null);
+            $response = $this->sidecarRequest('post', '/start', $request);
 
-            return $this->successResponse($this->sessionSnapshot());
+            if ($response['qr'] ?? null) {
+                $this->cacheQr($response['qr']);
+            }
+
+            return $this->successResponse($this->sessionSnapshot($request));
         } catch (Throwable $exception) {
             return $this->errorResponse(
                 'Gagal mengaktifkan WhatsApp session.',
@@ -48,13 +47,13 @@ class WhatsAppSessionController extends Controller
         }
     }
 
-    public function destroy()
+    public function destroy(Request $request)
     {
         try {
-            $this->session()->destroy();
+            $this->sidecarRequest('delete', '', $request);
             Cache::forget($this->qrCacheKey());
 
-                return $this->successResponse(
+            return $this->successResponse(
                 ['id' => $this->sessionId(), 'status' => 'disconnected', 'qr' => null, 'error' => null],
                 'WhatsApp session berhasil dihapus.'
             );
@@ -67,16 +66,15 @@ class WhatsAppSessionController extends Controller
         }
     }
 
-    private function session()
-    {
-        return $this->client->session($this->sessionId());
-    }
+    /* ------------------------------------------------------------------ */
+    /* Snapshot — bentuk respons dikunci oleh frontend (tidak boleh berubah) */
+    /* ------------------------------------------------------------------ */
 
-    private function sessionSnapshot(): array
+    private function sessionSnapshot(?Request $request = null): array
     {
         try {
-            $state = $this->session()->state();
-        } catch (SidecarException $e) {
+            $state = $this->sidecarRequest('get', '/status', $request);
+        } catch (Throwable $e) {
             if ($e->getCode() === 404) {
                 Cache::forget($this->qrCacheKey());
 
@@ -91,10 +89,10 @@ class WhatsAppSessionController extends Controller
 
         if ($status === 'qr' && ! $qr) {
             try {
-                $qrResponse = $this->session()->qr();
+                $qrResponse = $this->sidecarRequest('get', '/qr', $request);
                 $qr = $qrResponse['qr'] ?? null;
                 $this->cacheQr($qr);
-            } catch (SidecarException) {
+            } catch (Throwable) {
                 // The next poll can retrieve the QR once the sidecar has generated it.
             }
         }
@@ -112,6 +110,48 @@ class WhatsAppSessionController extends Controller
         ];
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Sidecar proxy — access_token superadmin asli diteruskan ke sidecar    */
+    /* ------------------------------------------------------------------ */
+
+    private function sidecarRequest(string $method, string $suffix = '', ?Request $request = null): array
+    {
+        $base = rtrim((string) env('WHATSAPP_SIDECAR_URL', ''), '/');
+
+        if ($base === '') {
+            throw new RuntimeException('WHATSAPP_SIDECAR_URL belum diatur.');
+        }
+
+        $token = $request?->bearerToken();
+
+        if (! $token) {
+            throw new RuntimeException('Access_token superadmin diperlukan untuk mengakses WhatsApp sidecar.', 401);
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout((int) env('WHATSAPP_SIDECAR_TIMEOUT', 30))
+                ->send($method, $base.'/sessions/'.$this->sessionId().$suffix);
+        } catch (Throwable $e) {
+            throw new RuntimeException(
+                'WhatsApp sidecar tidak dapat dihubungi: '.$e->getMessage(),
+                503,
+            );
+        }
+
+        if ($response->successful()) {
+            return $response->json() ?? [];
+        }
+
+        $error = $response->json('error') ?? $response->body();
+
+        throw new RuntimeException(
+            "WhatsApp sidecar error (HTTP {$response->status()}): {$error}",
+            $response->status(),
+        );
+    }
+
     private function cacheQr(?string $qr): void
     {
         if ($qr) {
@@ -121,7 +161,7 @@ class WhatsAppSessionController extends Controller
 
     private function sessionId(): string
     {
-        return env('WHATSAPP_WEB_SESSION', 'warung-korea');
+        return (string) env('WHATSAPP_WEB_SESSION', 'warung-korea');
     }
 
     private function qrCacheKey(): string
@@ -131,9 +171,9 @@ class WhatsAppSessionController extends Controller
 
     private function statusCode(Throwable $exception): int
     {
-        return $exception instanceof SidecarException && $exception->getCode() >= 400
-            ? $exception->getCode()
-            : 503;
+        $code = $exception->getCode();
+
+        return $code >= 400 && $code < 600 ? $code : 503;
     }
 
     private function debugPayload(Throwable $exception): array

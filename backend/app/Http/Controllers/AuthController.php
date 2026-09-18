@@ -110,7 +110,7 @@ class AuthController extends Controller
             $payload['session_whatsapp'] = null;
 
             try {
-                $payload['session_whatsapp'] = app(\Kstmostofa\LaravelWhatsApp\Web\WebClient::class)->sessions();
+                $payload['session_whatsapp'] = app(\App\Services\WhatsAppService::class)->sessions();
             } catch (\Throwable $ignored) {
                 $payload['session_whatsapp'] = 'gagal mengambil status sidecar: ' . $ignored->getMessage();
             }

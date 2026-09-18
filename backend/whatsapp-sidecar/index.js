@@ -1,697 +1,501 @@
 /**
- * laravel-wa sidecar
+ * Warung Makan Korea — WhatsApp sidecar (Baileys)
  *
- * Tiny HTTP service wrapping whatsapp-web.js. Managed by the Laravel package
- * via Artisan commands (`php artisan whatsapp:sidecar:*`). Not intended to be
- * run by hand in production.
+ * Lightweight Express service replacing the previous whatsapp-web.js sidecar.
+ * No Chromium/Puppeteer: Baileys talks to WhatsApp over a plain WebSocket,
+ * which keeps RAM/CPU low enough for a small Railway service.
  *
- * All endpoints expect a Bearer token matching SIDECAR_TOKEN. PHP sets this on
- * every request and the same value is shared via the laravel-wa config.
+ * Responsibilities (all the app needs):
+ *   - Manage one or more WhatsApp sessions with QR pairing.
+ *   - Persist credentials to disk: scan once, stay connected until the
+ *     superadmin explicitly deletes the session. Credentials are NEVER
+ *     deleted automatically (even when WhatsApp logs the device out).
+ *   - Send plain text messages (used by Laravel to deliver OTP codes).
+ *
+ * Security:
+ *   Every endpoint except GET /health requires `Authorization: Bearer
+ *   <access_token>` where the token is a JWT issued by Laravel (HS256,
+ *   shared JWT_SECRET) whose payload carries `role: "superadmin"`.
+ *   Tokens without a usable role claim are verified by introspecting
+ *   `GET {LARAVEL_URL}/api/user` (fallback, cached briefly).
+ *
+ * The Vue frontend never talks to this service directly: Laravel proxies
+ * the superadmin's access_token here for session management, and uses a
+ * self-issued superadmin (service) token for OTP sends.
  */
 
 const express = require('express');
 const qrcode = require('qrcode');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
-const { Client, LocalAuth, MessageMedia, Location } = require('whatsapp-web.js');
-const { discoverPersistedSessions } = require('./session-store');
+
+const baileys = require('@whiskeysockets/baileys');
+const makeWASocket = baileys.default ?? baileys.makeWASocket;
+const { useMultiFileAuthState, DisconnectReason, Browsers } = baileys;
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = process.env.HOST || '127.0.0.1';
-const TOKEN = process.env.SIDECAR_TOKEN || '';
+const JWT_SECRET = process.env.JWT_SECRET || '';
+const LARAVEL_URL = (process.env.LARAVEL_URL || '').replace(/\/+$/, '');
+const ROLE_CACHE_TTL = parseInt(process.env.ROLE_CACHE_TTL || '60', 10);
 const SESSION_DIR = process.env.SESSION_DIR || path.join(__dirname, 'sessions');
-const PID_FILE = process.env.SIDECAR_PID_FILE || '';
 const AUTO_START_SESSIONS = !['0', 'false', 'no', 'off'].includes(
   String(process.env.AUTO_START_SESSIONS ?? 'true').toLowerCase(),
 );
+const DEFAULT_COUNTRY_CODE = process.env.DEFAULT_COUNTRY_CODE || '62';
+
+const LOG = '[wa-sidecar]';
 
 if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
 
-// Write our true PID overwriting whatever the launcher captured. macOS `nohup`
-// forks rather than execs, so the shell's $! is the wrapper, not us — without
-// this, `whatsapp:sidecar:stop` would kill the wrapper and leave us orphaned.
-if (PID_FILE) {
-  try {
-    fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
-    fs.writeFileSync(PID_FILE, String(process.pid));
-  } catch (e) {
-    console.error(`[laravel-wa-sidecar] failed to write PID file ${PID_FILE}: ${e.message}`);
-  }
-}
-
-// Keep the server alive even when a session's Puppeteer page throws.
-// WhatsApp Web navigations can produce detached-frame errors mid-injection;
-// crashing the whole Express process would take every session down with it.
+// Keep the HTTP server alive even when a Baileys socket throws internally —
+// one bad session must not take every session down with it.
 process.on('uncaughtException', (e) => {
-  console.error(`[laravel-wa-sidecar] uncaughtException: ${e && e.stack ? e.stack : e}`);
+  console.error(`${LOG} uncaughtException: ${e && e.stack ? e.stack : e}`);
 });
 process.on('unhandledRejection', (e) => {
-  console.error(`[laravel-wa-sidecar] unhandledRejection: ${e && e.stack ? e.stack : e}`);
+  console.error(`${LOG} unhandledRejection: ${e && e.stack ? e.stack : e}`);
 });
 
-/** sessionId → { client, status, qrDataUri, subscribers: Set<res> } */
+/**
+ * sessionId → {
+ *   sock, status: 'initializing'|'qr'|'ready'|'disconnected'|'error',
+ *   qrDataUri, error, reconnectAttempts, reconnectTimer
+ * }
+ */
 const sessions = new Map();
 
-function auth(req, res, next) {
-  if (!TOKEN) return next();
+/** sha256(token) → { until: epochSeconds } for positive introspection results. */
+const roleCache = new Map();
+
+/* ------------------------------------------------------------------ */
+/* Auth: Laravel-issued access_token with role superadmin              */
+/* ------------------------------------------------------------------ */
+
+async function assertSuperadmin(req, res) {
   const header = req.headers.authorization || '';
-  if (header !== `Bearer ${TOKEN}`) {
-    return res.status(401).json({ error: 'unauthorized' });
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  if (!token) {
+    res.status(401).json({ error: 'missing bearer access_token' });
+    return false;
   }
-  next();
+
+  // Fast path: verify the JWT signature locally and trust the signed `role`
+  // claim (Laravel embeds role via User::getJWTCustomClaims()).
+  if (JWT_SECRET) {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+      if (payload.role === 'superadmin') {
+        req.auth = { via: 'jwt', sub: payload.sub };
+        return true;
+      }
+      if (!LARAVEL_URL) {
+        res.status(403).json({ error: 'forbidden: role bukan superadmin' });
+        return false;
+      }
+    } catch (e) {
+      res.status(401).json({ error: `invalid access_token: ${e.message}` });
+      return false;
+    }
+  }
+
+  // Fallback: JWT_SECRET unset or the token carries no role claim — ask
+  // Laravel who this token belongs to and require role === "superadmin".
+  return await introspectToken(token, res);
 }
 
-function getSession(sessionId) {
-  const session = sessions.get(sessionId);
-  if (!session) throw Object.assign(new Error('session not found'), { http: 404 });
-  return session;
+async function introspectToken(token, res) {
+  if (!LARAVEL_URL) {
+    res.status(500).json({ error: 'server misconfigured: JWT_SECRET dan LARAVEL_URL tidak ada untuk validasi token' });
+    return false;
+  }
+
+  const cacheKey = crypto.createHash('sha256').update(token).digest('hex');
+  const cached = roleCache.get(cacheKey);
+  if (cached && cached.until > Date.now() / 1000) {
+    req.auth = { via: 'introspection' };
+    return true;
+  }
+
+  const user = await fetchJson(`${LARAVEL_URL}/api/user`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    timeoutMs: 8000,
+  }).catch(() => null);
+
+  if (!user) {
+    res.status(401).json({ error: 'access_token tidak dapat divalidasi oleh Laravel' });
+    return false;
+  }
+
+  if (user?.role !== 'superadmin') {
+    res.status(403).json({ error: 'forbidden: role bukan superadmin' });
+    return false;
+  }
+
+  roleCache.set(cacheKey, { until: Date.now() / 1000 + ROLE_CACHE_TTL });
+  req.auth = { via: 'introspection', sub: user.id };
+  return true;
 }
 
-function requireReady(session) {
-  if (session.status !== 'ready') {
-    throw Object.assign(new Error(`session not ready (status: ${session.status})`), { http: 409 });
+async function fetchJson(url, { headers, timeoutMs = 8000 } = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { headers, signal: controller.signal });
+    if (!response.ok) return null;
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-// Verifikasi bahwa client whatsapp-web.js benar-benar responsif, bukan sekadar
-// status in-memory 'ready'. Banyak hang di Railway terjadi karena status 'ready'
-// tapi underlying Puppeteer page sudah mati/stale.
-async function assertClientResponsive(session, ms = 5000) {
-  if (!session?.client?.getState) {
-    throw Object.assign(new Error('session client does not support health check'), { http: 503 });
-  }
-  const state = await withTimeoutOrThrow(
-    session.client.getState(),
-    ms,
-    `client.getState() did not respond within ${ms}ms`,
-  );
-  console.log(`[laravel-wa-sidecar] client state: ${state}`);
-  if (state !== 'CONNECTED') {
-    throw Object.assign(
-      new Error(`WhatsApp client is not connected (state: ${state || 'unknown'}). Try deleting the session and scanning QR again.`),
-      { http: 503 },
+/* ------------------------------------------------------------------ */
+/* Baileys session management                                          */
+/* ------------------------------------------------------------------ */
+
+function sanitizeSessionId(id) {
+  if (!id || typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) return null;
+  return id;
+}
+
+function authDirFor(sessionId) {
+  return path.join(SESSION_DIR, sessionId);
+}
+
+function setStatus(session, status, error = null) {
+  session.status = status;
+  session.error = error;
+}
+
+async function startSocket(sessionId, session) {
+  const { state, saveCreds } = await useMultiFileAuthState(authDirFor(sessionId));
+
+  const sock = makeWASocket({
+    auth: state,
+    browser: Browsers.ubuntu('Chrome'),
+    printQRInTerminal: false,
+    keepAliveIntervalMs: 30_000,
+    markOnlineOnConnect: false,
+    syncFullHistory: false,
+    generateHighQualityLinkPreview: false,
+  });
+  session.sock = sock;
+
+  sock.ev.on('creds.update', saveCreds);
+
+  sock.ev.on('connection.update', async (update) => {
+    try {
+      const { connection, lastDisconnect, qr } = update;
+
+      if (qr) {
+        session.qrDataUri = await qrcode.toDataURL(qr);
+        setStatus(session, 'qr');
+        console.log(`${LOG} [${sessionId}] QR generated (refresh every ~57s while pairing)`);
+      }
+
+      if (connection === 'connecting') {
+        // Baileys re-emits 'connecting' on internal reconnects; don't clobber
+        // an existing 'qr' status — the QR stays valid for the superadmin page.
+        if (session.status !== 'qr') setStatus(session, 'initializing');
+      }
+
+      if (connection === 'open') {
+        clearTimeout(session.reconnectTimer);
+        session.reconnectAttempts = 0;
+        session.qrDataUri = null;
+        setStatus(session, 'ready');
+        console.log(`${LOG} [${sessionId}] connected`);
+      }
+
+      if (connection === 'close') {
+        handleConnectionClose(sessionId, session, lastDisconnect);
+      }
+    } catch (e) {
+      console.error(`${LOG} [${sessionId}] connection.update handler failed: ${e.message}`);
+    }
+  });
+
+  return sock;
+}
+
+/**
+ * Sekali scan, selamanya: kredensial TIDAK PERNAH dihapus otomatis.
+ * - loggedOut (device di-unlink dari HP / di-re-register): tandai disconnected
+ *   dengan pesan jelas — superadmin yang memutuskan hapus + scan ulang.
+ * - Semua sebab lain: auto-reconnect dengan backoff memakai kredensial
+ *   yang sama, tanpa QR ulang.
+ */
+function handleConnectionClose(sessionId, session, lastDisconnect) {
+  const statusCode = lastDisconnect?.error?.output?.statusCode;
+  const message = lastDisconnect?.error?.message || String(lastDisconnect?.error ?? 'unknown');
+  console.log(`${LOG} [${sessionId}] closed (code=${statusCode ?? '?'}): ${message}`);
+  session.sock = null;
+
+  if (statusCode === DisconnectReason.loggedOut) {
+    setStatus(
+      session,
+      'disconnected',
+      'Sesi ditutup oleh WhatsApp (logged out / device di-unlink). Hapus sesi lalu scan QR baru.',
     );
+    return;
   }
+
+  setStatus(session, 'disconnected', message);
+  scheduleReconnect(sessionId, session);
 }
 
-function broadcast(sessionId, event, data) {
-  const session = sessions.get(sessionId);
-  if (!session) return;
-  const line = `event: ${event}\ndata: ${JSON.stringify({ sessionId, ...data })}\n\n`;
-  for (const res of session.subscribers) {
-    try { res.write(line); } catch (_) { /* subscriber gone */ }
-  }
+function scheduleReconnect(sessionId, session) {
+  if (session.reconnectTimer) return;
+  const attempt = session.reconnectAttempts || 0;
+  const delay = Math.min(3000 * Math.pow(2, attempt), 60_000);
+  session.reconnectAttempts = attempt + 1;
+  session.reconnectTimer = setTimeout(() => {
+    session.reconnectTimer = null;
+    restartSocket(sessionId, session).catch((e) => {
+      console.error(`${LOG} [${sessionId}] reconnect failed: ${e.message}`);
+      scheduleReconnect(sessionId, session);
+    });
+  }, delay);
 }
 
-function serializeMessage(m) {
-  if (!m) return null;
-  return {
-    id: m.id?._serialized ?? null,
-    from: m.from,
-    to: m.to,
-    body: m.body,
-    type: m.type,
-    timestamp: m.timestamp,
-    hasMedia: m.hasMedia,
-    isForwarded: m.isForwarded,
-    isStatus: m.isStatus,
-    isStarred: m.isStarred,
-    fromMe: m.fromMe,
-    author: m.author,
-    deviceType: m.deviceType,
-  };
+async function restartSocket(sessionId, session) {
+  console.log(`${LOG} [${sessionId}] reconnecting (attempt ${session.reconnectAttempts})...`);
+  setStatus(session, 'initializing', null);
+  await startSocket(sessionId, session);
 }
 
 async function bootSession(sessionId) {
   const existing = sessions.get(sessionId);
   if (existing) return existing;
 
-  // Reuse a system Chrome/Chromium when PUPPETEER_EXECUTABLE_PATH is set
-  // (e.g. installed with --skip-chromium). Falls back to Puppeteer's bundled
-  // Chromium when unset.
-  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
-
-  const client = new Client({
-    authStrategy: new LocalAuth({ clientId: sessionId, dataPath: SESSION_DIR }),
-    puppeteer: {
-      headless: true,
-      executablePath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote'],
-    },
-  });
-
-  const session = { client, status: 'initializing', qrDataUri: null, subscribers: new Set() };
+  const session = {
+    sock: null,
+    status: 'initializing',
+    qrDataUri: null,
+    error: null,
+    reconnectAttempts: 0,
+    reconnectTimer: null,
+  };
   sessions.set(sessionId, session);
 
-  client.on('qr', async (qr) => {
-    session.qrDataUri = await qrcode.toDataURL(qr);
-    session.status = 'qr';
-    broadcast(sessionId, 'qr', { dataUri: session.qrDataUri });
-  });
-
-  client.on('authenticated', () => {
-    session.status = 'authenticated';
-    broadcast(sessionId, 'authenticated', {});
-  });
-
-  client.on('auth_failure', (msg) => {
-    session.status = 'auth_failure';
-    broadcast(sessionId, 'auth_failure', { message: msg });
-  });
-
-  client.on('ready', () => {
-    session.status = 'ready';
-    broadcast(sessionId, 'ready', {});
-  });
-
-  client.on('disconnected', (reason) => {
-    session.status = 'disconnected';
-    broadcast(sessionId, 'disconnected', { reason });
-  });
-
-  client.on('message', (m) => broadcast(sessionId, 'message', { message: serializeMessage(m) }));
-  client.on('message_create', (m) => broadcast(sessionId, 'message_create', { message: serializeMessage(m) }));
-  client.on('message_ack', (m, ack) => broadcast(sessionId, 'message_ack', { id: m.id?._serialized, ack }));
-  client.on('message_revoke_everyone', (after, before) => broadcast(sessionId, 'message_revoke', {
-    after: serializeMessage(after),
-    before: serializeMessage(before),
-  }));
-  client.on('group_join', (n) => broadcast(sessionId, 'group_join', n));
-  client.on('group_leave', (n) => broadcast(sessionId, 'group_leave', n));
-  client.on('group_update', (n) => broadcast(sessionId, 'group_update', n));
-
-  // Don't await — initialize() resolves only after 'ready'. We want
-  // /start to return immediately so the caller can poll for QR.
-  client.initialize().catch((e) => {
-    session.status = 'error';
-    session.error = e.message || String(e);
-    console.error(`[laravel-wa-sidecar] init failed for ${sessionId}:`, e && e.stack ? e.stack : e);
-    broadcast(sessionId, 'error', { message: e.message });
-  });
+  try {
+    await startSocket(sessionId, session);
+  } catch (e) {
+    setStatus(session, 'error', e.message || String(e));
+    console.error(`${LOG} [${sessionId}] boot failed: ${e && e.stack ? e.stack : e}`);
+  }
 
   return session;
 }
 
-async function autoStartPersistedSessions() {
-  if (!AUTO_START_SESSIONS) return;
-
-  for (const sessionId of discoverPersistedSessions(SESSION_DIR)) {
-    try {
-      await bootSession(sessionId);
-      console.log(`[laravel-wa-sidecar] auto-started persisted session ${sessionId}`);
-    } catch (e) {
-      console.error(`[laravel-wa-sidecar] failed to auto-start persisted session ${sessionId}: ${e.message}`);
-    }
-  }
-}
-
-// Normalize a recipient to whatsapp-web.js's expected Chat ID format.
-//   `9665XXXXXXXX@c.us`  → returned as-is (already a WA ID)
-//   `+9665XXXXXXXX`      → stripped to digits + `@c.us`
-//   `9665XXXXXXXX`       → digits + `@c.us`
-//   `…@g.us`, `…@lid`    → returned as-is
-// Empty / falsy → returned as-is so whatsapp-web.js fails loudly.
-// Local formats are converted using DEFAULT_COUNTRY_CODE (default 62/Indonesia):
-//   0812… → 62812…@c.us   |   812… → 62812…@c.us
-async function normalizeWaId(input, session) {
-  if (!input || typeof input !== 'string') return input;
-  if (input.includes('@')) return input;
-  let digits = input.replace(/\D+/g, '');
-  if (!digits) return input;
-  const cc = process.env.DEFAULT_COUNTRY_CODE || '62';
-  if (digits.startsWith('0')) digits = cc + digits.slice(1);
-  else if (!digits.startsWith(cc) && digits.length <= 13) digits = cc + digits;
-  if (session?.client?.getNumberId) {
-    const lookupStart = Date.now();
-    try {
-      console.log(`[laravel-wa-sidecar] resolving number id for ${digits}...`);
-      const wid = await withTimeoutOrThrow(
-        session.client.getNumberId(digits),
-        3000,
-        `getNumberId timed out after 3000ms for ${digits}`,
-      );
-      console.log(`[laravel-wa-sidecar] getNumberId took ${Date.now() - lookupStart}ms`);
-      if (wid?._serialized) {
-        console.log(`[laravel-wa-sidecar] resolved ${digits} -> ${wid._serialized}`);
-        return wid._serialized;
+async function destroySession(sessionId) {
+  const session = sessions.get(sessionId);
+  if (session) {
+    clearTimeout(session.reconnectTimer);
+    session.reconnectTimer = null;
+    if (session.sock) {
+      try {
+        // logout() revokes this linked device on WhatsApp servers; harmless
+        // if the socket is already dead.
+        await session.sock.logout();
+      } catch (_) {
+        try { session.sock.end(undefined); } catch (_) {}
       }
-      console.log(`[laravel-wa-sidecar] getNumberId returned null for ${digits}, falling back`);
-    } catch (e) {
-      console.error(`[laravel-wa-sidecar] getNumberId failed after ${Date.now() - lookupStart}ms for ${digits}:`, e.message);
+      session.sock = null;
     }
+    sessions.delete(sessionId);
   }
-  return `${digits}@c.us`;
+  // Only the superadmin reaches this endpoint — wiping persisted auth is
+  // exactly what "Hapus sesi & scan ulang" means.
+  fs.rmSync(authDirFor(sessionId), { recursive: true, force: true });
+  console.log(`${LOG} [${sessionId}] session deleted by superadmin`);
 }
 
-async function buildOutgoingMedia({ url, base64, mimeType, filename }) {
-  if (url) return await MessageMedia.fromUrl(url, { unsafeMime: true });
-  if (base64) return new MessageMedia(mimeType || 'application/octet-stream', base64, filename);
-  throw Object.assign(new Error('media requires `url` or `base64`'), { http: 400 });
+function discoverPersistedSessions() {
+  if (!fs.existsSync(SESSION_DIR)) return [];
+  return fs
+    .readdirSync(SESSION_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(SESSION_DIR, d.name, 'creds.json')))
+    .map((d) => d.name);
 }
+
+/**
+ * Normalisasi nomor tujuan → JID user WhatsApp.
+ *   0812… / 812… → 62812… (DEFAULT_COUNTRY_CODE)
+ *   62812… / 9665… → dipakai apa adanya
+ */
+function toJid(input) {
+  let digits = String(input || '').replace(/\D+/g, '');
+  if (!digits) return null;
+  if (digits.startsWith('0')) digits = DEFAULT_COUNTRY_CODE + digits.slice(1);
+  else if (!digits.startsWith(DEFAULT_COUNTRY_CODE) && digits.length <= 13) {
+    digits = DEFAULT_COUNTRY_CODE + digits;
+  }
+  return `${digits}@s.whatsapp.net`;
+}
+
+async function withTimeoutOrThrow(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function requireReady(session) {
+  if (!session) throw Object.assign(new Error('session not found'), { http: 404 });
+  if (session.status !== 'ready' || !session.sock) {
+    throw Object.assign(
+      new Error(`session not ready (status: ${session.status})${session.error ? `: ${session.error}` : ''}`),
+      { http: 409 },
+    );
+  }
+}
+
+function serializeSendResult(result, jid, body) {
+  return {
+    id: result?.key?.id ?? null,
+    to: jid,
+    body: body ?? '',
+    timestamp: result?.messageTimestamp ?? null,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* HTTP API                                                            */
+/* ------------------------------------------------------------------ */
 
 const app = express();
-app.use(express.json({ limit: '50mb' }));
-app.use(auth);
+app.use(express.json({ limit: '1mb' }));
 
+// Railway healthcheck — intentionally unauthenticated.
 app.get('/health', (_, res) => {
   res.json({ ok: true, sessions: sessions.size, uptime: process.uptime() });
 });
 
+app.use(async (req, res, next) => {
+  const allowed = await assertSuperadmin(req, res);
+  if (allowed) next();
+});
+
 app.get('/sessions', (_, res) => {
-  res.json([...sessions.entries()].map(([id, s]) => ({ id, status: s.status })));
+  const listed = new Set();
+  const out = [];
+  for (const [id, s] of sessions.entries()) {
+    listed.add(id);
+    out.push({ id, status: s.status });
+  }
+  for (const id of discoverPersistedSessions()) {
+    if (!listed.has(id)) out.push({ id, status: 'disconnected' });
+  }
+  res.json(out);
 });
 
 app.post('/sessions/:id/start', async (req, res, next) => {
+  const id = sanitizeSessionId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'invalid session id' });
   try {
-    const s = await bootSession(req.params.id);
-    res.json({ id: req.params.id, status: s.status, qr: s.qrDataUri, error: s.error || null });
-  } catch (e) { next(e); }
-});
-
-app.post('/sessions/:id/stop', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    try { await s.client.destroy(); } catch (_) { /* already gone */ }
-    sessions.delete(req.params.id);
-    res.json({ ok: true });
-  } catch (e) { next(e); }
-});
-
-app.delete('/sessions/:id', async (req, res, next) => {
-  try {
-    const s = sessions.get(req.params.id);
-    if (s) { try { await s.client.destroy(); } catch (_) {} sessions.delete(req.params.id); }
-    // Also wipe persisted auth so next start triggers a fresh QR.
-    const authDir = path.join(SESSION_DIR, `session-${req.params.id}`);
-    if (fs.existsSync(authDir)) fs.rmSync(authDir, { recursive: true, force: true });
-    res.json({ ok: true });
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/qr', (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    res.json({ status: s.status, qr: s.qrDataUri });
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/status', (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    res.json({ id: req.params.id, status: s.status, error: s.error || null });
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/health', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    await assertClientResponsive(s, 5000);
-    res.json({ id: req.params.id, status: s.status, state: 'CONNECTED', healthy: true });
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/info', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    res.json({ id: req.params.id, info: s.client.info });
-  } catch (e) { next(e); }
-});
-
-/**
- * Polymorphic send endpoint.
- * Body: { type: 'text'|'image'|'video'|'audio'|'document'|'sticker'|'location'|'reaction'|'reply', ... }
- */
-app.post('/sessions/:id/messages', async (req, res, next) => {
-  const requestStart = Date.now();
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    console.log(`[laravel-wa-sidecar] [messages] checking client responsiveness...`);
-    await assertClientResponsive(s);
-    console.log(`[laravel-wa-sidecar] [messages] client responsive after ${Date.now() - requestStart}ms`);
-
-    const b = req.body || {};
-    console.log(`[laravel-wa-sidecar] [messages] normalizing recipient ${b.to}...`);
-    const to = await normalizeWaId(b.to, s);
-    console.log(`[laravel-wa-sidecar] [messages] recipient normalized to ${to} after ${Date.now() - requestStart}ms`);
-
-    let result;
-    const sendStart = Date.now();
-    switch (b.type) {
-      case 'text':
-        console.log(`[laravel-wa-sidecar] sending text message to ${to}...`);
-        result = await withTimeoutOrThrow(
-          s.client.sendMessage(to, b.body ?? '', b.quotedMessageId ? { quotedMessageId: b.quotedMessageId } : {}),
-          15000,
-          `sendMessage timed out after 15000ms for ${to}`,
-        );
-        console.log(`[laravel-wa-sidecar] text message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
-        break;
-
-      case 'reply':
-        console.log(`[laravel-wa-sidecar] sending reply message to ${to}...`);
-        result = await withTimeoutOrThrow(
-          s.client.sendMessage(to, b.body ?? '', { quotedMessageId: b.quotedMessageId }),
-          15000,
-          `sendMessage timed out after 15000ms for ${to}`,
-        );
-        console.log(`[laravel-wa-sidecar] reply message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
-        break;
-
-      case 'image':
-      case 'video':
-      case 'audio':
-      case 'document':
-      case 'sticker': {
-        const media = await buildOutgoingMedia(b);
-        const options = {
-          caption: b.caption,
-          sendMediaAsSticker: b.type === 'sticker',
-          sendMediaAsDocument: b.type === 'document',
-          sendAudioAsVoice: b.sendAudioAsVoice === true && b.type === 'audio',
-        };
-        console.log(`[laravel-wa-sidecar] sending media message (${b.type}) to ${to}...`);
-        result = await withTimeoutOrThrow(
-          s.client.sendMessage(to, media, options),
-          60000,
-          `sendMessage (media) timed out after 60000ms for ${to}`,
-        );
-        console.log(`[laravel-wa-sidecar] media message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
-        break;
-      }
-
-      case 'location':
-        result = await s.client.sendMessage(to, new Location(b.latitude, b.longitude, b.description));
-        break;
-
-      case 'reaction': {
-        const msg = await s.client.getMessageById(b.messageId);
-        await msg.react(b.emoji ?? '');
-        result = { ok: true };
-        break;
-      }
-
-      default:
-        return res.status(400).json({ error: `unsupported type: ${b.type}` });
-    }
-
-    console.log(`[laravel-wa-sidecar] [messages] request completed in ${Date.now() - requestStart}ms`);
-    res.json(serializeMessage(result) || { ok: true });
+    const s = await bootSession(id);
+    res.json({ id, status: s.status, qr: s.qrDataUri, error: s.error || null });
   } catch (e) {
-    console.error(`[laravel-wa-sidecar] [messages] request failed after ${Date.now() - requestStart}ms:`, e.message);
     next(e);
   }
 });
 
-// Download a message's media bytes (image/video/audio/document/sticker).
-// Streams back with the original mime + filename so <img src=>, <audio src=>, etc. work.
-app.get('/sessions/:id/messages/:messageId/media', async (req, res, next) => {
+app.get('/sessions/:id/status', (req, res, next) => {
+  const id = sanitizeSessionId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'invalid session id' });
   try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const msg = await s.client.getMessageById(req.params.messageId);
-    if (!msg || !msg.hasMedia) {
-      return res.status(404).json({ error: 'no media for this message' });
-    }
-    const media = await msg.downloadMedia();
-    if (!media || !media.data) {
-      return res.status(404).json({ error: 'media download failed (may have expired on WhatsApp servers)' });
-    }
-    res.set('Content-Type', media.mimetype || 'application/octet-stream');
-    res.set('Cache-Control', 'private, max-age=3600');
-    if (media.filename) {
-      res.set('Content-Disposition', `inline; filename="${media.filename.replace(/"/g, '')}"`);
-    }
-    res.send(Buffer.from(media.data, 'base64'));
-  } catch (e) { next(e); }
+    const s = sessions.get(id);
+    if (!s) throw Object.assign(new Error('session not found'), { http: 404 });
+    res.json({ id, status: s.status, error: s.error || null });
+  } catch (e) {
+    next(e);
+  }
 });
 
-app.post('/sessions/:id/messages/:messageId/delete', async (req, res, next) => {
+app.get('/sessions/:id/qr', (req, res, next) => {
+  const id = sanitizeSessionId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'invalid session id' });
   try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const msg = await s.client.getMessageById(req.params.messageId);
-    await msg.delete(req.body?.forEveryone === true);
+    const s = sessions.get(id);
+    if (!s) throw Object.assign(new Error('session not found'), { http: 404 });
+    res.json({ status: s.status, qr: s.qrDataUri });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.delete('/sessions/:id', async (req, res, next) => {
+  const id = sanitizeSessionId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'invalid session id' });
+  try {
+    await destroySession(id);
     res.json({ ok: true });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
-app.get('/sessions/:id/chats', async (req, res, next) => {
+// Send a plain text message — used by Laravel to deliver OTP codes.
+app.post('/sessions/:id/messages', async (req, res, next) => {
+  const id = sanitizeSessionId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'invalid session id' });
   try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chats = await s.client.getChats();
-    res.json(chats.map((c) => ({
-      id: c.id._serialized,
-      name: c.name,
-      isGroup: c.isGroup,
-      unreadCount: c.unreadCount,
-      timestamp: c.timestamp,
-      lastMessage: c.lastMessage ? serializeMessage(c.lastMessage) : null,
-    })));
-  } catch (e) { next(e); }
-});
+    const session = sessions.get(id);
+    requireReady(session);
 
-app.get('/sessions/:id/groups', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chats = await s.client.getChats();
-    res.json(chats.filter((c) => c.isGroup).map((c) => ({
-      id: c.id._serialized,
-      name: c.name,
-      description: c.description,
-      participants: (c.participants || []).map((p) => ({
-        id: p.id._serialized,
-        isAdmin: p.isAdmin,
-        isSuperAdmin: p.isSuperAdmin,
-      })),
-    })));
-  } catch (e) { next(e); }
-});
+    const body = req.body || {};
+    if (!body.to) return res.status(400).json({ error: 'field `to` is required' });
 
-app.post('/sessions/:id/groups', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const { name, participants } = req.body;
-    const group = await s.client.createGroup(name, participants);
-    res.json(group);
-  } catch (e) { next(e); }
-});
+    const jid = toJid(body.to);
+    if (!jid) return res.status(400).json({ error: 'field `to` bukan nomor yang valid' });
 
-app.post('/sessions/:id/groups/:groupId/participants/add', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chat = await s.client.getChatById(req.params.groupId);
-    const result = await chat.addParticipants(req.body.participants || []);
-    res.json(result);
-  } catch (e) { next(e); }
-});
-
-app.post('/sessions/:id/groups/:groupId/participants/remove', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chat = await s.client.getChatById(req.params.groupId);
-    const result = await chat.removeParticipants(req.body.participants || []);
-    res.json(result);
-  } catch (e) { next(e); }
-});
-
-app.post('/sessions/:id/groups/:groupId/leave', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chat = await s.client.getChatById(req.params.groupId);
-    await chat.leave();
-    res.json({ ok: true });
-  } catch (e) { next(e); }
-});
-
-app.put('/sessions/:id/groups/:groupId/subject', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const chat = await s.client.getChatById(req.params.groupId);
-    await chat.setSubject(req.body.subject || '');
-    res.json({ ok: true });
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/contacts', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const contacts = await s.client.getContacts();
-    res.json(contacts.map((c) => ({
-      id: c.id._serialized,
-      name: c.name,
-      pushname: c.pushname,
-      number: c.number,
-      isUser: c.isUser,
-      isWAContact: c.isWAContact,
-      isMyContact: c.isMyContact,
-      isBlocked: c.isBlocked,
-      isBusiness: c.isBusiness,
-    })));
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/contacts/:contactId', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const contact = await s.client.getContactById(req.params.contactId);
-    res.json(contact);
-  } catch (e) { next(e); }
-});
-
-app.get('/sessions/:id/contacts/:number/exists', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const exists = await s.client.isRegisteredUser(req.params.number);
-    res.json({ number: req.params.number, exists });
-  } catch (e) { next(e); }
-});
-
-// Helper: race a promise against a timeout — returns null if the inner promise
-// doesn't resolve within `ms`. Used to keep slow WhatsApp lookups from
-// blocking the request indefinitely.
-function withTimeout(promise, ms) {
-  return Promise.race([
-    promise.catch(() => null),
-    new Promise(resolve => setTimeout(() => resolve(null), ms)),
-  ]);
-}
-
-// Helper: race a promise against a timeout — rejects if the inner promise
-// doesn't resolve within `ms`. The inner promise's own rejection is also
-// propagated. Used for operations (like sending a message) where we must
-// never leave the HTTP request hanging.
-function withTimeoutOrThrow(promise, ms, message) {
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(message || `operation timed out after ${ms}ms`)), ms),
-  );
-  return Promise.race([promise, timeout]);
-}
-
-// Stream a contact's WhatsApp profile picture. Returns 404 if the contact
-// has no picture set, has hidden it from us, the fetch times out, or the
-// CDN fetch fails. Bounded to ~6s total so a single bad contact can't stall
-// a page render.
-app.get('/sessions/:id/contacts/:contactId/picture', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-
-    const url = await withTimeout(s.client.getProfilePicUrl(req.params.contactId), 5000);
-    if (!url) {
-      return res.status(404).json({ error: 'no profile picture' });
-    }
-
-    const upstream = await withTimeout(fetch(url), 5000);
-    if (!upstream || !upstream.ok) {
-      return res.status(404).json({ error: 'profile picture fetch failed' });
-    }
-
-    res.set('Content-Type', upstream.headers.get('content-type') || 'image/jpeg');
-    res.set('Cache-Control', 'private, max-age=3600');
-    res.send(Buffer.from(await upstream.arrayBuffer()));
-  } catch (e) { next(e); }
-});
-
-// Edit a previously-sent message (15-minute window per WhatsApp).
-app.post('/sessions/:id/messages/:messageId/edit', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const msg = await s.client.getMessageById(req.params.messageId);
-    if (!msg) return res.status(404).json({ error: 'message not found' });
-    const body = req.body?.body ?? '';
-    const result = await msg.edit(body);
-    res.json(serializeMessage(result) || { ok: true });
-  } catch (e) { next(e); }
-});
-
-/**
- * Status / Stories.
- *
- * whatsapp-web.js handles status by sending to the special chat ID
- * `status@broadcast` — text, image, video, or voice. The "audience" is
- * controlled by your phone's privacy settings (everyone / my contacts).
- *
- * Body: { type: 'text'|'image'|'video', body?, url?, base64?, mimeType?, caption?, backgroundColor?, font? }
- */
-app.post('/sessions/:id/status', async (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    requireReady(s);
-    const b = req.body || {};
-
-    let result;
-    switch (b.type) {
-      case 'text': {
-        const options = {};
-        if (b.backgroundColor) options.backgroundColor = b.backgroundColor;
-        if (typeof b.font === 'number') options.font = b.font;
-        result = await s.client.sendMessage('status@broadcast', b.body ?? '', options);
-        break;
-      }
-      case 'image':
-      case 'video': {
-        const media = await buildOutgoingMedia(b);
-        result = await s.client.sendMessage('status@broadcast', media, { caption: b.caption });
-        break;
-      }
-      default:
-        return res.status(400).json({ error: `unsupported status type: ${b.type}` });
-    }
-
-    res.json(serializeMessage(result) || { ok: true });
-  } catch (e) { next(e); }
-});
-
-// Server-Sent Events for the bridge command to consume.
-app.get('/sessions/:id/events', (req, res, next) => {
-  try {
-    const s = getSession(req.params.id);
-    res.set({
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    });
-    res.flushHeaders();
-    res.write(`event: hello\ndata: ${JSON.stringify({ sessionId: req.params.id, status: s.status })}\n\n`);
-    s.subscribers.add(res);
-    req.on('close', () => s.subscribers.delete(res));
-  } catch (e) { next(e); }
+    const result = await withTimeoutOrThrow(
+      session.sock.sendMessage(jid, { text: body.body ?? '' }),
+      30_000,
+      `sendMessage to ${jid}`,
+    );
+    res.json(serializeSendResult(result, jid, body.body));
+  } catch (e) {
+    next(e);
+  }
 });
 
 // Centralized error handler — turns thrown { http } errors into HTTP responses.
 app.use((err, _req, res, _next) => {
-  console.error('[laravel-wa-sidecar] full error:', err && err.stack ? err.stack : err);
+  console.error(`${LOG} error: ${err && err.stack ? err.stack : err}`);
   const status = err.http || 500;
   res.status(status).json({ error: err.message || 'internal error' });
 });
 
 const server = app.listen(PORT, HOST, () => {
-  console.log(`[laravel-wa-sidecar] listening on http://${HOST}:${PORT}`);
-  autoStartPersistedSessions().catch((e) => {
-    console.error(`[laravel-wa-sidecar] failed to auto-start persisted sessions: ${e.message}`);
-  });
+  console.log(`${LOG} listening on http://${HOST}:${PORT}`);
+
+  // Sekali scan, selamanya: bangun ulang semua session tersimpan saat proses
+  // hidup lagi (redeploy, crash, reboot) tanpa perlu QR ulang.
+  if (!AUTO_START_SESSIONS) return;
+  for (const id of discoverPersistedSessions()) {
+    bootSession(id)
+      .then(() => console.log(`${LOG} auto-started persisted session ${id}`))
+      .catch((e) => console.error(`${LOG} failed to auto-start ${id}: ${e.message}`));
+  }
 });
 
 function shutdown(signal) {
-  console.log(`[laravel-wa-sidecar] caught ${signal}, shutting down…`);
-  Promise.all([...sessions.values()].map((s) => s.client.destroy().catch(() => {})))
-    .finally(() => server.close(() => process.exit(0)));
-  setTimeout(() => process.exit(1), 10000).unref();
+  console.log(`${LOG} caught ${signal}, shutting down...`);
+  for (const session of sessions.values()) {
+    clearTimeout(session.reconnectTimer);
+    try { session.sock?.end(new Error('sidecar shutting down')); } catch (_) {}
+  }
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000).unref();
 }
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
