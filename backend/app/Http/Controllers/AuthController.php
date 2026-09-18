@@ -28,7 +28,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse(
                 'Gagal mengirim kode OTP. Silakan coba lagi nanti.',
-                500,
+                503,
                 $this->debugPayload($e)
             );
         }
@@ -59,7 +59,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse(
                 'Gagal mengirim kode OTP. Silakan coba lagi nanti.',
-                500,
+                503,
                 $this->debugPayload($e)
             );
         }

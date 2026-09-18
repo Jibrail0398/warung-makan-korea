@@ -2,44 +2,73 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Kstmostofa\LaravelWhatsApp\Exceptions\SidecarException;
 use Kstmostofa\LaravelWhatsApp\Facades\WhatsApp;
+use Kstmostofa\LaravelWhatsApp\Web\WebSession;
 use RuntimeException;
 
 class WhatsAppService
 {
     /**
-     * Kirim pesan WhatsApp melalui sidecar whatsapp-web.js
-     * dengan fallback ke WA_API_URL eksternal jika sidecar gagal.
+     * Kirim pesan WhatsApp melalui sidecar whatsapp-web.js.
      *
-     * @throws RuntimeException jika semua channel gagal
+     * Jika sidecar baru saja login (status `authenticated` tapi belum `ready`),
+     * method ini akan polling status sampai `ready` maksimal ~20 detik, lalu
+     * mengulang pengiriman.
+     *
+     * @throws RuntimeException jika sidecar gagal mengirim pesan
      */
     public function sendMessage(string $phone, string $message): bool
     {
         $phone = $this->normalizePhone($phone);
-        $errors = [];
+        $session = WhatsApp::web(config('laravel-whatsapp.session_id', env('WHATSAPP_WEB_SESSION', 'main')));
 
         try {
-            WhatsApp::web(config('laravel-whatsapp.session_id', env('WHATSAPP_WEB_SESSION', 'main')))
-                ->messages()->sendText($phone, $message);
+            $session->messages()->sendText($phone, $message);
 
             return true;
+        } catch (SidecarException $e) {
+            if ($e->getCode() === 409 && str_contains($e->getMessage(), 'session not ready')) {
+                Log::info('WA sidecar status authenticated, polling until ready...');
+
+                if ($this->waitUntilReady($session)) {
+                    $session->messages()->sendText($phone, $message);
+
+                    return true;
+                }
+
+                throw new RuntimeException('WhatsApp session tidak siap mengirim pesan. Status masih authenticated. Silakan tunggu beberapa saat lalu coba lagi.');
+            }
+
+            Log::error('WA Sidecar Exception: ' . $e->getMessage());
+            throw new RuntimeException('Gagal mengirim pesan WhatsApp: ' . $e->getMessage());
         } catch (\Throwable $e) {
             Log::error('WA Sidecar Exception: ' . $e->getMessage());
-            $errors[] = 'sidecar(' . class_basename($e) . '): ' . $e->getMessage();
+            throw new RuntimeException('Gagal mengirim pesan WhatsApp: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tunggu sidecar sampai status `ready`.
+     */
+    protected function waitUntilReady(WebSession $session, int $maxAttempts = 20, int $sleepSeconds = 1): bool
+    {
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            sleep($sleepSeconds);
+
+            try {
+                $state = $session->state();
+
+                if (($state['status'] ?? '') === 'ready') {
+                    return true;
+                }
+            } catch (\Throwable $e) {
+                // Abaikan error sementara dan lanjut polling.
+            }
         }
 
-        try {
-            $this->sendViaExternalApi($phone, $message);
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('WA JS API Exception: ' . $e->getMessage());
-            $errors[] = 'api(' . class_basename($e) . '): ' . $e->getMessage();
-        }
-
-        throw new RuntimeException('Semua channel WhatsApp gagal. ' . implode(' | ', $errors));
+        return false;
     }
 
     /**
@@ -58,20 +87,5 @@ class WhatsAppService
         }
 
         return $digits;
-    }
-
-    protected function sendViaExternalApi(string $phone, string $message): void
-    {
-        // Fallback: URL endpoint server WA JS klien
-        $endpoint = env('WA_API_URL', 'http://localhost:3000/send');
-
-        $response = Http::timeout(10)->post($endpoint, [
-            'number' => $phone,
-            'message' => $message
-        ]);
-
-        if (! $response->successful()) {
-            throw new \Exception("HTTP {$response->status()} dari {$endpoint}: " . \Illuminate\Support\Str::limit($response->body(), 200));
-        }
     }
 }

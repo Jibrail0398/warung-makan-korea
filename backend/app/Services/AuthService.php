@@ -35,11 +35,14 @@ class AuthService
 
     public function register(array $data): bool
     {
-        $otp = $this->sendOtp($data["phone_number"]);
-        if(!$otp){
-            return "";
+        // 1. Kirim OTP terlebih dahulu. Jika gagal, user belum dibuat.
+        $sent = $this->sendOtp($data['phone_number']);
+
+        if (! $sent) {
+            throw new \RuntimeException('Gagal mengirim kode OTP.');
         }
-        // Buat user dalam status belum terverifikasi
+
+        // 2. Buat user dalam status belum terverifikasi
         $user = User::create([
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
@@ -58,7 +61,7 @@ class AuthService
             ])
             ->log("Pengguna baru {$user->name} ({$data['phone_number']}) mendaftar.");
 
-        return $this->sendOtp($data['phone_number']);
+        return true;
     }
 
     /**
