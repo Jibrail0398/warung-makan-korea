@@ -59,9 +59,18 @@
         <div class="dropdown-menu">            
           <div class="dropdown-header">
             <strong>{{ userName }}</strong>
+            <small>{{ userRole }}</small>
           </div>
 
           <div class="dropdown-divider"></div>
+
+          <router-link to="/admin/profile" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>Profil Admin</span>
+          </router-link>
 
           <div class="dropdown-divider"></div>
 

@@ -43,6 +43,13 @@
             </summary>
 
             <div class="profile-menu">
+              <router-link v-if="isAdminOrStaff" to="/admin/profile">
+                Profil Admin
+              </router-link>
+              <router-link v-else to="/profile">
+                Profil Saya
+              </router-link>
+
               <router-link to="/order-history">
                 Order History
               </router-link>
