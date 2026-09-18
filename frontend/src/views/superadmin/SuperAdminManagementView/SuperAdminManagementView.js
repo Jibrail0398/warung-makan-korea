@@ -33,13 +33,20 @@ export default {
     const formData = reactive({
       name: '',
       phone_number: '',
+      password: '',
+      password_confirmation: '',
       role: 'admin',
     });
 
     const formErrors = reactive({
       name: '',
       phone_number: '',
+      password: '',
+      password_confirmation: '',
     });
+
+    const showAddPassword = ref(false);
+    const showAddPasswordConfirm = ref(false);
 
     const userToDelete = ref(null);
     const isDeleting = ref(false);
@@ -60,6 +67,8 @@ export default {
       password: '',
       password_confirmation: '',
     });
+    const showNewPassword = ref(false);
+    const showConfirmPassword = ref(false);
 
     const loadData = async (page = 1) => {
       isPageLoading.value = true;
@@ -115,12 +124,18 @@ export default {
     const clearFormErrors = () => {
       formErrors.name = '';
       formErrors.phone_number = '';
+      formErrors.password = '';
+      formErrors.password_confirmation = '';
     };
 
     const resetForm = () => {
       formData.name = '';
       formData.phone_number = '';
+      formData.password = '';
+      formData.password_confirmation = '';
       formData.role = 'admin';
+      showAddPassword.value = false;
+      showAddPasswordConfirm.value = false;
       clearFormErrors();
     };
 
@@ -137,7 +152,11 @@ export default {
       // Isi form dengan data sebelumnya agar tidak terhapus.
       formData.name = user.name || '';
       formData.phone_number = user.phone_number || '';
+      formData.password = '';
+      formData.password_confirmation = '';
       formData.role = 'admin';
+      showAddPassword.value = false;
+      showAddPasswordConfirm.value = false;
       clearFormErrors();
       isModalOpen.value = true;
 
@@ -149,6 +168,8 @@ export default {
           selectedUser.value = detail;
           formData.name = detail.name || '';
           formData.phone_number = detail.phone_number || '';
+          formData.password = '';
+          formData.password_confirmation = '';
           formData.role = 'admin';
         }
       } catch (error) {
@@ -159,6 +180,8 @@ export default {
     const closeFormModal = () => {
       if (isSaving.value) return;
       isModalOpen.value = false;
+      showAddPassword.value = false;
+      showAddPasswordConfirm.value = false;
     };
 
     const validateForm = () => {
@@ -175,6 +198,24 @@ export default {
         isValid = false;
       }
 
+      if (!isEditMode.value) {
+        if (!formData.password) {
+          formErrors.password = 'Password wajib diisi.';
+          isValid = false;
+        } else if (formData.password.length < 6) {
+          formErrors.password = 'Password minimal 6 karakter.';
+          isValid = false;
+        }
+
+        if (!formData.password_confirmation) {
+          formErrors.password_confirmation = 'Konfirmasi password wajib diisi.';
+          isValid = false;
+        } else if (formData.password !== formData.password_confirmation) {
+          formErrors.password_confirmation = 'Konfirmasi password tidak cocok.';
+          isValid = false;
+        }
+      }
+
       return isValid;
     };
 
@@ -189,12 +230,18 @@ export default {
         role: 'admin',
       };
 
+      if (!isEditMode.value) {
+        payload.password = formData.password;
+        payload.password_confirmation = formData.password_confirmation;
+      }
+
       try {
         const response = isEditMode.value && selectedUser.value
           ? await usersService.updateUser(selectedUser.value.id, payload)
           : await usersService.createUser(payload);
 
         isModalOpen.value = false;
+        resetForm();
         await loadData(isEditMode.value ? pagination.currentPage : 1);
 
         showSuccess({
@@ -226,6 +273,8 @@ export default {
       passwordTarget.value = user;
       passwordForm.password = '';
       passwordForm.password_confirmation = '';
+      showNewPassword.value = false;
+      showConfirmPassword.value = false;
       clearPasswordFormErrors();
       isPasswordModalOpen.value = true;
     };
@@ -236,6 +285,8 @@ export default {
       passwordTarget.value = null;
       passwordForm.password = '';
       passwordForm.password_confirmation = '';
+      showNewPassword.value = false;
+      showConfirmPassword.value = false;
       clearPasswordFormErrors();
     };
 
@@ -339,6 +390,8 @@ export default {
       isSaving,
       formData,
       formErrors,
+      showAddPassword,
+      showAddPasswordConfirm,
       userToDelete,
       isDeleting,
       isSuperAdmin,
@@ -347,6 +400,8 @@ export default {
       passwordTarget,
       passwordForm,
       passwordFormErrors,
+      showNewPassword,
+      showConfirmPassword,
       isNoticeVisible,
       noticeType,
       noticeTitle,

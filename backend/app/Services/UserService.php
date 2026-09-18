@@ -22,7 +22,11 @@ class UserService
     public function create(array $data): User
     {
         // Admin membuat user secara manual
-        $data['password'] = bcrypt(str()->random(16));
+        if (empty($data['password'])) {
+            $data['password'] = Hash::make(str()->random(16));
+        } else {
+            $data['password'] = Hash::make($data['password']);
+        }
         $data['phone_number_verified_at'] = Carbon::now(); // Langsung terverifikasi
         return User::create($data);
     }

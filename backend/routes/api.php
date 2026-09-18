@@ -65,6 +65,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{user}', [UserController::class, 'show']);
         Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::put('/users/{user}/password', [UserController::class, 'changePassword']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
         // Rekap Laporan Penjualan (Harian, Mingguan, Bulanan, Tahunan)
@@ -76,8 +77,6 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::middleware('role:superadmin')->group(function () {
-        Route::put('/users/{user}/password', [UserController::class, 'changePassword']);
-
         Route::get('/activity-logs', [ActivityLogController::class, 'index']);
         Route::get('/activity-logs/{activity_log}', [ActivityLogController::class, 'show']);
     });
