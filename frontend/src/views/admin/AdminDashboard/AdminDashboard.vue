@@ -2,7 +2,7 @@
   <div class="dashboard-page">
     <header class="dashboard-heading">
       <p class="dashboard-eyebrow">
-        Warung Nusantara
+        Aneka Rasa Restoran
       </p>
 
       <h1 class="dashboard-title">

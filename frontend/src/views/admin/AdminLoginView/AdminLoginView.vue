@@ -2,9 +2,9 @@
   <div class="admin-login-page">
     <div class="login-card">
       <div class="login-header">
-        <div class="brand-badge">WN</div>
+        <div class="brand-badge">AR</div>
         <h1 class="login-title">Portal Admin & Kasir</h1>
-        <p class="login-subtitle">Warung Nusantara — Indonesia in Korea</p>
+        <p class="login-subtitle">Aneka Rasa Restoran — Indonesia in Korea</p>
       </div>
       <form @submit.prevent="handleLogin" class="login-form" novalidate>
         <div v-if="errorMessage" class="error-box" role="alert">

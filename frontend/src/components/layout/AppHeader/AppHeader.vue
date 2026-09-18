@@ -16,10 +16,10 @@
       </button>
 
       <!-- Brand (Rendered for all variants) -->
-      <router-link class="brand" to="/" aria-label="Warung Nusantara homepage">
-        <span class="brand-mark" aria-hidden="true">WN</span>
+      <router-link class="brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+        <span class="brand-mark" aria-hidden="true">AR</span>
         <span class="brand-copy">
-          <strong>Warung Nusantara</strong>
+          <strong>Aneka Rasa Restoran</strong>
           <small>Indonesia in Korea</small>
         </span>
       </router-link>

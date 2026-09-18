@@ -107,7 +107,7 @@
             </div>
             <div class="form-group">
               <label class="form-label required" for="account-name">Atas Nama</label>
-              <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Warung Nusantara" :disabled="isSaving" @input="formErrors.account_name = ''" />
+              <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Aneka Rasa Restoran" :disabled="isSaving" @input="formErrors.account_name = ''" />
               <small v-if="formErrors.account_name" class="field-error">{{ formErrors.account_name }}</small>
             </div>
 

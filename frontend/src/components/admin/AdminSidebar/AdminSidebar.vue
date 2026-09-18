@@ -6,8 +6,8 @@
     <aside class="admin-sidebar" :class="{ 'sidebar-open': isOpen, 'sidebar-collapsed': isCollapsed }" aria-label="Admin navigation">
       <div class="sidebar-brand-wrapper">
         <router-link :to="isSuperAdmin ? '/admin/audit-logs' : '/admin/dashboard'" class="brand-link" :title="isSuperAdmin ? 'Super Admin Console' : 'Admin / Kasir'" @click="$emit('close')">
-          <span class="brand-mark">WN</span>
-          <div v-if="!isCollapsed" class="brand-text"><strong>Warung Nusantara</strong><small>{{ isSuperAdmin ? 'SUPER ADMIN CONSOLE' : 'ADMIN / CASHIER' }}</small></div>
+          <span class="brand-mark">AR</span>
+          <div v-if="!isCollapsed" class="brand-text"><strong>Aneka Rasa Restoran</strong><small>{{ isSuperAdmin ? 'SUPER ADMIN CONSOLE' : 'ADMIN / CASHIER' }}</small></div>
         </router-link>
         <button class="mobile-close-btn" type="button" aria-label="Close navigation menu" @click="$emit('close')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg></button>
       </div>

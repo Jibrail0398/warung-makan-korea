@@ -62,10 +62,10 @@
       <div v-if="!simple" class="footer-grid">
         <!-- Col 1: Brand & Info -->
         <div class="footer-brand-col">
-          <router-link class="footer-brand" to="/" aria-label="Warung Nusantara homepage">
-            <span class="footer-brand-mark" aria-hidden="true">WN</span>
+          <router-link class="footer-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+            <span class="footer-brand-mark" aria-hidden="true">AR</span>
             <span class="footer-brand-copy">
-              <strong>Warung Nusantara</strong>
+              <strong>Aneka Rasa Restoran</strong>
               <small>INDONESIA IN KOREA</small>
             </span>
           </router-link>
@@ -129,7 +129,7 @@
               </div>
             </a>
 
-            <a href="mailto:hello@warungnusantara.kr" class="contact-link">
+            <a href="mailto:hello@anekarasa.kr" class="contact-link">
               <div class="contact-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.8" />
@@ -138,7 +138,7 @@
               </div>
               <div class="contact-info">
                 <small>Email Resmi</small>
-                <strong>hello@warungnusantara.kr</strong>
+                <strong>hello@anekarasa.kr</strong>
               </div>
             </a>
           </div>
@@ -171,10 +171,10 @@
 
       <!-- Simple Footer Version (For Checkout / Cart) -->
       <div v-else class="simple-footer-content">
-        <router-link class="footer-brand simple-brand" to="/" aria-label="Warung Nusantara homepage">
-          <span class="footer-brand-mark" aria-hidden="true">WN</span>
+        <router-link class="footer-brand simple-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+          <span class="footer-brand-mark" aria-hidden="true">AR</span>
           <span class="footer-brand-copy">
-            <strong>Warung Nusantara</strong>
+            <strong>Aneka Rasa Restoran</strong>
             <small>INDONESIA IN KOREA</small>
           </span>
         </router-link>
@@ -186,7 +186,7 @@
       <!-- Bottom Bar -->
       <div class="footer-bottom" :class="{ 'simple-bottom': simple }">
         <div class="footer-bottom-left">
-          <span>&copy; 2026 Warung Nusantara. All rights reserved.</span>
+          <span>&copy; 2026 Aneka Rasa Restoran. All rights reserved.</span>
           <span class="footer-dot-divider">•</span>
           <span class="community-tag">Dibuat untuk Komunitas Indonesia di Korea 🇮🇩 🇰🇷</span>
         </div>
