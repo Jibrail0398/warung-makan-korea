@@ -106,7 +106,8 @@ Atau tanpa Docker: `npm ci && pm2 start index.js --name wa-sidecar`.
 
 ## Catatan
 
-- Node >= 18, hanya 4 dependensi runtime: `express`, `qrcode`, `jsonwebtoken`,
+- Node >= 20 (Baileys 6.7.24 butuh Node 20+; `railpack.json` & `engines` sudah
+  pin Node 20), hanya 4 dependensi runtime: `express`, `qrcode`, `jsonwebtoken`,
   `@whiskeysockets/baileys@6.7.24` (stable).
 - Sidecar berdiri sendiri; Laravel memanggilnya via HTTP. Semua request
   Laravel → sidecar membawa access_token superadmin: controller session

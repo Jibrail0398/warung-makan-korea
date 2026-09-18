@@ -4,6 +4,7 @@
   "deploy": {
     "variables": {
       "HOST": "0.0.0.0",
+      "RAILPACK_NODE_VERSION": "20",
       "AUTO_START_SESSIONS": "true",
       "DEFAULT_COUNTRY_CODE": "62"
     }
