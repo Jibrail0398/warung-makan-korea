@@ -57,13 +57,11 @@ const routes = [
     path: '/profile',
     name: 'CustomerProfile',
     component: () => import('../views/public/CustomerProfile/CustomerProfile.vue'),
-    meta: { requiredRole: 'member' }
+    meta: { requiredRole: ['member', 'admin', 'superadmin', 'kasir'] }
   },
   {
     path: '/employeeprofile',
-    name: 'EmployeeProfile',
-    component: () => import('../views/public/EmployeeProfile/EmployeeProfile.vue'),
-    meta: { requiredRole: 'member' }
+    redirect: '/admin/profile'
   },
   {
     path: '/order-history',
@@ -164,6 +162,11 @@ const routes = [
         name: 'admin-whatsapp-sessions',
         component: () => import('../views/superadmin/SuperAdminWhatsAppSessionView/SuperAdminWhatsAppSessionView.vue'),
         meta: { requiredRole: 'superadmin' }
+      },
+      {
+        path: 'profile',
+        name: 'admin-profile',
+        component: () => import('../views/public/EmployeeProfile/EmployeeProfile.vue')
       }
     ]
   },

@@ -21,6 +21,8 @@
       <nav>
         <router-link to="/" @click="$emit('close')">Home</router-link>
         <router-link to="/#menu" @click="$emit('close')">Menu</router-link>
+        <router-link v-if="isAdminOrStaff" to="/admin/profile" @click="$emit('close')">Profil Admin</router-link>
+        <router-link v-else-if="authStore.isAuthenticated" to="/profile" @click="$emit('close')">Profil Saya</router-link>
         <router-link to="/order-history" @click="$emit('close')">Order History</router-link>
         <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" @click="$emit('close')">Admin Dashboard</router-link>
         <router-link v-if="isSuperAdmin" to="/admin/audit-logs" @click="$emit('close')">Audit Log</router-link>
