@@ -73,6 +73,27 @@ function requireReady(session) {
   }
 }
 
+// Verifikasi bahwa client whatsapp-web.js benar-benar responsif, bukan sekadar
+// status in-memory 'ready'. Banyak hang di Railway terjadi karena status 'ready'
+// tapi underlying Puppeteer page sudah mati/stale.
+async function assertClientResponsive(session, ms = 5000) {
+  if (!session?.client?.getState) {
+    throw Object.assign(new Error('session client does not support health check'), { http: 503 });
+  }
+  const state = await withTimeoutOrThrow(
+    session.client.getState(),
+    ms,
+    `client.getState() did not respond within ${ms}ms`,
+  );
+  console.log(`[laravel-wa-sidecar] client state: ${state}`);
+  if (state !== 'CONNECTED') {
+    throw Object.assign(
+      new Error(`WhatsApp client is not connected (state: ${state || 'unknown'}). Try deleting the session and scanning QR again.`),
+      { http: 503 },
+    );
+  }
+}
+
 function broadcast(sessionId, event, data) {
   const session = sessions.get(sessionId);
   if (!session) return;
@@ -281,6 +302,15 @@ app.get('/sessions/:id/status', (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+app.get('/sessions/:id/health', async (req, res, next) => {
+  try {
+    const s = getSession(req.params.id);
+    requireReady(s);
+    await assertClientResponsive(s, 5000);
+    res.json({ id: req.params.id, status: s.status, state: 'CONNECTED', healthy: true });
+  } catch (e) { next(e); }
+});
+
 app.get('/sessions/:id/info', async (req, res, next) => {
   try {
     const s = getSession(req.params.id);
@@ -298,6 +328,10 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
   try {
     const s = getSession(req.params.id);
     requireReady(s);
+    console.log(`[laravel-wa-sidecar] [messages] checking client responsiveness...`);
+    await assertClientResponsive(s);
+    console.log(`[laravel-wa-sidecar] [messages] client responsive after ${Date.now() - requestStart}ms`);
+
     const b = req.body || {};
     console.log(`[laravel-wa-sidecar] [messages] normalizing recipient ${b.to}...`);
     const to = await normalizeWaId(b.to, s);
