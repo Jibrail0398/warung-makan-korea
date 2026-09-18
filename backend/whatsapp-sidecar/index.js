@@ -201,20 +201,22 @@ async function normalizeWaId(input, session) {
   if (digits.startsWith('0')) digits = cc + digits.slice(1);
   else if (!digits.startsWith(cc) && digits.length <= 13) digits = cc + digits;
   if (session?.client?.getNumberId) {
+    const lookupStart = Date.now();
     try {
       console.log(`[laravel-wa-sidecar] resolving number id for ${digits}...`);
       const wid = await withTimeoutOrThrow(
         session.client.getNumberId(digits),
-        5000,
-        `getNumberId timed out after 5000ms for ${digits}`,
+        3000,
+        `getNumberId timed out after 3000ms for ${digits}`,
       );
+      console.log(`[laravel-wa-sidecar] getNumberId took ${Date.now() - lookupStart}ms`);
       if (wid?._serialized) {
         console.log(`[laravel-wa-sidecar] resolved ${digits} -> ${wid._serialized}`);
         return wid._serialized;
       }
       console.log(`[laravel-wa-sidecar] getNumberId returned null for ${digits}, falling back`);
     } catch (e) {
-      console.error(`[laravel-wa-sidecar] getNumberId failed for ${digits}:`, e.message);
+      console.error(`[laravel-wa-sidecar] getNumberId failed after ${Date.now() - lookupStart}ms for ${digits}:`, e.message);
     }
   }
   return `${digits}@c.us`;
@@ -292,13 +294,17 @@ app.get('/sessions/:id/info', async (req, res, next) => {
  * Body: { type: 'text'|'image'|'video'|'audio'|'document'|'sticker'|'location'|'reaction'|'reply', ... }
  */
 app.post('/sessions/:id/messages', async (req, res, next) => {
+  const requestStart = Date.now();
   try {
     const s = getSession(req.params.id);
     requireReady(s);
     const b = req.body || {};
+    console.log(`[laravel-wa-sidecar] [messages] normalizing recipient ${b.to}...`);
     const to = await normalizeWaId(b.to, s);
+    console.log(`[laravel-wa-sidecar] [messages] recipient normalized to ${to} after ${Date.now() - requestStart}ms`);
 
     let result;
+    const sendStart = Date.now();
     switch (b.type) {
       case 'text':
         console.log(`[laravel-wa-sidecar] sending text message to ${to}...`);
@@ -307,7 +313,7 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
           15000,
           `sendMessage timed out after 15000ms for ${to}`,
         );
-        console.log(`[laravel-wa-sidecar] text message sent: ${result.id?._serialized ?? 'no-id'}`);
+        console.log(`[laravel-wa-sidecar] text message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
         break;
 
       case 'reply':
@@ -317,7 +323,7 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
           15000,
           `sendMessage timed out after 15000ms for ${to}`,
         );
-        console.log(`[laravel-wa-sidecar] reply message sent: ${result.id?._serialized ?? 'no-id'}`);
+        console.log(`[laravel-wa-sidecar] reply message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
         break;
 
       case 'image':
@@ -338,7 +344,7 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
           60000,
           `sendMessage (media) timed out after 60000ms for ${to}`,
         );
-        console.log(`[laravel-wa-sidecar] media message sent: ${result.id?._serialized ?? 'no-id'}`);
+        console.log(`[laravel-wa-sidecar] media message sent in ${Date.now() - sendStart}ms: ${result.id?._serialized ?? 'no-id'}`);
         break;
       }
 
@@ -357,8 +363,12 @@ app.post('/sessions/:id/messages', async (req, res, next) => {
         return res.status(400).json({ error: `unsupported type: ${b.type}` });
     }
 
+    console.log(`[laravel-wa-sidecar] [messages] request completed in ${Date.now() - requestStart}ms`);
     res.json(serializeMessage(result) || { ok: true });
-  } catch (e) { next(e); }
+  } catch (e) {
+    console.error(`[laravel-wa-sidecar] [messages] request failed after ${Date.now() - requestStart}ms:`, e.message);
+    next(e);
+  }
 });
 
 // Download a message's media bytes (image/video/audio/document/sticker).
