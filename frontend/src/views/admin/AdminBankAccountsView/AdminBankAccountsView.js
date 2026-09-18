@@ -82,21 +82,50 @@ export default {
       isModalOpen.value = true;
     };
 
-    // Konfirmasi sebelum membuka form edit.
-    const confirmEdit = () => {
-      accountToEdit.value = account.value;
-    };
-
-    const cancelEdit = () => {
-      accountToEdit.value = null;
-    };
-
-    const executeEdit = () => {
-      accountToEdit.value = null;
+    const openEditModal = () => {
       isEditMode.value = true;
       fillForm(account.value);
       clearFormErrors();
       isModalOpen.value = true;
+    };
+
+    const cancelEdit = () => {
+      if (isSaving.value) return;
+      accountToEdit.value = null;
+      isModalOpen.value = true;
+    };
+
+    const executeSaveEdit = async () => {
+      if (!accountToEdit.value || isSaving.value) return;
+
+      isSaving.value = true;
+      const payload = {
+        bank_name: accountToEdit.value.bank_name.trim(),
+        account_number: accountToEdit.value.account_number.trim(),
+        account_name: accountToEdit.value.account_name.trim(),
+        is_active: true,
+      };
+
+      try {
+        const response = await bankAccountService.updateBankAccount(account.value.id, payload);
+        accountToEdit.value = null;
+        isModalOpen.value = false;
+        await loadData();
+
+        showSuccess({
+          title: 'Rekening Berhasil Diperbarui',
+          message: response?.message || 'Data rekening bank berhasil disimpan.',
+          confirmText: 'Selesai',
+        });
+      } catch (error) {
+        showFailed({
+          title: 'Gagal Memperbarui Rekening',
+          message: error.message || 'Terjadi kesalahan saat menyimpan data.',
+          confirmText: 'Tutup',
+        });
+      } finally {
+        isSaving.value = false;
+      }
     };
 
     const closeFormModal = () => {
@@ -129,6 +158,16 @@ export default {
     const handleSubmit = async () => {
       if (!validateForm()) return;
 
+      if (isEditMode.value && account.value) {
+        accountToEdit.value = {
+          bank_name: formData.bank_name.trim(),
+          account_number: formData.account_number.trim(),
+          account_name: formData.account_name.trim(),
+        };
+        isModalOpen.value = false;
+        return;
+      }
+
       isSaving.value = true;
       const payload = {
         bank_name: formData.bank_name.trim(),
@@ -138,36 +177,31 @@ export default {
       };
 
       try {
-        let response;
-        if (isEditMode.value && account.value) {
-          response = await bankAccountService.updateBankAccount(account.value.id, payload);
-        } else {
-          // Batasi hanya 1 akun bank: cek ulang sebelum membuat.
-          const existing = await bankAccountService.getBankAccounts({ withAuth: true });
-          if (existing.length > 0) {
-            account.value = existing[0];
-            isModalOpen.value = false;
-            showFailed({
-              title: 'Gagal Menambahkan Rekening',
-              message: 'Hanya satu akun bank yang diizinkan. Silakan edit atau hapus rekening yang sudah ada.',
-              confirmText: 'Tutup',
-            });
-            return;
-          }
-          response = await bankAccountService.createBankAccount(payload);
+        // Batasi hanya 1 akun bank: cek ulang sebelum membuat.
+        const existing = await bankAccountService.getBankAccounts({ withAuth: true });
+        if (existing.length > 0) {
+          account.value = existing[0];
+          isModalOpen.value = false;
+          showFailed({
+            title: 'Gagal Menambahkan Rekening',
+            message: 'Hanya satu akun bank yang diizinkan. Silakan edit atau hapus rekening yang sudah ada.',
+            confirmText: 'Tutup',
+          });
+          return;
         }
+        const response = await bankAccountService.createBankAccount(payload);
 
         isModalOpen.value = false;
         await loadData();
 
         showSuccess({
-          title: isEditMode.value ? 'Rekening Berhasil Diperbarui' : 'Rekening Berhasil Ditambahkan',
+          title: 'Rekening Berhasil Ditambahkan',
           message: response?.message || 'Data rekening bank berhasil disimpan.',
           confirmText: 'Selesai',
         });
       } catch (error) {
         showFailed({
-          title: isEditMode.value ? 'Gagal Memperbarui Rekening' : 'Gagal Menambahkan Rekening',
+          title: 'Gagal Menambahkan Rekening',
           message: error.message || 'Terjadi kesalahan saat menyimpan data.',
           confirmText: 'Tutup',
         });
@@ -233,9 +267,9 @@ export default {
       hideNotice,
       formatDate,
       openAddModal,
-      confirmEdit,
+      openEditModal,
       cancelEdit,
-      executeEdit,
+      executeSaveEdit,
       closeFormModal,
       handleSubmit,
       confirmDelete,

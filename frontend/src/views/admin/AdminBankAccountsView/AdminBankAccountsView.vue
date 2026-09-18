@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="account-card-footer">
-        <button type="button" class="btn-edit" @click="confirmEdit">
+        <button type="button" class="btn-edit" @click="openEditModal">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
           <span>Edit</span>
         </button>
@@ -66,17 +66,20 @@
 
     <!-- Konfirmasi edit -->
     <Transition name="modal-fade">
-      <div v-if="accountToEdit" class="modal-backdrop confirm-backdrop" @click.self="cancelEdit">
+      <div v-if="accountToEdit" class="modal-backdrop confirm-backdrop" @click.self="!isSaving && cancelEdit">
         <div class="modal-card confirm-card">
           <div class="modal-header">
             <h3 class="modal-title">Konfirmasi Perubahan</h3>
-            <button type="button" class="close-btn" aria-label="Tutup" @click="cancelEdit">✕</button>
+            <button type="button" class="close-btn" aria-label="Tutup" :disabled="isSaving" @click="cancelEdit">✕</button>
           </div>
           <div class="modal-body">
-            <p class="confirm-text">Apakah anda yakin ingin mengubah data rekening <strong>{{ accountToEdit.bankName }} ({{ accountToEdit.accountNumber }})</strong>?</p>
+            <p class="confirm-text">Apakah anda yakin ingin mengubah data rekening <strong>{{ accountToEdit.bank_name }} ({{ accountToEdit.account_number }})</strong>?</p>
             <div class="modal-footer">
-              <button type="button" class="btn-cancel" @click="cancelEdit">Batal</button>
-              <button type="button" class="btn-submit" @click="executeEdit">Ya, Edit Rekening</button>
+              <button type="button" class="btn-cancel" :disabled="isSaving" @click="cancelEdit">Batal</button>
+              <button type="button" class="btn-submit" :disabled="isSaving" @click="executeSaveEdit">
+                <LoadingSpinner v-if="isSaving" size="sm" color="white" text="Menyimpan..." inline />
+                <span v-else>Ya, Simpan Perubahan</span>
+              </button>
             </div>
           </div>
         </div>
