@@ -102,7 +102,7 @@
             </div>
             <div class="form-group">
               <label class="form-label required" for="account-number">Nomor Rekening</label>
-              <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123-456-789" :disabled="isSaving" @input="formErrors.account_number = ''" />
+              <input id="account-number" v-model="formData.account_number" type="text" class="form-input" :class="{ 'input-error': formErrors.account_number }" placeholder="Contoh: 123456789" :disabled="isSaving" @input="formErrors.account_number = ''" />
               <small v-if="formErrors.account_number" class="field-error">{{ formErrors.account_number }}</small>
             </div>
             <div class="form-group">
