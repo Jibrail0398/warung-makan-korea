@@ -1,8 +1,6 @@
 [phases.setup]
 nixPkgs = [
-    "php84",
-    "php84Packages.composer",
-    "nodejs_24",
+    "...",
     "chromium",
     "nss",
     "atk",
@@ -17,3 +15,12 @@ nixPkgs = [
     "libXrandr",
     "gbm"
 ]
+
+[phases.install]
+cmds = [
+    "...",
+    "PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci --prefix vendor/kstmostofa/laravel-whatsapp/sidecar"
+]
+
+[start]
+cmd = "sh ./scripts/railway-start.sh"
