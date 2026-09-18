@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Kstmostofa\LaravelWhatsApp\Exceptions\SidecarException;
 use Kstmostofa\LaravelWhatsApp\Facades\WhatsApp;
@@ -14,8 +15,11 @@ class WhatsAppService
      * Kirim pesan WhatsApp melalui sidecar whatsapp-web.js.
      *
      * Jika sidecar baru saja login (status `authenticated` tapi belum `ready`),
-     * method ini akan polling status sampai `ready` maksimal ~20 detik, lalu
+     * method ini akan polling status sampai `ready` maksimal ~16 detik, lalu
      * mengulang pengiriman.
+     *
+     * Polling menggunakan timeout pendek (Http facade) agar tidak memicu
+     * PHP max_execution_time jika sidecar sedang sibuk.
      *
      * @throws RuntimeException jika sidecar gagal mengirim pesan
      */
@@ -51,16 +55,25 @@ class WhatsAppService
 
     /**
      * Tunggu sidecar sampai status `ready`.
+     *
+     * Menggunakan Http facade dengan timeout pendek agar request yang tersendat
+     * tidak membuat seluruh request Laravel hang sampai max_execution_time.
      */
-    protected function waitUntilReady(WebSession $session, int $maxAttempts = 20, int $sleepSeconds = 1): bool
+    protected function waitUntilReady(WebSession $session, int $maxAttempts = 8, int $sleepSeconds = 1, int $requestTimeout = 2): bool
     {
+        $client = $session->client();
+        $url = sprintf('http://%s:%d/sessions/%s/status', $client->host(), $client->port(), $session->id());
+        $token = $client->token();
+
         for ($i = 0; $i < $maxAttempts; $i++) {
             sleep($sleepSeconds);
 
             try {
-                $state = $session->state();
+                $response = Http::timeout($requestTimeout)
+                    ->withToken($token)
+                    ->get($url);
 
-                if (($state['status'] ?? '') === 'ready') {
+                if ($response->successful() && $response->json('status') === 'ready') {
                     return true;
                 }
             } catch (\Throwable $e) {
