@@ -1,8 +1,65 @@
-.auth-form { display: flex; flex-direction: column; }
-.global-error-box { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin-bottom: 20px; border: 1px solid #fca5a5; border-radius: var(--r-sm); background: #fef2f2; color: #dc2626; font-size: 0.86rem; font-weight: 600; }
-.auth-options-row { display: flex; align-items: center; justify-content: space-between; margin-top: -6px; margin-bottom: 24px; font-size: 0.86rem; flex-wrap: wrap; gap: 10px; }
-.remember-me-label { display: flex; align-items: center; gap: 8px; color: var(--ink); cursor: pointer; }
-.guest-btn-link { display: block; width: 100%; text-decoration: none; }
-.auth-footer-nav { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; font-size: 0.9rem; color: var(--muted); flex-wrap: wrap; }
-.auth-switch-link { color: var(--red); font-weight: 750; text-decoration: none; transition: color var(--ease); }
-.auth-switch-link:hover { color: var(--red-dark); text-decoration: underline; }
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.global-error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border: 1px solid #fca5a5;
+  border-radius: var(--r-sm, 8px);
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.global-error-box svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.guest-btn-link {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+}
+
+.auth-footer-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 22px;
+  font-size: 0.88rem;
+  color: var(--muted, #6b7280);
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.auth-switch-link {
+  color: var(--red, #a51d2d);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color var(--ease, 0.2s ease);
+}
+
+.auth-switch-link:hover {
+  color: var(--red-dark, #7d1522);
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .auth-footer-nav {
+    font-size: 0.84rem;
+    gap: 4px;
+    margin-top: 18px;
+  }
+}
