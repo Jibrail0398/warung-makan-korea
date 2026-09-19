@@ -5,7 +5,7 @@
       <router-link class="mobile-drawer-brand" to="/" @click="$emit('close')">
         <span class="mobile-drawer-brand-mark" aria-hidden="true">AR</span>
         <span class="mobile-drawer-brand-copy">
-          <strong>Aneka Rasa Restoran</strong>
+          <strong>Anekarasa Resto</strong>
         </span>
       </router-link>
 

@@ -26,7 +26,7 @@
 
         <div id="receipt-print-area" class="receipt-preview thermal-receipt">
           <div class="receipt-header">
-            <h1 class="restaurant-name">ANEKA RASA RESTORAN</h1>
+            <h1 class="restaurant-name">ANEKARASA RESTO</h1>
             <p class="restaurant-subtitle">Struk Pesanan</p>
             <div class="receipt-divider receipt-divider-dashed"></div>
           </div>

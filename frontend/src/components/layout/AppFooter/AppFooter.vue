@@ -58,10 +58,10 @@
       <div v-if="!simple" class="footer-grid">
         <!-- Col 1: Brand & Info -->
         <div class="footer-brand-col">
-          <router-link class="footer-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+          <router-link class="footer-brand" to="/" aria-label="Anekarasa Resto homepage">
             <span class="footer-brand-mark" aria-hidden="true">AR</span>
             <span class="footer-brand-copy">
-              <strong>Aneka Rasa Restoran</strong>
+              <strong>Anekarasa Resto</strong>
             </span>
           </router-link>
 
@@ -163,10 +163,10 @@
 
       <!-- Simple Footer Version (For Checkout / Cart) -->
       <div v-else class="simple-footer-content">
-        <router-link class="footer-brand simple-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+        <router-link class="footer-brand simple-brand" to="/" aria-label="Anekarasa Resto homepage">
           <span class="footer-brand-mark" aria-hidden="true">AR</span>
           <span class="footer-brand-copy">
-            <strong>Aneka Rasa Restoran</strong>
+            <strong>Anekarasa Resto</strong>
           </span>
         </router-link>
         <p class="simple-footer-text">
@@ -177,7 +177,7 @@
       <!-- Bottom Bar -->
       <div class="footer-bottom" :class="{ 'simple-bottom': simple }">
         <div class="footer-bottom-left">
-          <span>&copy; 2026 Aneka Rasa Restoran. All rights reserved.</span>
+          <span>&copy; 2026 Anekarasa Resto. All rights reserved.</span>
         </div>
 
         <div class="footer-bottom-right">

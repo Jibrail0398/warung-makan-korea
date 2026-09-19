@@ -55,7 +55,7 @@ export function generateReceiptPdf(order) {
   doc.setTextColor(36, 25, 18);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.text('ANEKA RASA RESTORAN', pw / 2, y, { align: 'center' });
+  doc.text('ANEKARASA RESTO', pw / 2, y, { align: 'center' });
   y += 3.8;
 
   doc.setFont('helvetica', 'normal');

@@ -16,10 +16,10 @@
       </button>
 
       <!-- Brand (Rendered for all variants) -->
-      <router-link class="brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+      <router-link class="brand" to="/" aria-label="Anekarasa Resto homepage">
         <span class="brand-mark" aria-hidden="true">AR</span>
         <span class="brand-copy">
-          <strong>Aneka Rasa Restoran</strong>
+          <strong>Anekarasa Resto</strong>
         </span>
       </router-link>
 

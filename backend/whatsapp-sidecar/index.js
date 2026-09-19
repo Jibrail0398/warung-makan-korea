@@ -1,5 +1,5 @@
 /**
- * Warung Makan Korea — WhatsApp sidecar (Baileys)
+ * Anekarasa Resto — WhatsApp sidecar (Baileys)
  *
  * Lightweight Express service replacing the previous whatsapp-web.js sidecar.
  * No Chromium/Puppeteer: Baileys talks to WhatsApp over a plain WebSocket,

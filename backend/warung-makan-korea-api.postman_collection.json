@@ -1,7 +1,7 @@
 {
     "info": {
-        "name": "Warung Makan Korea API",
-        "description": "Dokumentasi API lengkap untuk project Warung Makan Korea. Koleksi ini kompatibel untuk Postman maupun EchoAPI.",
+        "name": "Anekarasa Resto API",
+        "description": "Dokumentasi API lengkap untuk project Anekarasa Resto. Koleksi ini kompatibel untuk Postman maupun EchoAPI.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -308,7 +308,7 @@
                         "header": [{ "key": "Accept", "value": "application/json" }],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"bank_name\": \"BCA\",\n    \"account_number\": \"1234567890\",\n    \"account_name\": \"Warung Makan Korea\",\n    \"is_active\": true\n}",
+                            "raw": "{\n    \"bank_name\": \"BCA\",\n    \"account_number\": \"1234567890\",\n    \"account_name\": \"Anekarasa Resto\",\n    \"is_active\": true\n}",
                             "options": { "raw": { "language": "json" } }
                         },
                         "url": {

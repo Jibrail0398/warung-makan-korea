@@ -9,7 +9,7 @@ export const paymentService = {
     return {
       bankName: 'Hana Bank',
       accountNumber: '123-456-789',
-      accountHolder: 'Aneka Rasa Restoran'
+      accountHolder: 'Anekarasa Resto'
     };
   },
 

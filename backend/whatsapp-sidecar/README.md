@@ -4,7 +4,7 @@ Service Node ringan yang menggantikan whatsapp-web.js: WebSocket murni via
 [Baileys](https://github.com/WhiskeySockets/Baileys) **tanpa Chromium/Puppeteer**
 (~100–200 MB RAM vs ~500+ MB).
 
-Fungsi (semua yang dibutuhkan aplikasi Warung Makan Korea):
+Fungsi (semua yang dibutuhkan aplikasi Anekarasa Resto):
 
 - Manajemen session WhatsApp: QR pairing, status, hapus session.
 - **Sekali scan, selamanya** — kredensial disimpan di disk dan tidak pernah

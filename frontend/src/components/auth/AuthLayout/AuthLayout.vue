@@ -2,10 +2,10 @@
   <div class="auth-page">
     <div class="auth-container">
       <header class="auth-brand-header">
-        <router-link to="/" class="auth-brand" aria-label="Aneka Rasa Restoran homepage">
+        <router-link to="/" class="auth-brand" aria-label="Anekarasa Resto homepage">
           <span class="auth-brand-mark" aria-hidden="true">AR</span>
           <span class="auth-brand-copy">
-            <strong>Aneka Rasa Restoran</strong>
+            <strong>Anekarasa Resto</strong>
           </span>
         </router-link>
       </header>

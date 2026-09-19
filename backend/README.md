@@ -1,6 +1,6 @@
-# Warung Makan Korea - Backend API
+# Anekarasa Resto - Backend API
 
-Backend API untuk aplikasi Warung Makan Korea dengan Laravel dan PostgreSQL.
+Backend API untuk aplikasi Anekarasa Resto dengan Laravel dan PostgreSQL.
 
 ---
 
