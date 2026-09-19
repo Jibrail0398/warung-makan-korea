@@ -32,7 +32,76 @@
         </nav>
 
         <div class="header-actions">
-          <details v-if="authStore.isAuthenticated" class="profile-dropdown">
+          <!-- Tombol Dashboard Admin (Hanya tampil untuk Admin / Super Admin / Kasir) -->
+          <router-link
+            v-if="isAdminOrStaff"
+            :to="adminDashboardPath"
+            class="admin-dashboard-btn"
+            title="Kembali ke Dashboard Admin"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+            <span>Dashboard Admin</span>
+          </router-link>
+
+          <!-- Dropdown Profile Admin / Pegawai (Sama dengan layout Admin) -->
+          <details v-if="authStore.isAuthenticated && isAdminOrStaff" class="user-dropdown">
+            <summary class="user-trigger">
+              <div class="avatar-circle">
+                {{ userInitial }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ userName }}</span>
+                <span class="user-role">{{ userRole }}</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </summary>
+
+<div class="dropdown-menu">
+
+  <router-link to="/admin/profile" class="dropdown-item">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <circle cx="12" cy="7" r="4"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+    <span>Profil Admin</span>
+  </router-link>
+
+  <div class="dropdown-divider"></div>
+
+  <button
+    type="button"
+    class="dropdown-item logout-btn"
+    @click="handleLogout"
+  >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Keluar (Logout)</span>
+              </button>
+            </div>
+          </details>
+
+          <!-- Dropdown Profile Customer (Untuk Customer / Member) -->
+          <details v-else-if="authStore.isAuthenticated" class="profile-dropdown">
             <summary class="profile-trigger">
               <span class="profile-avatar">{{ authStore.displayName.charAt(0).toUpperCase() }}</span>
               <span class="profile-name">{{ authStore.displayName }}</span>
@@ -42,23 +111,12 @@
             </summary>
 
             <div class="profile-menu">
-              <router-link v-if="isAdminOrStaff" to="/admin/profile">
-                Profil Admin
-              </router-link>
-              <router-link v-else to="/profile">
+              <router-link to="/profile">
                 Profil Saya
               </router-link>
 
               <router-link to="/order-history">
                 Order History
-              </router-link>
-
-              <router-link v-if="isAdminOrStaff && !isSuperAdmin" to="/admin/dashboard" class="staff-link">
-                Admin Dashboard
-              </router-link>
-
-              <router-link v-if="isSuperAdmin" to="/admin/audit-logs" class="staff-link">
-                Audit Log
               </router-link>
 
               <button

@@ -55,6 +55,13 @@ export default {
         : 'U';
     });
 
+    const userRole = computed(() => {
+      if (authStore.isSuperAdmin) return 'Super Admin';
+      if (authStore.isAdmin) return 'Admin / Kasir';
+      if (authStore.isKasir) return 'Kasir';
+      return authStore.user?.role || 'Pelanggan';
+    });
+
     const isAdminOrStaff = computed(() => {
       return (
         authStore.isAdmin ||
@@ -65,6 +72,11 @@ export default {
 
     const isSuperAdmin = computed(() => {
       return authStore.isSuperAdmin;
+    });
+
+    const adminDashboardPath = computed(() => {
+      if (authStore.isSuperAdmin) return '/admin/audit-logs';
+      return '/admin/dashboard';
     });
 
     const activeSection = computed(() => {
@@ -98,7 +110,7 @@ export default {
 
     function handleLogout() {
       // Close profile details if open
-      const details = document.querySelector('.profile-dropdown');
+      const details = document.querySelector('.user-dropdown, .profile-dropdown');
       if (details) {
         details.removeAttribute('open');
       }
@@ -117,8 +129,10 @@ export default {
       isLoggedIn,
       userName,
       userInitial,
+      userRole,
       isAdminOrStaff,
       isSuperAdmin,
+      adminDashboardPath,
       activeSection,
       isHeaderVisible,
       showLogoutConfirm,

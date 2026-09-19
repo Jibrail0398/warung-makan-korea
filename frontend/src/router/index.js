@@ -10,6 +10,7 @@ const routes = [
   // ==========================================
   {
     path: '/',
+    alias: '/home',
     name: 'home',
     component: HomeView
   },
@@ -252,9 +253,9 @@ router.beforeEach(async (to) => {
   const requiredRole = to.meta.requiredRole
   const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
   const currentRole = authData?.user?.role?.toLowerCase()
-  const adminRoles = ['admin', 'superadmin']
+  const adminRoles = ['admin', 'superadmin', 'kasir']
 
-  if (adminRoles.includes(currentRole) && ['home', 'login'].includes(to.name)) {
+  if (adminRoles.includes(currentRole) && ['login', 'register', 'verify-otp'].includes(to.name)) {
     return { path: currentRole === 'superadmin' ? '/admin/audit-logs' : '/admin/dashboard' }
   }
 

@@ -398,6 +398,185 @@
 
 
 /* =========================================================
+   ADMIN PROFILE DROPDOWN (ON FRONTEND HEADER)
+   ========================================================= */
+
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 10px 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  transition: all var(--ease);
+}
+
+.user-trigger:hover,
+.user-dropdown[open] .user-trigger {
+  border-color: var(--red);
+  background: var(--soft);
+}
+
+.avatar-circle {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+
+.user-trigger svg {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-dropdown[open] .user-trigger svg {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  z-index: 100;
+}
+
+.user-dropdown[open] .dropdown-menu {
+  animation: dropdownPop 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+.dropdown-header {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-header strong {
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+
+.dropdown-header small {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.dropdown-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--line);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--ease);
+}
+
+.dropdown-item:hover {
+  background: var(--soft);
+  color: var(--red);
+}
+
+.dropdown-item.logout-btn {
+  color: var(--color-danger, #dc2626);
+}
+
+.dropdown-item.logout-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+
+/* =========================================================
+   ADMIN DASHBOARD BUTTON (MATCHES KELOLA PRODUK STYLE)
+   ========================================================= */
+
+.admin-dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  min-height: 42px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--ease);
+  white-space: nowrap;
+}
+
+.admin-dashboard-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.admin-dashboard-btn svg {
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
    LOGIN
    ========================================================= */
 
@@ -680,6 +859,12 @@
     gap: 7px;
   }
 
+  .admin-dashboard-btn {
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 0.8rem;
+  }
+
   .login-link {
     padding-left: 12px;
     padding-right: 12px;
@@ -733,6 +918,12 @@
 
   .header-actions {
     gap: 5px;
+  }
+
+  .admin-dashboard-btn {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 0.78rem;
   }
 
   .profile-trigger {
@@ -803,7 +994,15 @@
     font-size: 0.9rem;
   }
 
-  .profile-trigger {
+  .admin-dashboard-btn {
+    min-height: 40px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 0.75rem;
+  }
+
+  .profile-trigger,
+  .user-trigger {
     min-height: 40px;
 
     padding-left: 6px;
@@ -812,12 +1011,15 @@
     gap: 5px;
   }
 
-  .profile-avatar {
+  .profile-avatar,
+  .avatar-circle {
     width: 27px;
     height: 27px;
+    font-size: 0.72rem;
   }
 
-  .profile-name {
+  .profile-name,
+  .user-info {
     display: none;
   }
 

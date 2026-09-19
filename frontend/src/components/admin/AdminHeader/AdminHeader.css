@@ -110,6 +110,33 @@
   color: var(--success);
 }
 
+.view-website-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  min-height: 38px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--ease);
+  white-space: nowrap;
+}
+
+.view-website-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.view-website-btn svg {
+  flex-shrink: 0;
+}
+
 .action-pill-btn {
   display: inline-flex;
   align-items: center;
@@ -302,10 +329,10 @@
   .user-info, .sound-label {
     display: none;
   }
-  .action-pill-btn span {
+  .view-website-btn span, .action-pill-btn span {
     display: none;
   }
-  .sound-toggle-btn, .action-pill-btn {
+  .sound-toggle-btn, .action-pill-btn, .view-website-btn {
     padding: 0 10px;
   }
 }

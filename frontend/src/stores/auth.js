@@ -10,6 +10,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!authData.value?.access_token);
   const displayName = computed(() => user.value?.name || 'user');
 
+  const role = computed(() => user.value?.role?.toLowerCase() || '');
+  const isAdmin = computed(() => role.value === 'admin');
+  const isSuperAdmin = computed(() => role.value === 'superadmin');
+  const isKasir = computed(() => role.value === 'kasir');
+  const isAdminOrStaff = computed(() => ['admin', 'superadmin', 'kasir'].includes(role.value));
+
   async function hydrate() {
     const storedValue = localStorage.getItem('warung-auth-data');
     const decodedAuthData = await authService.decode(storedValue);
@@ -38,6 +44,11 @@ export const useAuthStore = defineStore('auth', () => {
     authData,
     isAuthenticated,
     displayName,
+    role,
+    isAdmin,
+    isSuperAdmin,
+    isKasir,
+    isAdminOrStaff,
     hydrate,
     logout
   };
