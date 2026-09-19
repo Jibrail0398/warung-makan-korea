@@ -78,7 +78,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="1.8" />
                 <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8" />
               </svg>
-              <span>Ansan-si, Gyeonggi-do, Korea Selatan</span>
+              <span>South Korea</span>
             </div>
           </div>
         </div>
@@ -177,16 +177,10 @@
       <!-- Bottom Bar -->
       <div class="footer-bottom" :class="{ 'simple-bottom': simple }">
         <div class="footer-bottom-left">
-          <span>&copy; 2026 Anekarasa Resto. All rights reserved.</span>
+          <span></span>
         </div>
 
         <div class="footer-bottom-right">
-          <router-link to="/admin/login" class="admin-portal-link">
-            <span>Portal Admin</span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </router-link>
           <button type="button" class="back-to-top-btn" @click="scrollToTop" aria-label="Kembali ke atas">
             <span>Ke Atas</span>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">

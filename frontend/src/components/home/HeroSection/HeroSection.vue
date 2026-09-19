@@ -3,8 +3,8 @@
     <div class="hero">
       <div class="hero-content">
         <div class="hero-copy">
-          <h1 id="heroTitle">Indonesian food, <span>made for Korea.</span></h1>
-          <p class="hero-description">Traditional meals and selected Indonesian ingredients, prepared for easy online ordering across Korea.</p>
+          <h1 id="heroTitle">Anekarasa <span>Resto</span></h1>
+          <p class="hero-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer finibus orci lacinia vulputate lobortis. Aliquam auctor cursus nibh pretium varius. Proin urna nisi, eleifend non lectus posuere, pretium ultrices ex. Donec eleifend tincidunt dictum. Nullam ut est vel mauris mollis mollis. Sed vitae nisl ac orci ultricies facilisis ac hendrerit ex. Nam blandit pulvinar dui. Vivamus justo leo, sagittis ac iaculis vitae,</p>
           <a class="btn-primary" href="#menu">Order now <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
         </div>
       </div>

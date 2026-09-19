@@ -6,7 +6,8 @@
       </div>
       <div class="about-content">
         <h2 class="section-title" id="aboutTitle">About Anekarasa Resto</h2>
-        <p class="section-copy">We bring authentic Indonesian flavours to Korea through carefully prepared meals and selected ingredients. Every dish is rooted in familiar recipes and the joy of sharing food.</p>
+        <p class="section-copy"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer finibus orci lacinia vulputate lobortis. Aliquam auctor cursus nibh pretium varius. Proin urna nisi, eleifend non lectus posuere, pretium ultrices ex. Donec eleifend tincidunt dictum. Nullam ut est vel mauris mollis mollis. Sed vitae nisl ac orci ultricies facilisis ac hendrerit ex. Nam blandit pulvinar dui. Vivamus justo leo, sagittis ac iaculis vitae, 
+          cursus eget purus. Etiam ac iaculis felis. Cras sed varius lectus. Duis quis neque vitae mi porta egestas.</p>
       </div>
     </div>
   </section>
