@@ -41,12 +41,12 @@
                   <input
                     type="file"
                     ref="fileInputRef"
-                    accept="image/jpeg,image/png"
+                    accept="image/jpeg,image/png,image/webp"
                     class="form-input form-file-input"
                     :disabled="isSaving || isSubmitting"
                     @change="handleFileChange"
                   />
-                  <small class="form-hint">Format: JPG, PNG. Maks 2MB.</small>
+                  <small class="form-hint">Format: JPG, PNG, WEBP. Maks 10MB.</small>
                 </div>
               </div>
             </div>

@@ -83,7 +83,7 @@ class OrderController extends Controller
 
     public function uploadReceipt(Request $request, Order $order)
     {
-        $request->validate(['payment_receipt' => 'required|image|mimes:jpg,jpeg,png|max:2048']);
+        $request->validate(['payment_receipt' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240']);
         
         $order = $this->service->uploadReceipt($order, $request->file('payment_receipt'));
         return $this->successResponse(new OrderResource($order), 'Bukti pembayaran berhasil diupload');

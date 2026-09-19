@@ -24,8 +24,8 @@ export default {
     function handleFileUpload(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      if (!['image/jpeg', 'image/png'].includes(file.type)) { showFailed({ title: 'Format file tidak didukung', message: 'Bukti pembayaran harus berupa file JPG atau PNG.', detail: `Format file yang dipilih: ${file.type || 'tidak diketahui'}. Silakan pilih file dengan format yang sesuai.` }); return; }
-      if (file.size > 2 * 1024 * 1024) { showFailed({ title: 'Ukuran file terlalu besar', message: 'Ukuran bukti pembayaran maksimal 2 MB.', detail: `Ukuran file yang dipilih: ${(file.size / 1024 / 1024).toFixed(2)} MB. Kompres file lalu coba lagi.` }); return; }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { showFailed({ title: 'Format file tidak didukung', message: 'Bukti pembayaran harus berupa file JPG, PNG, atau WebP.', detail: `Format file yang dipilih: ${file.type || 'tidak diketahui'}. Silakan pilih file dengan format yang sesuai.` }); return; }
+      if (file.size > 10 * 1024 * 1024) { showFailed({ title: 'Ukuran file terlalu besar', message: 'Ukuran bukti pembayaran maksimal 10 MB.', detail: `Ukuran file yang dipilih: ${(file.size / 1024 / 1024).toFixed(2)} MB. Kompres file lalu coba lagi.` }); return; }
       uploadedFile.value = file;
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
       previewUrl.value = URL.createObjectURL(file);
@@ -40,7 +40,7 @@ export default {
     }
 
     async function confirmPayment() {
-      if (!previewUrl.value && !uploadedFile.value) { showFailed({ title: 'Bukti pembayaran belum dipilih', message: 'Pilih dan tinjau bukti transfer sebelum melakukan konfirmasi.', detail: 'File yang didukung adalah JPG atau PNG dengan ukuran maksimal 2 MB.' }); return; }
+      if (!previewUrl.value && !uploadedFile.value) { showFailed({ title: 'Bukti pembayaran belum dipilih', message: 'Pilih dan tinjau bukti transfer sebelum melakukan konfirmasi.', detail: 'File yang didukung adalah JPG, PNG atau WebP dengan ukuran maksimal 10 MB.' }); return; }
       isSubmitting.value = true;
       try {
         const orderId = localStorage.getItem('warung-order-id');
