@@ -1,1 +1,59 @@
-.auth-submit-btn{width:100%;display:inline-flex;min-height:50px;align-items:center;justify-content:center;gap:10px;padding:0 24px;border-radius:var(--r-sm);font-size:.88rem;font-weight:780;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform var(--ease),background var(--ease),box-shadow var(--ease),border-color var(--ease),opacity var(--ease)}.btn-primary{border:1px solid transparent;background:var(--red);color:#fff;box-shadow:0 10px 26px rgba(165,29,45,.20)}.btn-primary:hover:not(:disabled){background:var(--red-dark);box-shadow:0 12px 30px rgba(125,21,34,.26);transform:translateY(-1px)}.btn-secondary{border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(36,25,18,0.04)}.btn-secondary:hover:not(:disabled){border-color:var(--muted);background:var(--soft);transform:translateY(-1px)}.auth-submit-btn:disabled{opacity:0.65;cursor:not-allowed;transform:none;box-shadow:none}.spinner{animation:rotate 0.8s linear infinite}@keyframes rotate{100%{transform:rotate(360deg)}}
+.auth-submit-btn {
+  width: 100%;
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  border-radius: var(--r-sm, 8px);
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: transform var(--ease, 0.2s ease), background var(--ease, 0.2s ease), box-shadow var(--ease, 0.2s ease), border-color var(--ease, 0.2s ease), opacity var(--ease, 0.2s ease);
+}
+
+.btn-primary {
+  border: 1px solid transparent;
+  background: var(--red, #a51d2d);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(165, 29, 45, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--red-dark, #7d1522);
+  box-shadow: 0 6px 18px rgba(125, 21, 34, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  border: 1px solid var(--line, #e2e8f0);
+  background: #ffffff;
+  color: var(--ink, #1f2937);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.spinner {
+  animation: rotate 0.8s linear infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}

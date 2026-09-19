@@ -35,7 +35,7 @@ class StoreOrderRequest extends FormRequest
             'items.*.quantity' => 'required|integer|min:1',
             
             // Payment proof upload (optional initially)
-            'payment_receipt' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'payment_receipt' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ];
     }
 }

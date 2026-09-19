@@ -2,9 +2,7 @@
   <div class="admin-management-page">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">MANAJEMEN PENGGUNA &amp; AKSES</p>
         <h1 class="page-title">Management Admin &amp; Kasir</h1>
-        <p class="page-description">Kelola akun operasional staf restoran dan tetapkan role aksesnya.</p>
       </div>
       <button type="button" class="btn-add-admin" @click="openAddModal">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="1.8" /><line x1="20" y1="8" x2="20" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><line x1="23" y1="11" x2="17" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -167,7 +165,7 @@
             <button type="button" class="close-btn" aria-label="Tutup" :disabled="isChangingPassword" @click="closePasswordModal">✕</button>
           </div>
           <form class="modal-body" novalidate @submit.prevent="handlePasswordSubmit">
-            <p class="confirm-text">Ubah password untuk akun <strong>{{ passwordTarget?.name }} ({{ passwordTarget?.phone_number }})</strong>. Pastikan password baru tersimpan dengan aman.</p>
+            <p class="confirm-text">Ubah password untuk akun <strong>{{ passwordTarget?.name }}</strong>.</p>
             <div class="form-group">
               <label class="form-label required" for="edit-user-password">Password Baru</label>
               <div class="input-wrapper">

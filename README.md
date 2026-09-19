@@ -1,6 +1,6 @@
-# Warung Makan Korea
+# Anekarasa Resto
 
-Aplikasi website untuk usaha Warung Makan Korea.
+Aplikasi website untuk usaha Anekarasa Resto.
 
 ---
 

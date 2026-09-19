@@ -1,6 +1,6 @@
 <template>
   <div class="reset-password-page">
-    <header class="page-header"><div><p class="page-eyebrow">KEAMANAN AKUN</p><h1 class="page-title">Reset Password Akun Admin</h1><p class="page-description">Perbarui kata sandi akun Admin / Kasir Anda untuk menjaga keamanan akses sistem.</p></div></header>
+    <header class="page-header"><div><h1 class="page-title">Reset Password Akun Admin</h1></div></header>
     <div class="form-container-grid">
       <section class="card form-card">
         <form @submit.prevent="handleResetPassword" class="password-form" novalidate>
@@ -29,7 +29,7 @@
               v-model="newPassword"
               class="form-input"
               :class="{ 'input-error': formErrors.newPassword }"
-              placeholder="Minimal 6 karakter kombinasi"
+              placeholder="Minimal 6 karakter"
               :disabled="isSubmitting"
               @input="formErrors.newPassword = ''"
               required
@@ -56,10 +56,6 @@
             <span v-else>Perbarui Kata Sandi</span>
           </button>
         </form>
-      </section>
-      <section class="card guidance-card">
-        <h3 class="guidance-title">Panduan Keamanan Kata Sandi</h3>
-        <ul class="guidance-list"><li>Gunakan minimal 6 hingga 12 karakter unik.</li><li>Kombinasikan huruf besar, huruf kecil, dan angka.</li><li>Jangan gunakan tanggal lahir atau nomor telepon Anda.</li><li>Hindari menggunakan kata sandi yang sama dengan akun lain.</li><li>Jangan membagikan kredensial login kasir kepada pihak luar.</li></ul>
       </section>
     </div>
   </div>

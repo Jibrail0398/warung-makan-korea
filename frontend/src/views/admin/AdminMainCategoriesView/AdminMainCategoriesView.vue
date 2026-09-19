@@ -2,11 +2,7 @@
   <div class="main-categories-view">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">DAFTAR KATEGORI</p>
         <h1 class="page-title">Kelola Kategori</h1>
-        <p class="page-description">
-          Daftar seluruh kategori menu yang tersedia pada sistem.
-        </p>
       </div>
 
       <button type="button" class="btn-primary" @click="openAddModal">

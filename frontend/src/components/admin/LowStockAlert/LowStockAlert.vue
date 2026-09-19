@@ -1,6 +1,6 @@
 <template>
   <section class="stock-card" aria-labelledby="lowStockTitle">
-    <div class="section-header"><div><p class="section-eyebrow">Inventory</p><h2 id="lowStockTitle" class="section-title">Low stock alert</h2></div><RouterLink to="/admin/products" class="view-link">View products <span aria-hidden="true">→</span></RouterLink></div>
+    <div class="section-header"><div><h2 id="lowStockTitle" class="section-title">Low stock alert</h2></div><RouterLink to="/admin/products" class="view-link">View products <span aria-hidden="true">→</span></RouterLink></div>
     <div class="stock-list">
       <article v-for="product in lowStockProducts" :key="product.name" class="stock-item">
         <div class="stock-product"><span class="product-name">{{ product.name }}</span><span class="stock-description">{{ product.stock }} items remaining</span></div>

@@ -3,11 +3,7 @@
     <!-- Header Greeting -->
     <header class="dashboard-heading">
       <div class="heading-content">
-        <p class="dashboard-eyebrow">RINGKASAN OPERASIONAL</p>
         <h1 class="dashboard-title">Dashboard Admin & Kasir</h1>
-        <p class="dashboard-description">
-          Selamat datang kembali, <strong>{{ adminName }}</strong>. Berikut adalah ringkasan pesanan dan penjualan hari ini.
-        </p>
       </div>
 
       <div class="heading-quick-actions">

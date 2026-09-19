@@ -2,7 +2,7 @@
   <footer class="admin-footer">
     <div class="footer-inner">
       <div class="footer-left">
-        <span class="copyright">© 2026 <strong>Aneka Rasa Restoran</strong></span>
+        <span class="copyright">© 2026 <strong>Anekarasa Resto</strong></span>
         <span class="footer-divider">/</span>
         <span class="panel-tag">Portal Manajemen & Kasir</span>
       </div>

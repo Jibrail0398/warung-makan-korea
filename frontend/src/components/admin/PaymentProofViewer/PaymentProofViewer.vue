@@ -4,7 +4,6 @@
       <div class="modal-card compact-proof-modal" role="dialog" aria-modal="true" aria-labelledby="proofModalTitle">
         <div class="modal-header">
           <div>
-            <p class="modal-eyebrow">VERIFIKASI PEMBAYARAN</p>
             <h2 id="proofModalTitle" class="modal-title">Bukti Transfer #{{ order?.id }}</h2>
           </div>
           <button type="button" class="close-btn" aria-label="Tutup modal" @click="handleClose">

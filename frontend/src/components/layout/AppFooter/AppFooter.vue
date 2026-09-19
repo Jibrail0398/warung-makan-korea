@@ -10,8 +10,7 @@
             </svg>
           </div>
           <div class="trust-text">
-            <strong>100% Rasa Otentik</strong>
-            <small>Resep & bumbu asli Nusantara</small>
+            <strong>Rasa Otentik</strong>
           </div>
         </div>
 
@@ -19,14 +18,13 @@
           <div class="trust-icon-box">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="1" y="3" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.8" />
-              <polygon points="16 8 20 8 23 11 23 16 16 16 8" stroke="currentColor" stroke-width="1.8" />
+              <polygon points="16 8 20 8 23 11 23 16 16 8" stroke="currentColor" stroke-width="1.8" />
               <circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="1.8" />
               <circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="1.8" />
             </svg>
           </div>
           <div class="trust-text">
-            <strong>Kirim ke Seluruh Korea</strong>
-            <small>Packing higienis & cepat</small>
+            <strong>Pengiriman Seluruh Korea</strong>
           </div>
         </div>
 
@@ -38,8 +36,7 @@
             </svg>
           </div>
           <div class="trust-text">
-            <strong>Pembayaran Mudah</strong>
-            <small>Transfer bank lokal Korea</small>
+            <strong>Transfer Bank Lokal</strong>
           </div>
         </div>
 
@@ -50,8 +47,7 @@
             </svg>
           </div>
           <div class="trust-text">
-            <strong>Layanan Ramah</strong>
-            <small>CS Bahasa Indonesia & Korea</small>
+            <strong>Layanan Pelanggan</strong>
           </div>
         </div>
       </div>
@@ -62,16 +58,12 @@
       <div v-if="!simple" class="footer-grid">
         <!-- Col 1: Brand & Info -->
         <div class="footer-brand-col">
-          <router-link class="footer-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+          <router-link class="footer-brand" to="/" aria-label="Anekarasa Resto homepage">
             <span class="footer-brand-mark" aria-hidden="true">AR</span>
             <span class="footer-brand-copy">
-              <strong>Aneka Rasa Restoran</strong>
-              <small>INDONESIA IN KOREA</small>
+              <strong>Anekarasa Resto</strong>
             </span>
           </router-link>
-          <p class="footer-description">
-            Menghadirkan kelezatan masakan khas nusantara dan bahan mentah pilihan langsung ke tempat tinggal Anda di seluruh Korea Selatan.
-          </p>
 
           <div class="footer-meta-badges">
             <div class="meta-badge">
@@ -137,7 +129,7 @@
                 </svg>
               </div>
               <div class="contact-info">
-                <small>Email Resmi</small>
+                <small>Email</small>
                 <strong>hello@anekarasa.kr</strong>
               </div>
             </a>
@@ -171,24 +163,21 @@
 
       <!-- Simple Footer Version (For Checkout / Cart) -->
       <div v-else class="simple-footer-content">
-        <router-link class="footer-brand simple-brand" to="/" aria-label="Aneka Rasa Restoran homepage">
+        <router-link class="footer-brand simple-brand" to="/" aria-label="Anekarasa Resto homepage">
           <span class="footer-brand-mark" aria-hidden="true">AR</span>
           <span class="footer-brand-copy">
-            <strong>Aneka Rasa Restoran</strong>
-            <small>INDONESIA IN KOREA</small>
+            <strong>Anekarasa Resto</strong>
           </span>
         </router-link>
         <p class="simple-footer-text">
-          Pesanan Anda diproses dengan aman & higienis. Butuh bantuan? Hubungi WhatsApp <strong>+82 10-1234-5678</strong>.
+          Butuh bantuan? Hubungi WhatsApp <strong>+82 10-1234-5678</strong>.
         </p>
       </div>
 
       <!-- Bottom Bar -->
       <div class="footer-bottom" :class="{ 'simple-bottom': simple }">
         <div class="footer-bottom-left">
-          <span>&copy; 2026 Aneka Rasa Restoran. All rights reserved.</span>
-          <span class="footer-dot-divider">•</span>
-          <span class="community-tag">Dibuat untuk Komunitas Indonesia di Korea 🇮🇩 🇰🇷</span>
+          <span>&copy; 2026 Anekarasa Resto. All rights reserved.</span>
         </div>
 
         <div class="footer-bottom-right">

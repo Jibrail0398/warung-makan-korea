@@ -1,6 +1,6 @@
 <template>
   <section class="sales-overview-card" aria-labelledby="salesOverviewTitle">
-    <div class="card-header"><div><p class="card-eyebrow">RINGKASAN PENJUALAN</p><h2 id="salesOverviewTitle" class="card-title">Aktivitas Penjualan</h2></div><div class="period-toggle" role="group" aria-label="Rentang waktu"><button type="button" class="toggle-btn" :class="{ active: activeTab === 'weekly' }" @click="activeTab = 'weekly'">Mingguan</button><button type="button" class="toggle-btn" :class="{ active: activeTab === 'hourly' }" @click="activeTab = 'hourly'">Jam Hari Ini</button></div></div>
+    <div class="card-header"><div><h2 id="salesOverviewTitle" class="card-title">Aktivitas Penjualan</h2></div><div class="period-toggle" role="group" aria-label="Rentang waktu"><button type="button" class="toggle-btn" :class="{ active: activeTab === 'weekly' }" @click="activeTab = 'weekly'">Mingguan</button><button type="button" class="toggle-btn" :class="{ active: activeTab === 'hourly' }" @click="activeTab = 'hourly'">Jam Hari Ini</button></div></div>
     <div class="chart-container">
       <div v-if="currentData.length" class="chart-bars">
         <div v-for="item in currentData" :key="item.label" class="chart-bar-group">

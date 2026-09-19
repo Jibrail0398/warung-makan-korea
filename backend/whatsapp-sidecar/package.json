@@ -2,7 +2,7 @@
   "name": "warung-korea-whatsapp-sidecar",
   "version": "1.0.0",
   "private": true,
-  "description": "Lightweight WhatsApp sidecar service (Baileys) for Warung Makan Korea. Manages WA sessions (QR pairing, persistent credentials) and sends text messages for OTP delivery. Every endpoint requires a Laravel-issued access_token with role superadmin.",
+  "description": "Lightweight WhatsApp sidecar service (Baileys) for Anekarasa Resto. Manages WA sessions (QR pairing, persistent credentials) and sends text messages for OTP delivery. Every endpoint requires a Laravel-issued access_token with role superadmin.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

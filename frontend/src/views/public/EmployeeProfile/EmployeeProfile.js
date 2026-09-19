@@ -56,6 +56,11 @@ export default {
       const file = event.target.files?.[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) return;
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Ukuran gambar profil maksimal 10MB');
+        event.target.value = '';
+        return;
+      }
       if (profilePicture.value) URL.revokeObjectURL(profilePicture.value);
       profilePicture.value = URL.createObjectURL(file);
     };

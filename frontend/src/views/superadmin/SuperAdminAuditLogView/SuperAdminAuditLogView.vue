@@ -2,9 +2,7 @@
   <div class="audit-log-page">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">AUDIT TRAIL &amp; LOGS</p>
-        <h1 class="page-title">Audit Log &amp; Activity Log</h1>
-        <p class="page-description">Rekaman jejak aktivitas seluruh aksi sensitif yang dilakukan oleh Admin, Kasir, dan Sistem.</p>
+        <h1 class="page-title">Audit Log</h1>
       </div>
     </header>
 
@@ -99,7 +97,6 @@
         <div class="modal-card">
           <div class="modal-header">
             <div>
-              <span class="modal-eyebrow">PAYLOAD INSPECTOR</span>
               <h3 class="modal-title">Log Detail: {{ selectedLog.id }}</h3>
             </div>
             <button type="button" class="close-btn" aria-label="Tutup" @click="closeDetailModal">✕</button>

@@ -3,10 +3,8 @@
     <div class="container">
       <div class="menu-heading-row">
         <div>
-          <span class="eyebrow">Our selection</span>
-          <h2 class="section-title" id="menuTitle">Order from our menu</h2>
+          <h2 class="section-title" id="menuTitle">Menu</h2>
         </div>
-        
       </div>
 
       <div class="menu-controls">
@@ -29,19 +27,11 @@
       </div>
        <div v-if="categoryList.length > 0" class="subcategories-filter-row">
           <button
-            type="button"
-            class="subcat-chip-btn"
-            :class="{ active: currentSubcategory === 'all' }"
-            @click="setSubcategory('all')"
-          >
-            All Categories
-          </button>
-          <button
             v-for="sub in categoryList"
             :key="sub.id"
             type="button"
             class="subcat-chip-btn"
-            :class="{ active: currentSubcategory === sub.id }"
+            :class="{ active: String(currentSubcategory) === String(sub.id) }"
             @click="setSubcategory(sub.id)"
           >
             {{ sub.name }}

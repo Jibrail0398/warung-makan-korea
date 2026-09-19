@@ -2,7 +2,7 @@
   <div class="profile-page">
     <AppHeader variant="default" />
     <main class="profile-main"><div class="container">
-      <div class="page-heading"><div><p class="eyebrow">MY ACCOUNT</p><h1 class="page-title">Profile</h1><p class="heading-description">Manage your personal information and account details.</p></div></div>
+      <div class="page-heading"><div><h1 class="page-title">Profile</h1></div></div>
       <div class="profile-layout">
         <aside class="profile-sidebar">
           <div class="profile-card">

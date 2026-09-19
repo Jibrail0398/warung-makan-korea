@@ -2,11 +2,7 @@
   <div class="bank-accounts-view">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">MANAJEMEN PEMBAYARAN</p>
         <h1 class="page-title">Rekening Bank</h1>
-        <p class="page-description">
-          Rekening tujuan transfer yang ditampilkan pada halaman checkout customer. Hanya satu akun bank yang diizinkan.
-        </p>
       </div>
     </header>
 
@@ -22,7 +18,6 @@
           </span>
           <div>
             <strong class="bank-name">{{ account.bankName }}</strong>
-            <small class="bank-sub">Rekening tujuan transfer manual</small>
           </div>
         </div>
         <span class="status-badge status-active">
@@ -107,7 +102,7 @@
             </div>
             <div class="form-group">
               <label class="form-label required" for="account-name">Atas Nama</label>
-              <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Aneka Rasa Restoran" :disabled="isSaving" @input="formErrors.account_name = ''" />
+              <input id="account-name" v-model="formData.account_name" type="text" class="form-input" :class="{ 'input-error': formErrors.account_name }" placeholder="Contoh: Anekarasa Resto" :disabled="isSaving" @input="formErrors.account_name = ''" />
               <small v-if="formErrors.account_name" class="field-error">{{ formErrors.account_name }}</small>
             </div>
 
@@ -132,7 +127,7 @@
             <button type="button" class="close-btn" aria-label="Tutup" :disabled="isDeleting" @click="cancelDelete">✕</button>
           </div>
           <div class="modal-body">
-            <p class="confirm-text">Apakah anda yakin akan menghapus rekening <strong>{{ accountToDelete.bankName }} ({{ accountToDelete.accountNumber }})</strong>? Customer tidak akan melihat rekening tujuan transfer pada checkout.</p>
+            <p class="confirm-text">Apakah anda yakin akan menghapus rekening <strong>{{ accountToDelete.bankName }} ({{ accountToDelete.accountNumber }})</strong>?</p>
             <div class="modal-footer">
               <button type="button" class="btn-cancel" :disabled="isDeleting" @click="cancelDelete">Tidak</button>
               <button type="button" class="btn-danger" :disabled="isDeleting" @click="executeDelete">

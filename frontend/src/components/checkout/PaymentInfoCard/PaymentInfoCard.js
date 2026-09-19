@@ -6,7 +6,7 @@ import './PaymentInfoCard.css';
 const FALLBACK_BANK_INFO = {
   bankName: 'Hana Bank',
   accountNumber: '123-456-789',
-  accountHolder: 'Aneka Rasa Restoran'
+  accountHolder: 'Anekarasa Resto'
 };
 
 export default {

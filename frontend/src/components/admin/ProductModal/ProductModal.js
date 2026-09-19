@@ -41,8 +41,8 @@ export default {
     const handleFileChange = (event) => {
       const file = event.target.files[0];
       if (!file) return;
-      if (file.size > 2 * 1024 * 1024) {
-        errorMessage.value = 'Ukuran gambar maksimal 2MB';
+      if (file.size > 10 * 1024 * 1024) {
+        errorMessage.value = 'Ukuran gambar maksimal 10MB';
         event.target.value = '';
         return;
       }

@@ -1,6 +1,5 @@
 <template>
   <aside class="order-summary">
-    <span class="eyebrow">Order summary</span>
     <h2>Summary</h2>
     <div class="order-options">
       <div v-if="isLoggedIn" class="member-checkout-badge">
@@ -26,7 +25,6 @@
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </template>
     </button>
-    <p class="secure-note">Secure checkout · Order confirmation available after payment</p>
     <NoticeModal :visible="isNoticeVisible" :type="noticeType" :title="noticeTitle" :message="noticeMessage" :detail="noticeDetail" :confirm-text="noticeConfirmText" @close="handleNoticeClose" @confirm="handleNoticeConfirm" />
   </aside>
 </template>

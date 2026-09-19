@@ -4,7 +4,6 @@
       <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editCatTitle' : 'addCatTitle'">
         <div class="modal-header">
           <div>
-            <p class="modal-eyebrow">STRUKTUR SUBKATEGORI</p>
             <h2 id="addCatTitle" class="modal-title">{{ isEdit ? 'Edit Subkategori' : 'Tambah Subkategori Baru' }}</h2>
           </div>
           <button
@@ -39,7 +38,6 @@
                 <option v-for="mc in customMainCategories" :key="mc.id" :value="mc.id">{{ mc.name }}</option>
               </select>
               <small v-if="formErrors.mainCategoryId" class="field-error">{{ formErrors.mainCategoryId }}</small>
-              <small class="form-hint">Pilih apakah subkategori ini masuk ke dalam Menu Restoran atau Bahan Mentah.</small>
             </div>
 
             <div class="form-group full-width">

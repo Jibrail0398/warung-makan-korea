@@ -21,9 +21,18 @@ class ProductController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->service->getAll(paginate: true, activeOnly: true);
+        $filters = [];
+        if ($request->filled('category_id') && $request->query('category_id') !== 'all') {
+            $filters['category_id'] = $request->query('category_id');
+        }
+        if ($request->filled('search')) {
+            $filters['search'] = $request->query('search');
+        }
+
+        $perPage = $request->query('per_page', 12);
+        $products = $this->service->getAll(paginate: true, perPage: (int)$perPage, activeOnly: true, filters: $filters);
         return $this->successResponse(
             ProductResource::collection($products)->response()->getData(true),
             'Berhasil mengambil daftar produk'

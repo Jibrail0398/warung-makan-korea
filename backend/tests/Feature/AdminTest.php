@@ -27,7 +27,7 @@ class AdminTest extends TestCase
         ])->postJson('/api/bank-accounts', [
             'bank_name' => 'BCA',
             'account_number' => '1234567890',
-            'account_name' => 'Warung Korea',
+            'account_name' => 'Anekarasa Resto',
             'is_active' => true
         ]);
 

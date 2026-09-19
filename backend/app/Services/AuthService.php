@@ -29,7 +29,7 @@ class AuthService
         );
 
         // 3. Kirim via WA JS
-        $message = "Aneka Rasa Restora OTP code: ".$code;
+        $message = "Anekarasa Resto OTP code: ".$code;
         return $this->waService->sendMessage($phone, $message);
     }
 
