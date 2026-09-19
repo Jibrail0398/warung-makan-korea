@@ -19,7 +19,7 @@ export default {
     },
     currentSubcategory: {
       type: [String, Number],
-      default: 'all'
+      default: null
     },
     searchQuery: {
       type: String,
@@ -49,35 +49,34 @@ export default {
   setup(props, { emit }) {
     const cartStore = useCartStore();
 
-    // Kategori yang diambil langsung dari API (GET /api/categories)
+    // Kategori fallback yang diambil dari API jika parent belum menyediakan
     const apiCategories = ref([]);
 
-    // Gabungkan: prioritaskan data dari API, fallback ke prop dari parent
+    // Prioritaskan data dari prop parent, fallback ke data API
     const categoryList = computed(() => {
-      if (apiCategories.value.length > 0) {
-        return apiCategories.value;
+      if (props.availableSubcategories && props.availableSubcategories.length > 0) {
+        return props.availableSubcategories;
       }
-      return props.availableSubcategories;
+      return apiCategories.value;
     });
 
     async function loadCategories() {
       try {
         const categories = await categoriesService.getCategories();
         apiCategories.value = categories || [];
-        console.log( `Isi categories pada menusection:${JSON.stringify(categories)}`)
       } catch (error) {
-        // Jika API gagal, tetap gunakan prop dari parent
         apiCategories.value = [];
       }
     }
 
     onMounted(() => {
-      loadCategories();
+      if (!props.availableSubcategories || props.availableSubcategories.length === 0) {
+        loadCategories();
+      }
     });
 
-    // Refetch kategori jika API berhasil dimuat ulang dari parent
-    watch(() => props.availableSubcategories, () => {
-      if (apiCategories.value.length === 0 && props.availableSubcategories.length > 0) {
+    watch(() => props.availableSubcategories, (newVal) => {
+      if ((!newVal || newVal.length === 0) && apiCategories.value.length === 0) {
         loadCategories();
       }
     });

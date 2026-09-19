@@ -27,19 +27,11 @@
       </div>
        <div v-if="categoryList.length > 0" class="subcategories-filter-row">
           <button
-            type="button"
-            class="subcat-chip-btn"
-            :class="{ active: currentSubcategory === 'all' }"
-            @click="setSubcategory('all')"
-          >
-            All Categories
-          </button>
-          <button
             v-for="sub in categoryList"
             :key="sub.id"
             type="button"
             class="subcat-chip-btn"
-            :class="{ active: currentSubcategory === sub.id }"
+            :class="{ active: String(currentSubcategory) === String(sub.id) }"
             @click="setSubcategory(sub.id)"
           >
             {{ sub.name }}

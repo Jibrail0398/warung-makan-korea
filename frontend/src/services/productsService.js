@@ -16,10 +16,17 @@ async function getAuthHeaders() {
 }
 
 export const productService = {
-    async getProducts(page = 1) {
+    async getProducts(page = 1, filters = {}) {
         try {
+            const params = { page };
+            if (filters.categoryId && filters.categoryId !== 'all') {
+                params.category_id = filters.categoryId;
+            }
+            if (filters.search) {
+                params.search = filters.search;
+            }
             const response = await axios.get(`${apiBaseUrl}/products`, {
-                params: { page }
+                params
             });
             const payload = response.data?.data || {};
 
