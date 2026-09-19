@@ -8,7 +8,6 @@
             <svg v-if="type === 'success'" width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
             <svg v-else width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 7v5m0 4h.01M4.8 19h14.4a1.7 1.7 0 0 0 1.48-2.55L13.48 4.1a1.7 1.7 0 0 0-2.96 0L3.32 16.45A1.7 1.7 0 0 0 4.8 19Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </div>
-          <p class="notice-eyebrow">{{ type === 'success' ? 'Berhasil' : 'Perlu diperiksa' }}</p>
           <h2 id="notice-title">{{ title }}</h2>
           <p id="notice-message" class="notice-message">{{ message }}</p>
           <p v-if="detail" class="notice-detail">{{ detail }}</p>

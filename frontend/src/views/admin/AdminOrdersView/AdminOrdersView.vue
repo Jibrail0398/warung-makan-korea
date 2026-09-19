@@ -2,9 +2,7 @@
   <div class="orders-monitoring-view">
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">OPERASIONAL KASIR & DAPUR</p>
         <h1 class="page-title">Monitoring Pesanan</h1>
-        <p class="page-description">Pantau pesanan masuk, verifikasi bukti transfer pembayaran, dan update status pesanan secara real-time.</p>
       </div>
     </header>
 
@@ -93,7 +91,7 @@
         <tbody v-else>
           <tr>
             <td colspan="9" class="empty-state-row">
-              <div class="empty-box"><p>Tidak ada pesanan pada tanggal {{ filterDate }}. Coba pilih tanggal lain melalui filter Tanggal.</p></div>
+              <div class="empty-box"><p>Tidak ada pesanan pada tanggal {{ filterDate }}.</p></div>
             </td>
           </tr>
         </tbody>

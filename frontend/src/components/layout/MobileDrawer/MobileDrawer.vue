@@ -6,7 +6,6 @@
         <span class="mobile-drawer-brand-mark" aria-hidden="true">AR</span>
         <span class="mobile-drawer-brand-copy">
           <strong>Aneka Rasa Restoran</strong>
-          <small>Indonesia in Korea</small>
         </span>
       </router-link>
 
@@ -42,7 +41,6 @@
           <span>Logout</span>
         </button>
       </nav>
-      <p class="mobile-drawer-footer">Authentic Indonesian food and ingredients in Korea.</p>
     </aside>
   </div>
 </template>

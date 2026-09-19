@@ -1,7 +1,7 @@
 <template>
   <div class="report-page">
     <header class="page-header">
-      <div><p class="page-eyebrow">REKAPITULASI LAPORAN</p><h1 class="page-title">Laporan Transaksi</h1><p class="page-description">Daftar seluruh riwayat transaksi pesanan harian dan bulanan beserta status pembayaran.</p></div>
+      <div><h1 class="page-title">Laporan Transaksi</h1></div>
       <div class="header-actions">
         <button type="button" class="btn-download" :disabled="isLoading || !reportData.orders?.length" @click="downloadCsv"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>Download CSV</span></button>
       </div>

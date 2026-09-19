@@ -3,10 +3,8 @@
     <div class="container">
       <div class="menu-heading-row">
         <div>
-          <span class="eyebrow">Our selection</span>
-          <h2 class="section-title" id="menuTitle">Order from our menu</h2>
+          <h2 class="section-title" id="menuTitle">Menu</h2>
         </div>
-        
       </div>
 
       <div class="menu-controls">

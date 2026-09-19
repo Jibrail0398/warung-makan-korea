@@ -4,7 +4,6 @@
       <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editProductTitle' : 'addProductTitle'">
         <div class="modal-header">
           <div>
-            <p class="modal-eyebrow">KELOLA PRODUK</p>
             <h2 id="addProductTitle" class="modal-title">{{ isEdit ? 'Edit Produk' : 'Tambah Produk Baru' }}</h2>
           </div>
           <button

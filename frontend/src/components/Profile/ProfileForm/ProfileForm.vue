@@ -4,7 +4,6 @@
     <div class="form-section">
       <div class="section-heading">
         <h2>{{ type === 'employee' ? 'Informasi Pribadi' : 'Personal Information' }}</h2>
-        <p>{{ type === 'employee' ? 'Kelola data pribadi dan nomor kontak Anda.' : 'Update your personal information and contact details.' }}</p>
       </div>
 
       <!-- Employee mode: Only Nama & No. Handphone -->
@@ -82,7 +81,6 @@
       <div class="form-section">
         <div class="section-heading">
           <h2>Employee Information</h2>
-          <p>Informasi ID dan role akun pegawai yang terdaftar di sistem.</p>
         </div>
         <div class="form-grid">
           <AuthField
@@ -108,7 +106,6 @@
     <div class="form-section">
       <div class="section-heading">
         <h2>Account Information</h2>
-        <p>Informasi nomor handphone dan tanggal bergabung akun Anda.</p>
       </div>
       <div v-if="type === 'employee'" class="account-info">
         <div class="info-item">

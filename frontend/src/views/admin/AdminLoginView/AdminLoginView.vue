@@ -4,7 +4,6 @@
       <div class="login-header">
         <div class="brand-badge">AR</div>
         <h1 class="login-title">Portal Admin & Kasir</h1>
-        <p class="login-subtitle">Aneka Rasa Restoran — Indonesia in Korea</p>
       </div>
       <form @submit.prevent="handleLogin" class="login-form" novalidate>
         <div v-if="errorMessage" class="error-box" role="alert">

@@ -20,7 +20,6 @@
         <span class="brand-mark" aria-hidden="true">AR</span>
         <span class="brand-copy">
           <strong>Aneka Rasa Restoran</strong>
-          <small>Indonesia in Korea</small>
         </span>
       </router-link>
 
@@ -141,9 +140,8 @@
     :visible="showLogoutConfirm"
     type="danger"
     icon="logout"
-    eyebrow="Konfirmasi Logout"
     title="Keluar dari Akun?"
-    message="Apakah Anda yakin ingin keluar? Anda perlu login kembali untuk mengakses riwayat pesanan dan akun Anda."
+    message="Apakah Anda yakin ingin keluar dari akun Anda?"
     confirm-text="Ya, Keluar"
     cancel-text="Batal"
     @close="showLogoutConfirm = false"

@@ -2,11 +2,7 @@
   <div class="employee-profile-page">
     <div class="page-heading">
       <div>
-        <p class="eyebrow">AKUN PEGAWAI</p>
         <h1 class="page-title">Profil Pegawai</h1>
-        <p class="heading-description">
-          Kelola informasi data pribadi dan keamanan akun operasional Anda.
-        </p>
       </div>
     </div>
 
@@ -61,7 +57,6 @@
           <div class="form-section">
             <div class="section-heading">
               <h2>Ubah Password</h2>
-              <p>Perbarui kata sandi akun operasional Anda untuk menjaga keamanan akun.</p>
             </div>
             <div class="form-grid">
               <AuthField

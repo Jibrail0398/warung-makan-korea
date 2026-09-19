@@ -5,7 +5,7 @@
         <div class="card-heading"><span class="card-number">04</span><h2>Payment Proof &amp; Receipt</h2></div>
         <div class="proof-status" :class="{ 'proof-empty': !hasProof }">
           <span class="check-icon" :class="{ 'icon-muted': !hasProof }">{{ hasProof ? '✓' : 'i' }}</span>
-          <div><strong>{{ hasProof ? 'Payment proof submitted' : 'Receipt & Order Record' }}</strong><p>{{ hasProof ? 'Your transfer receipt has been successfully recorded.' : 'Official digital receipt and proof of order record.' }}</p></div>
+          <div><strong>{{ hasProof ? 'Payment proof submitted' : 'Receipt & Order Record' }}</strong></div>
         </div>
         <div class="payment-proof-actions">
           <button v-if="hasProof" type="button" class="secondary-button" @click="showModal = true">View Payment Proof <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
@@ -20,9 +20,8 @@
     <Transition name="modal-fade">
       <div v-if="showModal" class="modal-backdrop" @click.self="showModal = false">
         <div class="proof-modal">
-          <div class="modal-header"><div><span class="eyebrow">Payment proof</span><h2>Transfer Receipt</h2></div><button type="button" class="close-button" aria-label="Close" @click="showModal = false">&times;</button></div>
+          <div class="modal-header"><div><h2>Transfer Receipt</h2></div><button type="button" class="close-button" aria-label="Close" @click="showModal = false">&times;</button></div>
           <div class="proof-image"><img :src="proofImage" alt="Payment proof" /></div>
-          <p class="proof-caption">Uploaded payment proof for transaction {{ order.transactionId || order.id || 'TRX-001' }}.</p>
         </div>
       </div>
     </Transition>

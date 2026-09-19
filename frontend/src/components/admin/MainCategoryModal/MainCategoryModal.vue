@@ -4,7 +4,6 @@
       <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="isEdit ? 'editMainCatTitle' : 'addMainCatTitle'">
         <div class="modal-header">
           <div>
-            <p class="modal-eyebrow">FORM KATEGORI</p>
             <h2 id="addMainCatTitle" class="modal-title">
               {{ isEdit ? 'Edit Kategori' : 'Tambah Kategori' }}
             </h2>

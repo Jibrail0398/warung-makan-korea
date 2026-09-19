@@ -48,7 +48,7 @@
           </div>
 
           <!-- Eyebrow -->
-          <p class="confirm-eyebrow" :class="`eyebrow-${type}`">{{ eyebrowText }}</p>
+          <p v-if="eyebrow" class="confirm-eyebrow" :class="`eyebrow-${type}`">{{ eyebrow }}</p>
 
           <!-- Title -->
           <h2 :id="titleId" class="confirm-title">{{ title }}</h2>

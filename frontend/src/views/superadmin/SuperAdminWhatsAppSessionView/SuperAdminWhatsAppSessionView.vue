@@ -1,6 +1,6 @@
 <template>
   <div class="whatsapp-session-page">
-    <header class="page-header"><div><h1 class="page-title">Active session</h1><p class="page-description">Hubungkan satu nomor WhatsApp operasional untuk kebutuhan aplikasi.</p></div></header>
+    <header class="page-header"><div><h1 class="page-title">WhatsApp Session</h1></div></header>
     <div v-if="errorMessage" class="feedback feedback-error" role="alert"><strong>Sidecar tidak tersedia.</strong><span>{{ errorMessage }}</span></div>
     <section class="session-card" aria-labelledby="session-title">
       <div class="session-card-header">
@@ -11,7 +11,7 @@
         <span class="status-pill" :class="statusClass"><span class="status-dot" aria-hidden="true"></span>{{ statusLabel }}</span>
       </div>
       <div class="session-card-body">
-        <div class="status-copy"><p class="body-label">Connection status</p><h3>{{ statusTitle }}</h3><p>{{ statusDescription }}</p></div>
+        <div class="status-copy"><h3>{{ statusTitle }}</h3><p>{{ statusDescription }}</p></div>
         <div v-if="isQrState" class="qr-panel">
           <div class="qr-frame">
             <img v-if="session.qr" :src="session.qr" alt="QR code WhatsApp untuk dipindai" />

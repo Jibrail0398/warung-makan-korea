@@ -3,11 +3,7 @@
     <!-- Page Header -->
     <header class="page-header">
       <div>
-        <p class="page-eyebrow">KATALOG & INVENTARIS</p>
         <h1 class="page-title">Kelola Produk</h1>
-        <p class="page-description">
-          Daftar seluruh menu siap saji restoran dan bahan baku (raw material) yang tersedia.
-        </p>
       </div>
 
       <button type="button" class="btn-primary" @click="openAddModal">

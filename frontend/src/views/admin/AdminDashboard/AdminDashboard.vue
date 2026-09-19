@@ -1,18 +1,9 @@
 <template>
   <div class="dashboard-page">
     <header class="dashboard-heading">
-      <p class="dashboard-eyebrow">
-        Aneka Rasa Restoran
-      </p>
-
       <h1 class="dashboard-title">
         Dashboard
       </h1>
-
-      <p class="dashboard-description">
-        Welcome back, Admin.
-        Here's what's happening with your store today.
-      </p>
     </header>
 
     <section
