@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/public/HomeView/HomeView.vue'
 import AdminLayout from '../views/admin/AdminLayout/AdminLayout.vue'
 import { authService } from '../services/authService.js'
+import { ADMIN_ROLES } from '../constants/roles.js'
 
 const routes = [
   // ==========================================
@@ -87,12 +88,6 @@ const routes = [
     path: '/whatsapp-sessions',
     redirect: '/admin/whatsapp-sessions'
   },
-  /*
-  {
-    path: '/super-admin/login',
-    redirect: '/login'
-  },
-  */
 
   // ==========================================
   // ADMIN / KASIR ROUTES
@@ -251,9 +246,9 @@ const router = createRouter({
 // ==========================================
 router.beforeEach(async (to) => {
   const requiredRole = to.meta.requiredRole
-  const authData = await authService.decode(localStorage.getItem('warung-auth-data'))
+  const authData = await authService.getStoredAuth()
   const currentRole = authData?.user?.role?.toLowerCase()
-  const adminRoles = ['admin', 'superadmin', 'kasir']
+  const adminRoles = ADMIN_ROLES
 
   if (adminRoles.includes(currentRole) && ['login', 'register', 'verify-otp'].includes(to.name)) {
     return { path: currentRole === 'superadmin' ? '/admin/audit-logs' : '/admin/dashboard' }

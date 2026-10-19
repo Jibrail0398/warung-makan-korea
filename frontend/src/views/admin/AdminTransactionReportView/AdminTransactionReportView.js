@@ -1,19 +1,11 @@
 import { ref, onMounted } from 'vue';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
+import { formatKrw } from '../../../utils/format.js';
+import { toLocalIsoDate } from '../../../utils/datetime.js';
 import './AdminTransactionReportView.css';
 
-const getLocalDateString = (date = new Date()) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
-const formatCurrency = (value) => new Intl.NumberFormat('ko-KR', {
-  style: 'currency', currency: 'KRW', maximumFractionDigits: 0
-}).format(Number(value) || 0);
+const formatCurrency = (value) => formatKrw(value);
 
 const mapOrder = (order) => {
   const created = new Date(order.created_at);
@@ -47,10 +39,10 @@ const monthRange = (monthValue) => {
 
 export default {
   name: 'AdminTransactionReportView',
-  components: { StatusBadge, LoadingSpinner },
+  components: { StatusBadge },
   setup() {
     const periodType = ref('today');
-    const todayStr = getLocalDateString();
+    const todayStr = toLocalIsoDate();
     const selectedDate = ref(todayStr);
     const selectedMonth = ref(todayStr.substring(0, 7));
     const statusFilter = ref('all');

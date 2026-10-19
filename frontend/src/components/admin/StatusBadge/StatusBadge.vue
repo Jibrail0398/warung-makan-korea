@@ -7,12 +7,13 @@
 
 <script>
 import { computed } from 'vue';
+import { statusToSlug } from '../../../utils/status.js';
 import './StatusBadge.css';
 export default {
   name: 'StatusBadge',
   props: { status: { type: String, required: true } },
   setup(props) {
-    const normalizedStatus = computed(() => props.status.toLowerCase().replace(/\s+/g, '-'));
+    const normalizedStatus = computed(() => statusToSlug(props.status));
     return { normalizedStatus };
   }
 };

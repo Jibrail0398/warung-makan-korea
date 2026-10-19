@@ -1,13 +1,13 @@
 import { ref, reactive, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
+import { formatDateTimeIdShort } from '../../../utils/datetime.js';
 import { bankAccountService } from '../../../services/bankAccountService.js';
 import './AdminBankAccountsView.css';
 
 export default {
   name: 'AdminBankAccountsView',
-  components: { NoticeModal, LoadingSpinner },
+  components: { NoticeModal },
   setup() {
     const account = ref(null);
     const isPageLoading = ref(false);
@@ -33,18 +33,7 @@ export default {
 
     const { isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, showSuccess, showFailed, hideNotice } = useNoticeModal();
 
-    const formatDate = (value) => {
-      if (!value) return '-';
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return '-';
-      return date.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    };
+    const formatDate = formatDateTimeIdShort;
 
     const fillForm = (data) => {
       formData.bank_name = data?.bankName || '';

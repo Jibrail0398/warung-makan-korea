@@ -1,8 +1,6 @@
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref } from 'vue';
 
-export function useHeaderScroll(isDrawerOpenRef) {
-  const isHeaderVisible = ref(true);
-
+export function useHeaderScroll() {
   return {
     isHeaderVisible: ref(true)
   };

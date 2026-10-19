@@ -140,13 +140,6 @@ export default {
     const titleId = computed(() => `confirm-title-${Math.random().toString(36).slice(2, 7)}`);
     const messageId = computed(() => `confirm-msg-${Math.random().toString(36).slice(2, 7)}`);
 
-    const eyebrowText = computed(() => {
-      if (props.eyebrow) return props.eyebrow;
-      if (props.type === 'danger') return 'Konfirmasi Tindakan';
-      if (props.type === 'warning') return 'Peringatan';
-      return 'Informasi';
-    });
-
     const handleCancel = () => {
       if (props.loading) return;
       emit('cancel');
@@ -175,7 +168,6 @@ export default {
     return {
       titleId,
       messageId,
-      eyebrowText,
       handleCancel,
       handleConfirm
     };

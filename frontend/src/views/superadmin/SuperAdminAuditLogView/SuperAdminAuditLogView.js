@@ -1,7 +1,8 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
+import { getPageWindow } from '../../../utils/pagination.js';
+import { formatDateTimeIdShort } from '../../../utils/datetime.js';
 import { activityLogService } from '../../../services/activityLogService.js';
 import './SuperAdminAuditLogView.css';
 
@@ -20,7 +21,7 @@ const LOG_NAME_OPTIONS = [
 
 export default {
   name: 'SuperAdminAuditLogView',
-  components: { NoticeModal, LoadingSpinner },
+  components: { NoticeModal },
   setup() {
     const logs = ref([]);
     const isPageLoading = ref(false);
@@ -71,13 +72,7 @@ export default {
       }
     };
 
-    const getPageNumbers = computed(() => {
-      const pages = [];
-      const start = Math.max(1, pagination.currentPage - 2);
-      const end = Math.min(pagination.lastPage, pagination.currentPage + 2);
-      for (let i = start; i <= end; i += 1) pages.push(i);
-      return pages;
-    });
+    const getPageNumbers = computed(() => getPageWindow(pagination.currentPage, pagination.lastPage));
 
     const changePage = (page) => {
       if (page < 1 || page > pagination.lastPage || page === pagination.currentPage || isPageLoading.value) return;
@@ -104,19 +99,7 @@ export default {
     const eventLabel = (event) => EVENT_OPTIONS.find((option) => option.value === event)?.label || event || '-';
     const logNameLabel = (logName) => LOG_NAME_OPTIONS.find((option) => option.value === logName)?.label || logName || '-';
 
-    const formatTimestamp = (value) => {
-      if (!value) return '-';
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return '-';
-      return date.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-    };
+    const formatTimestamp = (value) => formatDateTimeIdShort(value, { withSeconds: true });
 
     const getActorName = (log) => log.causer?.name || log.properties?.phone_number || 'Sistem';
     const getResource = (log) => {

@@ -33,14 +33,6 @@ export default {
     const isDrawerOpen = ref(false);
     const showLogoutConfirm = ref(false);
 
-    const isLoggedIn = computed(() => {
-      return (
-        authStore.isAuthenticated ||
-        !!localStorage.getItem('warung-token') ||
-        !!localStorage.getItem('token')
-      );
-    });
-
     const userName = computed(() => {
       return (
         authStore.user?.name ||
@@ -86,7 +78,7 @@ export default {
       return 'home';
     });
 
-    const { isHeaderVisible } = useHeaderScroll(isDrawerOpen);
+    const { isHeaderVisible } = useHeaderScroll();
 
     authStore.hydrate();
 
@@ -126,7 +118,6 @@ export default {
       cartStore,
       authStore,
       isDrawerOpen,
-      isLoggedIn,
       userName,
       userInitial,
       userRole,

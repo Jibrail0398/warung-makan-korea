@@ -1,12 +1,11 @@
 import axios from 'axios';
+import { apiBaseUrl } from '../utils/config.js';
 
 /**
  * Auth Service
  * Handles authentication requests (Login, Register, OTP verification).
  */
 
-const apiBaseUrl = import.meta.env.VITE_API_URL
-  || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
 const authStorageKey = 'warung-auth-data';
 const encryptionSecret = import.meta.env.VITE_AUTH_STORAGE_KEY || 'warung-makan-korea-auth';
 
@@ -78,6 +77,10 @@ export const authService = {
 
   async getStoredAuth() {
     return this.decode(localStorage.getItem(authStorageKey));
+  },
+
+  persistAuth(data) {
+    localStorage.setItem(authStorageKey, this.encode(data));
   },
 
 

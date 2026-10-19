@@ -84,10 +84,6 @@ export default {
       return authStore.isAdmin || authStore.isKasir || authStore.isSuperAdmin;
     });
 
-    const isSuperAdmin = computed(() => {
-      return authStore.isSuperAdmin;
-    });
-
     const adminDashboardPath = computed(() => {
       if (authStore.isSuperAdmin) return '/admin/audit-logs';
       return '/admin/dashboard';
@@ -103,7 +99,6 @@ export default {
       userName,
       userInitial,
       isAdminOrStaff,
-      isSuperAdmin,
       adminDashboardPath,
       triggerLogout
     };

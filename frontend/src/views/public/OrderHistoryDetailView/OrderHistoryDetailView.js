@@ -3,16 +3,16 @@ import { useRoute } from 'vue-router';
 import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
 import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import ToastNotification from '../../../components/common/ToastNotification/ToastNotification.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
 import { orderStatusRealtimeService } from '../../../services/orderStatusRealtimeService.js';
 import { generateReceiptPdf } from '../../../utils/receiptPdf.js';
+import { formatKrw } from '../../../utils/format.js';
 import { useToast } from '../../../composables/useToast.js';
 import './OrderHistoryDetailView.css';
 
 export default {
   name: 'OrderHistoryDetailView',
-  components: { AppHeader, AppFooter, ToastNotification, LoadingSpinner },
+  components: { AppHeader, AppFooter, ToastNotification },
   setup() {
     const route = useRoute();
     const { isToastVisible, toastMessage, showToast } = useToast();
@@ -20,7 +20,6 @@ export default {
     const isLoading = ref(true);
     const loadError = ref('');
     const orderId = computed(() => route.params.id);
-    const isAuthenticated = computed(() => Boolean(localStorage.getItem('warung-auth-key')));
     const items = computed(() => order.value.items || []);
     const paymentStatus = computed(() => ['unpaid', 'awaiting_verification', 'paid'].includes(order.value.payment_status) ? order.value.payment_status : 'unpaid');
     const isRejected = computed(() => order.value.status === 'cancelled' && paymentStatus.value === 'unpaid');
@@ -51,7 +50,7 @@ export default {
       showToast('Status pesanan Anda diperbarui', 2500);
     }
 
-    function formatPrice(value) { return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(Number(value) || 0); }
+    function formatPrice(value) { return formatKrw(value); }
     function formatDateTime(value) { if (!value) return 'Waktu pesanan tidak tersedia'; return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)); }
     function handleDownloadReceipt() {
       // Struk kertas A6 — desain sama dengan struk sisi admin

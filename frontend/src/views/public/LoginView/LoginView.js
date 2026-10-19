@@ -36,8 +36,7 @@ export default {
 
         // Login tidak memerlukan OTP: token langsung diterbitkan untuk semua role.
         if (authData?.access_token) {
-          const encodedAuthData = await authService.encode(authData);
-          localStorage.setItem('warung-auth-data', encodedAuthData);
+          authService.persistAuth(authData);
           const role = (authData.user?.role || '').toLowerCase();
 
           if (role === 'member') {
@@ -68,7 +67,6 @@ export default {
     const handleNoticeConfirm = () => { const target = pendingRoute; pendingRoute = null; hideNotice(); if (target) router.push(target); };
     const handleNoticeClose = () => { const target = pendingRoute; pendingRoute = null; hideNotice(); if (target) router.push(target); };
 
-    const handleForgotPassword = () => { alert('Silakan hubungi kasir atau administrator untuk reset kata sandi akun Anda.'); };
-    return { identifier, password, isLoading, errorMessage, identifierError, passwordError, isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, handleLogin, handleNoticeConfirm, handleNoticeClose, handleForgotPassword };
+    return { identifier, password, isLoading, errorMessage, identifierError, passwordError, isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, handleLogin, handleNoticeConfirm, handleNoticeClose };
   }
 };

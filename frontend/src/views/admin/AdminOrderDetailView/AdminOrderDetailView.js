@@ -3,14 +3,13 @@ import { useRoute } from 'vue-router';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
 import PrintableReceipt from '../../../components/admin/PrintableReceipt/PrintableReceipt.vue';
 import PaymentProofViewer from '../../../components/admin/PaymentProofViewer/PaymentProofViewer.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
 import { orderStatusRealtimeService } from '../../../services/orderStatusRealtimeService.js';
 import './AdminOrderDetailView.css';
 
 export default {
   name: 'AdminOrderDetailView',
-  components: { StatusBadge, PrintableReceipt, PaymentProofViewer, LoadingSpinner },
+  components: { StatusBadge, PrintableReceipt, PaymentProofViewer },
   setup() {
     const route = useRoute();
     const order = ref(null);

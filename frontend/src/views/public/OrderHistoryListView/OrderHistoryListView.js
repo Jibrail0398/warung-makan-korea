@@ -3,13 +3,12 @@ import { useRouter } from 'vue-router';
 import AppHeader from '../../../components/layout/AppHeader/AppHeader.vue';
 import AppFooter from '../../../components/layout/AppFooter/AppFooter.vue';
 import OrderCard from '../../../components/orders/OrderCard/OrderCard.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { orderService } from '../../../services/orderService.js';
 import './OrderHistoryListView.css';
 
 export default {
   name: 'OrderHistoryListView',
-  components: { AppHeader, AppFooter, OrderCard, LoadingSpinner },
+  components: { AppHeader, AppFooter, OrderCard },
   setup() {
     const router = useRouter();
     const searchQuery = ref('');

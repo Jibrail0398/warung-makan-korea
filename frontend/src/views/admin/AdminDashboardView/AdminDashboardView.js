@@ -1,9 +1,10 @@
-import { h, ref, computed, onMounted } from 'vue';
-import { useAuthStore } from '../../../stores/auth.js';
+import { h, ref, onMounted } from 'vue';
 import StatCard from '../../../components/admin/StatCard/StatCard.vue';
 import SalesOverview from '../../../components/admin/SalesOverview/SalesOverview.vue';
 import RecentOrders from '../../../components/admin/RecentOrders/RecentOrders.vue';
 import { orderService } from '../../../services/orderService.js';
+import { formatKrw } from '../../../utils/format.js';
+import { toLocalIsoDate } from '../../../utils/datetime.js';
 import { reportService } from '../../../services/reportService.js';
 import './AdminDashboardView.css';
 
@@ -43,16 +44,7 @@ const CompletedIcon = {
   }
 };
 
-const getLocalDateString = (date = new Date()) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
-const formatCurrency = (value) => new Intl.NumberFormat('ko-KR', {
-  style: 'currency', currency: 'KRW', maximumFractionDigits: 0
-}).format(Number(value) || 0);
+const formatCurrency = (value) => formatKrw(value);
 
 export default {
   name: 'AdminDashboardView',
@@ -62,9 +54,6 @@ export default {
     RecentOrders
   },
   setup() {
-    const authStore = useAuthStore();
-    const adminName = computed(() => authStore.user?.name || 'Admin');
-
     const stats = ref({
       todayOrders: '0',
       todayRevenue: '₩0',
@@ -78,7 +67,7 @@ export default {
 
     const loadDashboard = async () => {
       try {
-        const today = getLocalDateString();
+        const today = toLocalIsoDate();
 
         // Statistik hari ini diambil dari data pesanan (GET /orders).
         const list = await orderService.getAllOrdersComplete({ date: today });
@@ -123,7 +112,6 @@ export default {
     });
 
     return {
-      adminName,
       stats,
       weeklyData,
       hourlyData,

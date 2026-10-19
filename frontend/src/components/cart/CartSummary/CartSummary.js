@@ -3,37 +3,21 @@ import { useRouter } from 'vue-router';
 import { useCartStore } from '../../../stores/cart.js';
 import { useAuthStore } from '../../../stores/auth.js';
 import { orderService } from '../../../services/orderService.js';
-import NoticeModal from '../../common/NoticeModal/NoticeModal.vue';
-import LoadingSpinner from '../../common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
 import './CartSummary.css';
 
 export default {
   name: 'CartSummary',
-  components: { NoticeModal, LoadingSpinner },
   setup() {
     const cartStore = useCartStore();
     const authStore = useAuthStore();
     const router = useRouter();
     const { isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, showSuccess, showFailed, hideNotice } = useNoticeModal();
-    const orderType = ref('dine-in');
-    const scheduleType = ref('now');
-    const scheduleDate = ref('');
-    const scheduleTime = ref('');
     const guestName = ref('');
-    const orderNote = ref('');
     const phoneNumber = ref('');
-    const orderTypeOpen = ref(false);
-    const scheduleOpen = ref(false);
     const isSubmitting = ref(false);
     const createdOrder = ref(null);
     const isLoggedIn = computed(() => authStore.isAuthenticated || !!localStorage.getItem('warung-token') || !!localStorage.getItem('token'));
-    const orderTypeOptions = [{ value: 'dine-in', label: 'Dine-in' }, { value: 'takeaway', label: 'Takeaway' }, { value: 'delivery', label: 'Delivery' }];
-    const scheduleOptions = [{ value: 'now', label: 'As soon as possible' }, { value: 'schedule', label: 'Schedule for later' }];
-    const orderTypeLabel = computed(() => { const opt = orderTypeOptions.find(o => o.value === orderType.value); return opt?.label || 'Dine-in'; });
-    const scheduleLabel = computed(() => { const opt = scheduleOptions.find(o => o.value === scheduleType.value); return opt?.label || 'As soon as possible'; });
-    function selectOrderType(val) { orderType.value = val; orderTypeOpen.value = false; }
-    function selectSchedule(val) { scheduleType.value = val; scheduleOpen.value = false; if (val === 'now') { scheduleDate.value = ''; scheduleTime.value = ''; } }
     async function proceedToCheckout() {
       if (cartStore.cartItems.length === 0 || isSubmitting.value) return;
       const customer = authStore.user;

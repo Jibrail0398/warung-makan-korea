@@ -1,7 +1,8 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import NoticeModal from '../../../components/common/NoticeModal/NoticeModal.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { useNoticeModal } from '../../../composables/useNoticeModal.js';
+import { getPageWindow } from '../../../utils/pagination.js';
+import { formatDateTimeIdShort } from '../../../utils/datetime.js';
 import { useAuthStore } from '../../../stores/auth.js';
 import { usersService } from '../../../services/usersService.js';
 import './SuperAdminManagementView.css';
@@ -14,7 +15,7 @@ const ROLE_LABELS = {
 
 export default {
   name: 'SuperAdminManagementView',
-  components: { NoticeModal, LoadingSpinner },
+  components: { NoticeModal },
   setup() {
     const users = ref([]);
     const isPageLoading = ref(false);
@@ -52,7 +53,6 @@ export default {
     const isDeleting = ref(false);
 
     const authStore = useAuthStore();
-    const isSuperAdmin = ref(false);
 
     const { isNoticeVisible, noticeType, noticeTitle, noticeMessage, noticeDetail, noticeConfirmText, showSuccess, showFailed, hideNotice } = useNoticeModal();
 
@@ -87,13 +87,7 @@ export default {
       }
     };
 
-    const getPageNumbers = computed(() => {
-      const pages = [];
-      const start = Math.max(1, pagination.currentPage - 2);
-      const end = Math.min(pagination.lastPage, pagination.currentPage + 2);
-      for (let i = start; i <= end; i += 1) pages.push(i);
-      return pages;
-    });
+    const getPageNumbers = computed(() => getPageWindow(pagination.currentPage, pagination.lastPage));
 
     const changePage = (page) => {
       if (page < 1 || page > pagination.lastPage || page === pagination.currentPage || isPageLoading.value) return;
@@ -102,24 +96,12 @@ export default {
 
     onMounted(async () => {
       await authStore.hydrate();
-      isSuperAdmin.value = authStore.user?.role?.toLowerCase() === 'superadmin';
       loadData();
     });
 
     const roleLabel = (role) => ROLE_LABELS[role] || role || '-';
 
-    const formatDate = (value) => {
-      if (!value) return '-';
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return '-';
-      return date.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    };
+    const formatDate = formatDateTimeIdShort;
 
     const clearFormErrors = () => {
       formErrors.name = '';
@@ -394,7 +376,6 @@ export default {
       showAddPasswordConfirm,
       userToDelete,
       isDeleting,
-      isSuperAdmin,
       isPasswordModalOpen,
       isChangingPassword,
       passwordTarget,

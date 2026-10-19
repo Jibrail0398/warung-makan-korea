@@ -22,11 +22,9 @@ export default {
     const router = useRouter();
     const authStore = useAuthStore();
 
-    const isSoundOn = ref(true);
     const showLogoutConfirm = ref(false);
 
     onMounted(async () => {
-      isSoundOn.value = audioService.isSoundEnabled();
       await authStore.hydrate();
 
       const role = authStore.user?.role?.toLowerCase();
@@ -44,10 +42,6 @@ export default {
       newOrderNotificationService.stop();
     });
 
-    const toggleSound = () => {
-      isSoundOn.value = audioService.toggleSound();
-    };
-
     const roleLabel = computed(() => {
       if (props.isSuperAdmin) return 'Super Admin (Developer)';
       return authStore.user?.role || 'Admin / Kasir';
@@ -60,10 +54,6 @@ export default {
 
     const userName = computed(() => {
       return authStore.user?.name || 'Admin';
-    });
-
-    const userEmail = computed(() => {
-      return authStore.user?.email || '-';
     });
 
     const userRole = computed(() => {
@@ -91,12 +81,9 @@ export default {
     };
 
     return {
-      isSoundOn,
-      toggleSound,
       roleLabel,
       roleTone,
       userName,
-      userEmail,
       userRole,
       userInitial,
       showLogoutConfirm,

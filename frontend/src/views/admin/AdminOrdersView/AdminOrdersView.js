@@ -1,15 +1,14 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { audioService } from '../../../services/audioService.js';
 import { orderService } from '../../../services/orderService.js';
+import { toLocalIsoDate } from '../../../utils/datetime.js';
 import { newOrderListService } from '../../../services/newOrderListService.js';
 import StatusBadge from '../../../components/admin/StatusBadge/StatusBadge.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import PaymentProofViewer from '../../../components/admin/PaymentProofViewer/PaymentProofViewer.vue';
 import './AdminOrdersView.css';
 
 export default {
   name: 'AdminOrdersView',
-  components: { StatusBadge, LoadingSpinner, PaymentProofViewer },
+  components: { StatusBadge, PaymentProofViewer },
   setup() {
     const orders = ref([]);
     const searchQuery = ref('');
@@ -22,14 +21,7 @@ export default {
     const orderStatusFilter = ref('all');
 
     // Default: pesanan hari ini
-    const getToday = () => {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    };
-    const filterDate = ref(getToday());
+    const filterDate = ref(toLocalIsoDate());
 
     const loadOrders = async () => {
       isPageLoading.value = true;
@@ -90,11 +82,6 @@ export default {
       isProofViewerOpen.value = true;
     };
 
-    const handleSimulateIncoming = async () => {
-      audioService.playOrderChime();
-      await loadOrders();
-    };
-
     return {
       orders,
       isPageLoading,
@@ -106,8 +93,7 @@ export default {
       paymentStatusLabel,
       isProofViewerOpen,
       selectedOrderForProof,
-      openProof,
-      handleSimulateIncoming
+      openProof
     };
   }
 };

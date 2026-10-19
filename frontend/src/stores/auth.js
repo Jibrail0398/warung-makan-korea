@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService } from '../services/authService.js';
+import { ADMIN_ROLES } from '../constants/roles.js';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
@@ -14,11 +15,10 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => role.value === 'admin');
   const isSuperAdmin = computed(() => role.value === 'superadmin');
   const isKasir = computed(() => role.value === 'kasir');
-  const isAdminOrStaff = computed(() => ['admin', 'superadmin', 'kasir'].includes(role.value));
+  const isAdminOrStaff = computed(() => ADMIN_ROLES.includes(role.value));
 
   async function hydrate() {
-    const storedValue = localStorage.getItem('warung-auth-data');
-    const decodedAuthData = await authService.decode(storedValue);
+    const decodedAuthData = await authService.getStoredAuth();
 
     authData.value = decodedAuthData;
     user.value = decodedAuthData?.user || null;

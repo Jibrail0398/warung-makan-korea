@@ -1,6 +1,6 @@
 <template>
   <div class="superadmin-shell">
-    <AdminSidebar :isOpen="isSidebarOpen" :isCollapsed="isSidebarCollapsed" :isSuperAdmin="true" @close="isSidebarOpen = false" @toggle-collapse="isSidebarCollapsed = !isSidebarCollapsed" />
+    <AdminSidebar :isOpen="isSidebarOpen" :isCollapsed="isSidebarCollapsed" :isSuperAdmin="true" @close="isSidebarOpen = false" />
     <div class="superadmin-main-wrap" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
       <AdminHeader :isSuperAdmin="true" :isCollapsed="isSidebarCollapsed" @toggle-sidebar="handleToggleSidebar" />
       <main class="superadmin-content-area">

@@ -6,9 +6,8 @@
 
 import axios from 'axios';
 import { authService } from './authService.js';
-
-const apiBaseUrl = import.meta.env.VITE_API_URL
-  || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
+import { apiBaseUrl } from '../utils/config.js';
+import { buildError } from './errors.js';
 
 async function getAuthHeaders() {
   const authData = await authService.getStoredAuth();
@@ -19,20 +18,6 @@ async function getAuthHeaders() {
   };
 }
 
-function buildError(error, fallback) {
-  const data = error.response?.data;
-  let message = data?.message || fallback;
-
-  // Laravel validation errors (422): ambil pesan pertama agar jelas ke pengguna.
-  if (data?.errors && typeof data.errors === 'object') {
-    const firstError = Object.values(data.errors).flat()[0];
-    if (firstError) message = firstError;
-  }
-
-  const normalized = new Error(message);
-  normalized.status = error.response?.status;
-  return normalized;
-}
 
 export const usersService = {
   async getUsers(page = 1) {

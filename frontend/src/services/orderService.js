@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { authService } from './authService.js';
+import { apiBaseUrl } from '../utils/config.js';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL
-	|| `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
 const orderStorageKey = 'warung-order-id';
 const authStorageKeys = ['warung-auth-key', 'warung-auth-data'];
 
@@ -96,8 +95,7 @@ export const orderService = {
 	async createOrder(orderData) {
 		try {
 			console.log('[OrderService] createOrder started', orderData);
-			const storedAuth = localStorage.getItem('warung-auth-data');
-			const authData = storedAuth ? await authService.getStoredAuth() : null;
+			const authData = await authService.getStoredAuth();
 			const authenticatedUser = authData?.user;
 
 			const payload = {

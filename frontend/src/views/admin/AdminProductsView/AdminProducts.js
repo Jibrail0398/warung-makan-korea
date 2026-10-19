@@ -1,20 +1,19 @@
 import { ref, computed, onMounted, reactive, watch } from 'vue';
 import ProductModal from '../../../components/admin/ProductModal/ProductModal.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { productService } from '../../../services/productsService.js';
+import { createNotificationModal } from '../../../composables/useNotificationModal.js';
+import { getPageWindow } from '../../../utils/pagination.js';
 import "./AdminProducts.css"
 
 export default {
   name: 'AdminProductsView',
   components: {
-    ProductModal,
-    LoadingSpinner
+    ProductModal
   },
   setup() {
     const products = ref([]);
     const categories = ref([]);
 
-    const selectedTab = ref('all');
     const selectedSubcatFilter = ref('all');
     const searchQuery = ref('');
     const statusFilter = ref('all');
@@ -24,11 +23,7 @@ export default {
     const selectedProduct = ref(null);
     const productToDelete = ref(null);
 
-    const notificationModal = reactive({
-      isOpen: false,
-      isSuccess: true,
-      message: ''
-    });
+    const notificationModal = createNotificationModal();
 
     const pagination = reactive({
       currentPage: 1,
@@ -65,13 +60,7 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const getPageNumbers = computed(() => {
-      const pages = [];
-      const start = Math.max(1, pagination.currentPage - 2);
-      const end = Math.min(pagination.lastPage, pagination.currentPage + 2);
-      for (let i = start; i <= end; i++) pages.push(i);
-      return pages;
-    });
+    const getPageNumbers = computed(() => getPageWindow(pagination.currentPage, pagination.lastPage));
 
     const loadCategories = async () => {
       try {
@@ -143,11 +132,6 @@ export default {
       notificationModal.isOpen = false;
     };
 
-    const toggleStatus = async (product) => {
-      await new Promise(r => setTimeout(r, 300));
-      await loadData();
-    };
-
     const confirmDelete = (product) => {
       productToDelete.value = product;
     };
@@ -178,7 +162,6 @@ export default {
     return {
       products,
       categories,
-      selectedTab,
       selectedSubcatFilter,
       searchQuery,
       statusFilter,
@@ -198,7 +181,6 @@ export default {
       openEditModal,
       handleSaveProduct,
       closeNotification,
-      toggleStatus,
       confirmDelete,
       executeDelete,
       handleImgError

@@ -1,11 +1,9 @@
 import axios from 'axios';
 import { authService } from './authService.js';
-
-const apiBaseUrl = import.meta.env.VITE_API_URL
-  || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
+import { apiBaseUrl } from '../utils/config.js';
 
 const getAuthConfig = async () => {
-  const authData = await authService.decode(localStorage.getItem('warung-auth-data'));
+  const authData = await authService.getStoredAuth();
 
   return {
     headers: {

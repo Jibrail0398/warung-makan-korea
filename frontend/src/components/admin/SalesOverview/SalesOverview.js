@@ -18,7 +18,7 @@ export default {
 
     const format = (value) => {
       if (props.formatCurrency) return props.formatCurrency(value);
-      return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(Number(value) || 0);
+      return formatKrw(value);
     };
 
     return { activeTab, currentData, maxAmount, format };

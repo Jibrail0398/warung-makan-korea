@@ -1,14 +1,13 @@
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted } from 'vue';
 import MainCategoryModal from '../../../components/admin/MainCategoryModal/MainCategoryModal.vue';
-import LoadingSpinner from '../../../components/common/LoadingSpinner/LoadingSpinner.vue';
 import { categoriesService } from '../../../services/categoriesService.js';
+import { createNotificationModal } from '../../../composables/useNotificationModal.js';
 import './AdminMainCategories.css';
 
 export default {
   name: 'AdminMainCategoriesView',
   components: {
-    MainCategoryModal,
-    LoadingSpinner
+    MainCategoryModal
   },
   setup() {
     const mainCategories = ref([]);
@@ -25,11 +24,7 @@ export default {
     const categoryToUpdate = ref(null);
     const pendingUpdateData = ref(null);
 
-    const notificationModal = reactive({
-      isOpen: false,
-      isSuccess: true,
-      message: ''
-    });
+    const notificationModal = createNotificationModal();
 
     const loadData = async () => {
       isPageLoading.value = true;

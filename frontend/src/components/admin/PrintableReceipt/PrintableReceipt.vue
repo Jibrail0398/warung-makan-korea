@@ -81,6 +81,8 @@
 
 <script>
 import { generateReceiptPdf } from '../../../utils/receiptPdf.js';
+import { formatKrw } from '../../../utils/format.js';
+import { formatDateTimeMedium } from '../../../utils/datetime.js';
 import './PrintableReceipt.css';
 
 export default {
@@ -88,11 +90,8 @@ export default {
   props: { isOpen: Boolean, order: Object },
   emits: ['close'],
   setup(props) {
-    const formatPrice = (value) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(Number(value) || 0);
-    const formatDateTime = (value) => {
-      if (!value) return '-';
-      return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
-    };
+    const formatPrice = formatKrw;
+    const formatDateTime = formatDateTimeMedium;
 
     const handlePrint = () => { window.print(); };
 

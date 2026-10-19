@@ -1,20 +1,6 @@
 import { jsPDF } from 'jspdf';
-
-export function formatPriceKRW(value) {
-  return new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW',
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
-}
-
-export function formatReceiptDateTime(value) {
-  if (!value) return '-';
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
+import { formatKrw } from './format.js';
+import { formatDateTimeMedium } from './datetime.js';
 
 function drawDashedLine(doc, x1, y1, x2, y2) {
   doc.setDrawColor(160, 150, 140);
@@ -79,7 +65,7 @@ export function generateReceiptPdf(order) {
 
   doc.setFont('helvetica', 'normal');
   doc.text('Waktu:', l, y);
-  doc.text(formatReceiptDateTime(order?.created_at), r, y, { align: 'right' });
+  doc.text(formatDateTimeMedium(order?.created_at), r, y, { align: 'right' });
   y += 3.2;
 
   doc.text('Pelanggan:', l, y);
@@ -114,8 +100,8 @@ export function generateReceiptPdf(order) {
   } else {
     items.forEach((item) => {
       const name = item.product?.name || 'Produk';
-      const qtyPrice = `${item.quantity} x ${formatPriceKRW(item.price).replace(/\u20a9/g, 'KRW ')}`;
-      const subtotal = formatPriceKRW(item.sub_total || item.price * item.quantity).replace(/\u20a9/g, 'KRW ');
+      const qtyPrice = `${item.quantity} x ${formatKrw(item.price).replace(/\u20a9/g, 'KRW ')}`;
+      const subtotal = formatKrw(item.sub_total || item.price * item.quantity).replace(/\u20a9/g, 'KRW ');
 
       // Nama produk & Subtotal di kanan
       doc.setFont('helvetica', 'bold');
@@ -144,7 +130,7 @@ export function generateReceiptPdf(order) {
   doc.setFontSize(8.5);
   doc.text('TOTAL', l, y);
 
-  const totalStr = formatPriceKRW(order?.total_price || 0).replace(/\u20a9/g, 'KRW ');
+  const totalStr = formatKrw(order?.total_price || 0).replace(/\u20a9/g, 'KRW ');
   doc.text(totalStr, r, y, { align: 'right' });
   y += 2.5;
 

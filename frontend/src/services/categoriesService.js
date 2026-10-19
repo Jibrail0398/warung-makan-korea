@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { authService } from './authService.js';
-
-const apiBaseUrl = import.meta.env.VITE_API_URL
-  || `${import.meta.env.VITE_URL || 'http://localhost:8000'}/api`;
+import { apiBaseUrl } from '../utils/config.js';
 
 export const categoriesService = {
   async getCategories() {
@@ -23,8 +21,7 @@ export const categoriesService = {
   //Integrasi API Create Category
   async createCategory(categoryData) {
     try {
-      const stored = localStorage.getItem('warung-auth-data');
-      const authData = await authService.decode(stored);
+      const authData = await authService.getStoredAuth();
       const token = authData?.access_token || '';
 
       const response = await axios.post(`${apiBaseUrl}/categories`, {
@@ -45,8 +42,7 @@ export const categoriesService = {
 
   async updateCategory(id, categoryData) {
     try {
-      const stored = localStorage.getItem('warung-auth-data');
-      const authData = await authService.decode(stored);
+      const authData = await authService.getStoredAuth();
       const token = authData?.access_token || '';
 
       const response = await axios.put(`${apiBaseUrl}/categories/${id}`, {
@@ -67,8 +63,7 @@ export const categoriesService = {
 
   async deleteCategory(id) {
     try {
-      const stored = localStorage.getItem('warung-auth-data');
-      const authData = await authService.decode(stored);
+      const authData = await authService.getStoredAuth();
       const token = authData?.access_token || '';
 
       const response = await axios.delete(`${apiBaseUrl}/categories/${id}`, {

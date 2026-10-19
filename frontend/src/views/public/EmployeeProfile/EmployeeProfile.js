@@ -22,14 +22,6 @@ export default {
       joinDate: '2026-08-01'
     });
 
-    const roleLabel = (role) => {
-      const normalized = (role || '').toLowerCase();
-      if (normalized === 'superadmin') return 'Super Admin';
-      if (normalized === 'kasir') return 'Kasir / Staf';
-      if (normalized === 'admin') return 'Admin Restoran';
-      return role || 'Pegawai';
-    };
-
     onMounted(async () => {
       await authStore.hydrate();
       if (authStore.user) {
@@ -78,8 +70,7 @@ export default {
         if (storedAuth && storedAuth.user) {
           storedAuth.user.name = updatedProfile.fullName;
           storedAuth.user.phone_number = updatedProfile.phone;
-          const encoded = await authService.encode(storedAuth);
-          localStorage.setItem('warung-auth-data', encoded);
+          authService.persistAuth(storedAuth);
           await authStore.hydrate();
         }
       } catch (err) {
@@ -170,7 +161,6 @@ export default {
     return {
       activeTab,
       profile,
-      roleLabel,
       profileInput,
       profilePicture,
       userInitial,

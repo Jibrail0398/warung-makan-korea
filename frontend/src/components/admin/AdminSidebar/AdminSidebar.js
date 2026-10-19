@@ -14,7 +14,7 @@ export default {
     isCollapsed: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false }
   },
-  emits: ['close', 'toggle-collapse'],
+  emits: ['close'],
   setup(props, { emit }) {
     const route = useRoute();
     const router = useRouter();
